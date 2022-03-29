@@ -61,9 +61,13 @@ def assemble(fname, verbose=False):
         bin_output.append(bin_line)
 
     if verbose:
+        addr_to_label = {v: k for k, v in labels.items()}
         for addr, (o, b) in enumerate(zip(output, bin_output)):
             i = ' '.join([str(x) for x in o])
-            print(f"{addr:04b}:  {b >> 4:04b} {b & 0x0f:04b}  {i}")
+            label = addr_to_label.get(addr, '')
+            if label:
+                label = f'({label})'
+            print(f"{addr:04b}:  {b >> 4:04b} {b & 0x0f:04b}  {i}\t\t{label}")
 
     return bin_output
 
