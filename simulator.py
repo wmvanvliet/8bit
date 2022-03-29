@@ -5,7 +5,6 @@ import sys
 import microcode
 from assembler import assemble
 
-
 class state:
     bus = 0
     memory = assemble(sys.argv[1])
@@ -117,13 +116,16 @@ def step():
     else:
         state.alu = state.register.a + state.register.b
     if state.alu > 255:
-        state.flag.carry = True
+        if state.control.flags_in:
+            state.flag.carry = True
         state.alu = state.alu % 255
     else:
-        state.flag.carry = False
+        if state.control.flags_in:
+            state.flag.carry = False
     if state.alu < 0:
         state.alu += 255
-    state.flag.zero = state.alu == 0
+    if state.control.flags_in:
+        state.flag.zero = state.alu == 0
 
     # Increment counters
     if state.control.program_counter_enable and state.clock:
