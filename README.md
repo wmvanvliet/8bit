@@ -1,7 +1,7 @@
 8bit breadboard computer simulator
 ==================================
 
-<img src="screenshot.jpg" alt="Screenshot of the simulator in action>
+![Screenshot of the simulator in action](screenshot.jpg)
 
 Write your test program in assembler and run it through the simulator.
 ```
