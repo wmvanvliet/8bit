@@ -1,6 +1,8 @@
 8bit breadboard computer simulator
 ==================================
 
+<img src="screenshot.jpg" alt="Screenshot of the simulator in action>
+
 Write your test program in assembler and run it through the simulator.
 ```
 python simulator.py test.asm

@@ -2,53 +2,89 @@
 Simulator for the SAP-1 8-bit breadboard computer.
 """
 import sys
+import curses
+
 import microcode
+import interface
 from assembler import assemble
 
-class state:
-    bus = 0
-    memory = assemble(sys.argv[1])
-    microcode = microcode.ucode
 
-    # Content of the registers
-    class register:
-        a = 0
-        b = 0
-        instruction = 0
-        memory_address = 0
-        program_counter = 0
-        output = 0
+def reset():
+    """Create a new system state with everything reset.
 
-    # Control signals
-    class control:
-        halt = False
-        a_out = False
-        a_in = False
-        b_in = False
-        instruction_in = False
-        instruction_out = False
-        memory_address_in = False
-        program_counter_jump = False
-        program_counter_enable = False
-        program_counter_out = False
-        output_in = False
-        alu_subtract = False
-        alu_out = False
-        memory_in = False
-        memory_out = False
-        flags_in = False
+    Returns
+    -------
+    state : state
+        The system state.
+    """
+    class state:  # Classes are namespaces
+        clock_automatic = False
+        clock_speed = 5.0  # Hz
 
-    # Flags
-    class flag:
-        carry = False
-        zero = True
+        bus = 0
+        memory, memory_human_readable = assemble(sys.argv[1])
+        microcode = microcode.ucode
 
-    # Other stuff
-    alu = 0
-    microinstruction_counter = 0
-    clock = False
+        # Content of the registers
+        class register:
+            a = 0
+            b = 0
+            instruction = 0
+            memory_address = 0
+            program_counter = 0
+            output = 0
 
-def step():
+        # Control signals
+        class control:
+            halt = False
+            a_out = False
+            a_in = False
+            b_in = False
+            instruction_in = False
+            instruction_out = False
+            memory_address_in = False
+            program_counter_jump = False
+            program_counter_enable = False
+            program_counter_out = False
+            output_in = False
+            alu_subtract = False
+            alu_out = False
+            memory_in = False
+            memory_out = False
+            flags_in = False
+
+        # Flags
+        class flag:
+            carry = False
+            zero = True
+
+        # Other stuff
+        alu = 0
+        microinstruction_counter = 0
+        clock = False
+
+    return state
+
+
+def step(state):
+    """Perform a single step (half a clock-cycle).
+
+    The system state is modified in-place.
+
+    Parameters
+    ----------
+    state : state
+        The current system state.
+
+    Returns
+    -------
+    state : state
+        The new system state.
+    """
+    # When system is halted, do nothing
+    if state.control.halt:
+        return state
+
     # Set control lines based on current microinstruction
     if not state.clock:
         # Build microcode ROM address
@@ -60,7 +96,6 @@ def step():
             rom_address += 1 << 8
 
         microinstruction = state.microcode[rom_address]
-        #print(f'EXECUTING: {state.register.instruction >> 4:04b} {state.register.instruction & 0x0f:04b}     {microinstruction >> 8:08b} {microinstruction & 0xff:08b}')
 
         state.control.halt = microinstruction & microcode.HLT
         state.control.memory_address_in = microinstruction & microcode.MI
@@ -105,10 +140,10 @@ def step():
         state.register.program_counter = state.bus
     if state.control.memory_in and state.clock:
         state.memory[state.register.memory_address] = state.bus
+        state.memory_human_readable[state.register.memory_address] = f'{state.register.memory_address:02d}:  {state.bus >> 4:04b} {state.bus & 0x0f:04b}'
     if state.control.output_in and state.clock:
         if state.bus != state.register.output:
             state.register.output = state.bus
-            print('OUTPUT:', state.register.output)
 
     # Do ALU stuff, set flags
     if state.control.alu_subtract:
@@ -136,11 +171,43 @@ def step():
     # Flip clock signal
     state.clock = not state.clock
 
+    return state
+
+
+def main(stdscr):
+    """Main function to start the simulator with its console user interface.
+
+    Parameters
+    ----------
+    stdscr : curses screen
+        The curses screen object as created by curses.wrapper().
+    """
+    interface.init(stdscr)
+
+    # Create a freshly minted system state
+    state = reset()
+
+    # Run the program until halt
+    while not state.control.halt:
+        interface.update(stdscr, state)
+        if state.clock_automatic and state.clock_speed > 0:
+            curses.halfdelay(int(10 / state.clock_speed))
+            interface.handle_keypresses(stdscr, state)
+            step(state)
+        else:
+            curses.cbreak()
+            interface.handle_keypresses(stdscr, state)
+        interface.update(stdscr, state)
+
+    # Press any key to exit the simulation
+    interface.update(stdscr, state)
+    curses.nocbreak()
+    curses.cbreak()
+    stdscr.getkey()
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         print('python simulator.py PROGRAM_TO_EXECUTE')
         sys.exit(1)
-
-    while not state.control.halt:
-        step()
+    curses.wrapper(main)

@@ -13,6 +13,7 @@ instruction_to_num = {
     'out': 14,
     'hlt': 15,
 }
+num_to_instruction = {v: k for k, v in instruction_to_num.items()}
 
 
 def assemble(fname, verbose=False):
@@ -60,16 +61,42 @@ def assemble(fname, verbose=False):
             bin_line += param
         bin_output.append(bin_line)
 
+    # Create human readable version of the memory contents
+    human_readable = list()
+    addr_to_label = {v: k for k, v in labels.items()}
+    for addr, (o, b) in enumerate(zip(output, bin_output)):
+        i = ' '.join([str(x) for x in o])
+        label = addr_to_label.get(addr, '')
+        if label:
+            label = f'({label})'
+        human_readable.append(f"{addr:02d}: {b >> 4:04b} {b & 0x0f:04b}  {i} {label}")
     if verbose:
-        addr_to_label = {v: k for k, v in labels.items()}
-        for addr, (o, b) in enumerate(zip(output, bin_output)):
-            i = ' '.join([str(x) for x in o])
-            label = addr_to_label.get(addr, '')
-            if label:
-                label = f'({label})'
-            print(f"{addr:04b}:  {b >> 4:04b} {b & 0x0f:04b}  {i}\t\t{label}")
+        print(human_readable)
 
-    return bin_output
+    return bin_output, human_readable
+
+
+def disassemble(bin_code):
+    """Disassemble a given number into a human readable assembler instruction.
+
+    Parameters
+    ----------
+    bin_code : int
+        The number to disassemble.
+
+    Returns
+    -------
+    asm : str
+        The human readable assembler instruction.
+    """
+    instruction = num_to_instruction[bin_code >> 4]
+    if instruction in ['nop', 'out', 'hlt']:
+        # Instruction doesn't take a parameter
+        return instruction
+    else:
+        # Instruction along with its parameter
+        return f'{instruction} {bin_code & 0x0f:d}'
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
