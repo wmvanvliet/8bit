@@ -54,6 +54,10 @@ def init(stdscr):
     stdscr : curses screen
         The curses screen object as created by curses.wrapper().
     """
+    # Check minimal screen size
+    if curses.LINES < 38 or curses.COLS < 84:
+        raise RuntimeError('Your terminal window should be at least 38x84.')
+
     # Setup the colors
     curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
     curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
