@@ -1,5 +1,9 @@
-8bit breadboard computer simulator
-==================================
+8bit breadboard computer simulator (extended memory)
+====================================================
+
+This is an assembler + simulator/emulator of [Ben Eater's 8bit breadboard computer](https://www.youtube.com/playlist?list=PLowKtXNTBypGqImE405J2565dvjafglHU) with its RAM upgraded to 256 bytes following the instructions by [/u/MironV](https://www.reddit.com/r/beneater/comments/h8y28k).
+
+For Ben Eater's original architecture, see the [main branch](https://github.com/wmvanvliet/8bit/tree/main) of this repo.
 
 <img alt="Screenshot of the simulator in action" src="screenshot.jpg" width="600">
 
