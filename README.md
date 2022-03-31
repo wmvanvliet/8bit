@@ -3,17 +3,25 @@
 
 <img alt="Screenshot of the simulator in action" src="screenshot.jpg" width="600">
 
+
+Installation
+------------
+Either clone the respository, or [download the code](https://github.com/wmvanvliet/8bit/archive/refs/heads/main.zip). On windows, you'll also need the [`windows-curses`](https://pypi.org/project/windows-curses/) package to display the user interface (on other platforms, `curses` is included in the standard lib).
+
+Usage
+-----
 Write your test program in assembler and run it through the simulator.
 ```
 python simulator.py test.asm
 ```
-
 
 If you want a closer look at the assembler output:
 ```
 python assembler.py test.asm
 ```
 
+Programming the computer using assembly language
+------------------------------------------------
 
 Supported assembler instructions:
 
