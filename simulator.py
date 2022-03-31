@@ -3,6 +3,7 @@ Simulator for the SAP-1 8-bit breadboard computer.
 """
 import sys
 import curses
+from time import time, sleep
 
 import microcode
 import interface
@@ -18,12 +19,10 @@ def reset():
         The system state.
     """
     class state:  # Classes are namespaces
-        clock_automatic = False
-        clock_speed = 5.0  # Hz
-
         bus = 0
         memory, memory_human_readable = assemble(sys.argv[1])
         microcode = microcode.ucode
+        rom_address = 0
 
         # Content of the registers
         class register:
@@ -56,12 +55,18 @@ def reset():
         # Flags
         class flag:
             carry = False
-            zero = True
+            zero = False
+
+        # Clock
+        clock = True
+        clock_automatic = False
+        clock_speed = 5.0  # Hz
+        last_clock_time = 0 # Keep track of when the next clock was last stepped
 
         # Other stuff
         alu = 0
         microinstruction_counter = 0
-        clock = False
+
 
     return state
 
@@ -85,17 +90,21 @@ def step(state):
     if state.control.halt:
         return state
 
+    # Flip clock signal
+    state.clock = not state.clock
+    state.last_clock_time = time()
+
     # Set control lines based on current microinstruction
     if not state.clock:
         # Build microcode ROM address
-        rom_address = (state.register.instruction & 0xf0) >> 1
-        rom_address += state.microinstruction_counter
+        state.rom_address = (state.register.instruction & 0xf0) >> 1
+        state.rom_address += state.microinstruction_counter
         if state.flag.carry:
-            rom_address += 1 << 7
+            state.rom_address += 1 << 7
         if state.flag.zero:
-            rom_address += 1 << 8
+            state.rom_address += 1 << 8
 
-        microinstruction = state.microcode[rom_address]
+        microinstruction = state.microcode[state.rom_address]
 
         state.control.halt = microinstruction & microcode.HLT
         state.control.memory_address_in = microinstruction & microcode.MI
@@ -113,7 +122,6 @@ def step(state):
         state.control.program_counter_out = microinstruction & microcode.CO
         state.control.program_counter_jump = microinstruction & microcode.J
         state.control.flags_in = microinstruction & microcode.FI
-
 
     # Write to the bus
     if state.control.a_out:
@@ -139,8 +147,10 @@ def step(state):
     if state.control.program_counter_jump:
         state.register.program_counter = state.bus
     if state.control.memory_in and state.clock:
-        state.memory[state.register.memory_address] = state.bus
-        state.memory_human_readable[state.register.memory_address] = f'{state.register.memory_address:02d}:  {state.bus >> 4:04b} {state.bus & 0x0f:04b}'
+        address = state.register.memory_address
+        state.memory[address] = state.bus
+        human_readable = f'{address:02d}: {state.bus >> 4:04b} {state.bus & 0x0f:04b}'
+        state.memory_human_readable[address] = human_readable
     if state.control.output_in and state.clock:
         if state.bus != state.register.output:
             state.register.output = state.bus
@@ -168,9 +178,6 @@ def step(state):
     if not state.clock:
         state.microinstruction_counter = (state.microinstruction_counter + 1) % 5
 
-    # Flip clock signal
-    state.clock = not state.clock
-
     return state
 
 
@@ -190,10 +197,20 @@ def main(stdscr):
     # Run the program until halt
     while not state.control.halt:
         interface.update(stdscr, state)
-        if state.clock_automatic and state.clock_speed > 0:
-            curses.halfdelay(int(10 / state.clock_speed))
-            interface.handle_keypresses(stdscr, state)
-            step(state)
+        if state.clock_automatic:
+            wait_time = (1 / state.clock_speed) - (time() - state.last_clock_time)
+            if wait_time > 0.1:
+                curses.halfdelay(int(10 * wait_time))
+                interface.handle_keypresses(stdscr, state)
+                step(state)
+            else:
+                curses.nocbreak()
+                if wait_time > 0:
+                    sleep(wait_time)
+                curses.nocbreak()
+                stdscr.nodelay(True)
+                interface.handle_keypresses(stdscr, state)
+                step(state)
         else:
             curses.cbreak()
             interface.handle_keypresses(stdscr, state)
@@ -203,6 +220,7 @@ def main(stdscr):
     interface.update(stdscr, state)
     curses.nocbreak()
     curses.cbreak()
+    stdscr.nodelay(False)
     stdscr.getkey()
 
 

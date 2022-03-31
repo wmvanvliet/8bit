@@ -14,28 +14,29 @@ schematic = """
    ┃             (asm)              ┃  ┃┃┃┃┃┃┃┃──┃ "B" Register: ●●●●●●●● (dec) ┃
    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  ┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  ┃┃┃┃┃┃┃┃  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃ Micro Step: ●●● (dec)          ┃─┐┃┃┃┃┃┃┃┃──┃       Output: dec            ┃
-   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ │          ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │          ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃ Memory contents                ┃ │          ┃ Control: ●●●●●●●●●●●●●●●●    ┃
-   ┠────────────────────────────────┨ └──────────┃          HMRRIIAAΣSBOCCJF    ┃
-   ┃ 00                             ┃            ┃          LIIOOIIOOUIIEO I    ┃
-   ┃ 01                             ┃            ┃          T                   ┃
-   ┃ 02                             ┃            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-   ┃ 03                             ┃
-   ┃ 04                             ┃
-   ┃ 05                             ┃
-   ┃ 06                             ┃            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃ 07                             ┃            ┃ Keyboard commands            ┃
-   ┃ 08                             ┃            ┠──────────────────────────────┨
-   ┃ 09                             ┃            ┃ Space: start/stop clock      ┃
-   ┃ 10                             ┃            ┃     →: step clock            ┃
-   ┃ 11                             ┃            ┃     ↑: increase clock speed  ┃
-   ┃ 12                             ┃            ┃     ↓: decrease clock speed  ┃
-   ┃ 13                             ┃            ┃     h: halt system           ┃
-   ┃ 14                             ┃            ┃   ESC: quit                  ┃
-   ┃ 15                             ┃            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+   ┃ Micro Step: ●●● (dec)          ┃  ┃┃┃┃┃┃┃┃──┃       Output: dec            ┃
+   ┃  ROM addr.: ●●●●●●●●● (dec)    ┃─┐┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ │          ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │          ┃ Control: ●●●●●●●●●●●●●●●●    ┃   
+   ┃ Memory contents                ┃ │          ┃          HMRRIIAAΣSBOCCJF    ┃   
+   ┠────────────────────────────────┨ └──────────┃          LIIOOIIOOUIIEO I    ┃   
+   ┃ 00                             ┃            ┃          T                   ┃   
+   ┃ 01                             ┃            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛   
+   ┃ 02                             ┃                                               
+   ┃ 03                             ┃                                
+   ┃ 04                             ┃                                
+   ┃ 05                             ┃            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+   ┃ 06                             ┃            ┃ Keyboard commands             ┃   
+   ┃ 07                             ┃            ┠───────────────────────────────┨   
+   ┃ 08                             ┃            ┃ Space: start/stop clock       ┃   
+   ┃ 09                             ┃            ┃     →: step clock             ┃   
+   ┃ 10                             ┃            ┃     ↑: increase clock speed   ┃   
+   ┃ 11                             ┃            ┃     ↓: decrease clock speed   ┃   
+   ┃ 12                             ┃            ┃     h: halt system            ┃   
+   ┃ 13                             ┃            ┃ Enter: step clock 10x (cycle) ┃   
+   ┃ 14                             ┃            ┃   ESC: quit                   ┃   
+   ┃ 15                             ┃            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛   
+   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛               
 """ 
  
 import curses
@@ -55,7 +56,7 @@ def init(stdscr):
         The curses screen object as created by curses.wrapper().
     """
     # Check minimal screen size
-    if curses.LINES < 38 or curses.COLS < 84:
+    if curses.LINES < 39 or curses.COLS < 84:
         raise RuntimeError('Your terminal window should be at least 38x84.')
 
     # Setup the colors
@@ -156,6 +157,7 @@ def update(stdscr, state):
 
     # Microinstruction step
     draw_leds(15, 17, num=state.microinstruction_counter, n=3, color=5)
+    draw_leds(16, 17, num=state.rom_address, n=9, color=5)
 
     # Control lines
     control_lines = 0
@@ -202,23 +204,24 @@ def update(stdscr, state):
             color = curses.color_pair(5)
 
         # Blank the line before drawing memory contents
-        stdscr.addstr(20 + address, 4, '                               ', color)
-        stdscr.addstr(20 + address, 5, contents, color)
+        stdscr.addstr(21 + address, 4, '                               ', color)
+        stdscr.addstr(21 + address, 5, contents, color)
 
     # Halt message
     if state.control.halt:
-        stdscr.move(38, 0)
+        stdscr.move(39, 0)
         stdscr.clrtoeol()
-        stdscr.addstr(38, 0, 'System halted. Press any key to quit simulator.', curses.color_pair(1))
+        stdscr.addstr(39, 0, 'System halted. Press any key to quit simulator.', curses.color_pair(1))
 
     # Do the actual drawing to the screen
     stdscr.refresh()
 
 
 def print_message(stdscr, msg):
-    stdscr.move(38, 0)
+    stdscr.move(39, 0)
     stdscr.clrtoeol()
-    stdscr.addstr(38, 0, msg, curses.color_pair(1))
+    stdscr.addstr(39, 0, msg, curses.color_pair(1))
+    stdscr.refresh()
 
 
 def handle_keypresses(stdscr, state):
@@ -248,6 +251,10 @@ def handle_keypresses(stdscr, state):
             if state.clock_speed < 0:
                 state.clock_speed = 0
             print_message(stdscr, f'Decreased clock to {state.clock_speed} Hz.')
+        elif c == ord('\n'):
+            for _ in range(10):
+                step(state)
+            print_message(stdscr, 'Stepping clock by one instruction cycle (10 steps).')
         elif c == ord('h') or c == ord('q'):
             state.control.halt = True
         elif c == 27:

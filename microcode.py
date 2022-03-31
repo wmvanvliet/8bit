@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 HLT = 0b1000000000000000  # Halt clock
 MI  = 0b0100000000000000  # Memory address register in
 RI  = 0b0010000000000000  # RAM data in
@@ -42,9 +44,14 @@ UCODE_TEMPLATE = [
     [MI|CO,  RO|II|CE,  HLT,    0,      0,           0, 0, 0],   # 1111 - HLT
 ]
 
-ucode = [UCODE_TEMPLATE] * 4
+ucode = [deepcopy(UCODE_TEMPLATE) for _ in range(4)]
 ucode[FLAGS_Z0C1][JC][2] = IO|J
 ucode[FLAGS_Z1C0][JZ][2] = IO|J
 ucode[FLAGS_Z1C1][JC][2] = IO|J
+ucode[FLAGS_Z1C1][JZ][2] = IO|J
 
 ucode = [ucode[i][j][k] for i in range(4) for j in range(16) for k in range(8)]
+
+if __name__ == '__main__':
+    for addr, contents in enumerate(ucode):
+        print(f'{addr:03d}: {contents:016b}')
