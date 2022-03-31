@@ -244,10 +244,10 @@ def handle_keypresses(stdscr, state):
             print_message(stdscr, 'Stepping clock.')
             step(state)
         elif c == curses.KEY_UP:
-            state.clock_speed += 1
+            state.clock_speed *= 2
             print_message(stdscr, f'Increased clock to {state.clock_speed} Hz.')
         elif c == curses.KEY_DOWN:
-            state.clock_speed -= 1
+            state.clock_speed /= 2
             if state.clock_speed < 0:
                 state.clock_speed = 0
             print_message(stdscr, f'Decreased clock to {state.clock_speed} Hz.')

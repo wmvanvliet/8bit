@@ -60,7 +60,7 @@ def reset():
         # Clock
         clock = True
         clock_automatic = False
-        clock_speed = 5.0  # Hz
+        clock_speed = 1.0  # Hz
         last_clock_time = 0 # Keep track of when the next clock was last stepped
 
         # Other stuff
@@ -94,7 +94,8 @@ def step(state):
     state.clock = not state.clock
     state.last_clock_time = time()
 
-    # Set control lines based on current microinstruction
+    # Set control lines based on current microinstruction.
+    # This is done on the down-flank of the clock.
     if not state.clock:
         # Build microcode ROM address
         state.rom_address = (state.register.instruction & 0xf0) >> 1
@@ -198,7 +199,7 @@ def main(stdscr):
     while not state.control.halt:
         interface.update(stdscr, state)
         if state.clock_automatic:
-            wait_time = (1 / state.clock_speed) - (time() - state.last_clock_time)
+            wait_time = (0.5 / state.clock_speed) - (time() - state.last_clock_time)
             if wait_time > 0.1:
                 curses.halfdelay(int(10 * wait_time))
                 interface.handle_keypresses(stdscr, state)
