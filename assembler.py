@@ -36,7 +36,7 @@ def assemble(fname, verbose=False):
             instruction = instruction.lower()
             if instruction in ['nop', 'out', 'hlt']:
                 assert len(params) == 0, f'{instruction} takes no parameters'
-                output.append((instruction,))
+                output.append(('instr', instruction))
             else:
                 assert len(params) == 1, f'{instruction} takes a single parameter'
                 param = params[0]
@@ -44,58 +44,34 @@ def assemble(fname, verbose=False):
                     param = int(param)
                     assert 0 <= param <= 255, 'Parameter must be 0-255'
 
-                output.append((instruction,param))
+                if instruction != 'db':
+                    output.append(('instr', instruction))
+                output.append(('param', param))
 
     # Resolve labels and convert to binary
     bin_output = list()
-    for line in output:
-        instruction = line[0]
-        if instruction == 'db':
-            bin_line = 0
-        else:
-            bin_line = instruction_to_num[instruction] << 4
-        if len(line) == 2:
-            param = line[1]
-            if type(param) == str:
-                param = labels[param]
-            bin_line += param
+    for typ, content in output:
+        if typ == 'instr':
+            bin_line = instruction_to_num[content]
+        elif typ == 'param':
+            if type(content) == str:
+                content = labels[content]
+            bin_line = content
         bin_output.append(bin_line)
 
     # Create human readable version of the memory contents
     human_readable = list()
     addr_to_label = {v: k for k, v in labels.items()}
-    for addr, (o, b) in enumerate(zip(output, bin_output)):
-        i = ' '.join([str(x) for x in o])
+    for addr, ((typ, content), bin_content) in enumerate(zip(output, bin_output)):
         label = addr_to_label.get(addr, '')
         if label:
             label = f'({label})'
-        human_readable.append(f"{addr:02d}: {b >> 4:04b} {b & 0x0f:04b}  {i} {label}")
+        human_readable.append(f"{addr:02x}: {bin_content:08b} {content} {label}")
     if verbose:
-        print(human_readable)
+        for line in human_readable:
+            print(line)
 
     return bin_output, human_readable
-
-
-def disassemble(bin_code):
-    """Disassemble a given number into a human readable assembler instruction.
-
-    Parameters
-    ----------
-    bin_code : int
-        The number to disassemble.
-
-    Returns
-    -------
-    asm : str
-        The human readable assembler instruction.
-    """
-    instruction = num_to_instruction[bin_code >> 4]
-    if instruction in ['nop', 'out', 'hlt']:
-        # Instruction doesn't take a parameter
-        return instruction
-    else:
-        # Instruction along with its parameter
-        return f'{instruction} {bin_code & 0x0f:d}'
 
 
 if __name__ == '__main__':

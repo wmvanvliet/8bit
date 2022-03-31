@@ -1,25 +1,25 @@
 
 schematic = """
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  ●●●●●●●●  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃ Clock:  ●                      ┃──┃┃┃┃┃┃┃┃──┃ Program counter: ●●●● (dec)  ┃
+   ┃ Clock:  ●                      ┃──┃┃┃┃┃┃┃┃──┃ Progr. count: ●●●●●●●● (dec) ┃
    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  ┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  ┃┃┃┃┃┃┃┃  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃ Mem. Addr.: ●●●● (dec)         ┃──┃┃┃┃┃┃┃┃──┃ "A" Register: ●●●●●●●● (dec) ┃
+   ┃ Mem. Addr.: ●●●●●●●● (dec)     ┃──┃┃┃┃┃┃┃┃──┃ "A" Register: ●●●●●●●● (dec) ┃
    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  ┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  ┃┃┃┃┃┃┃┃  ┏━━━━━━━━━━━━━━━━━━━━━┓ ┏━━━━━━━━━━┓
    ┃        RAM: ●●●●●●●● (dec)     ┃──┃┃┃┃┃┃┃┃──┃ ALU: ●●●●●●●● (dec) ┃ ┃Flags: ●● ┃
    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  ┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━┛ ┃       ZC ┃
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  ┃┃┃┃┃┃┃┃                          ┗━━━━━━━━━━┛
-   ┃ Instr. Reg: ●●●●●●●● (dec)     ┃──┃┃┃┃┃┃┃┃  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+   ┃ Instr. Reg: ●●●●●●●● (dec)     ┃  ┃┃┃┃┃┃┃┃  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
    ┃             (asm)              ┃  ┃┃┃┃┃┃┃┃──┃ "B" Register: ●●●●●●●● (dec) ┃
    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  ┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  ┃┃┃┃┃┃┃┃  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃ Micro Step: ●●● (dec)          ┃  ┃┃┃┃┃┃┃┃──┃       Output: dec            ┃
+   ┃ Micro Step: ●●●● (dec)         ┃  ┃┃┃┃┃┃┃┃──┃       Output: dec            ┃
    ┃  ROM addr.: ●●●●●●●●● (dec)    ┃─┐┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ │          ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │          ┃ Control: ●●●●●●●●●●●●●●●●    ┃
-   ┃ Memory contents                ┃ │          ┃          HMRRIIAAΣSBOCCJF    ┃
-   ┠────────────────────────────────┨ └──────────┃          LIIOOIIOOUIIEO I    ┃
+   ┃ Memory contents                ┃ │          ┃          HMRRTIAAΣSBOCCJF    ┃
+   ┠────────────────────────────────┨ └──────────┃          LIIORIIOOUIIEO I    ┃
    ┃ 00                             ┃            ┃          T                   ┃
    ┃ 01                             ┃            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┃ 02                             ┃
@@ -43,7 +43,6 @@ import curses
 import sys
 
 import microcode
-from assembler import disassemble
 
 
 def init(stdscr):
@@ -119,10 +118,10 @@ def update(stdscr, state):
     draw_leds(2, 13, num=state.clock, n=1, color=4, dec=False)
 
     # Program counter
-    draw_leds(2, 68, num=state.register.program_counter, n=4, color=3)
+    draw_leds(2, 65, num=state.register.program_counter, n=8, color=3)
 
     # Memory address
-    draw_leds(5, 17, num=state.register.memory_address, n=4, color=5)
+    draw_leds(5, 17, num=state.register.memory_address, n=8, color=5)
 
     # "A" register
     draw_leds(5, 65, num=state.register.a, n=8, color=2)
@@ -142,11 +141,10 @@ def update(stdscr, state):
     draw_leds(8, 81, num=flags, n=2, color=3, dec=False)
 
     # Instruction register
-    draw_leds(11, 17, num=state.register.instruction >> 4, n=4, color=5)
-    draw_leds(11, 21, num=state.register.instruction & 0x0f, n=4, color=4)
+    draw_leds(11, 17, num=state.register.instruction, n=8, color=5)
     # Print the assembler instruction (clear the line first)
     stdscr.addstr(12, 17, '         ', curses.color_pair(1))
-    stdscr.addstr(12, 17, f'({disassemble(state.register.instruction)})', curses.color_pair(1))
+    #stdscr.addstr(12, 17, f'({state.memory_human_readable[state.register.instruction]})', curses.color_pair(1))
 
     # "B" register
     draw_leds(12, 65, num=state.register.b, n=8, color=2)
@@ -155,7 +153,7 @@ def update(stdscr, state):
     stdscr.addstr(15, 65, f'{state.register.output:04d}', curses.color_pair(2))
 
     # Microinstruction step
-    draw_leds(15, 17, num=state.microinstruction_counter, n=3, color=5)
+    draw_leds(15, 17, num=state.microinstruction_counter, n=4, color=5)
     draw_leds(16, 17, num=state.rom_address, n=9, color=5)
 
     # Control lines
@@ -168,8 +166,8 @@ def update(stdscr, state):
         control_lines += microcode.RI
     if state.control.memory_out:
         control_lines += microcode.RO
-    if state.control.instruction_out:
-        control_lines += microcode.IO
+    if state.control.t_step_reset:
+        control_lines += microcode.TR
     if state.control.instruction_in:
         control_lines += microcode.II
     if state.control.a_in:
@@ -195,7 +193,8 @@ def update(stdscr, state):
     draw_leds(18, 60, num=control_lines, n=16, color=4, dec=False)
 
     # Memory contents
-    for address, contents in enumerate(state.memory_human_readable):
+    offset = state.register.program_counter // 16 * 16
+    for address, contents in enumerate(state.memory_human_readable[offset:offset + 16], offset):
         color = curses.color_pair(1)
         if address == state.register.program_counter:
             color = curses.color_pair(3)
@@ -203,8 +202,8 @@ def update(stdscr, state):
             color = curses.color_pair(5)
 
         # Blank the line before drawing memory contents
-        stdscr.addstr(21 + address, 4, '                               ', color)
-        stdscr.addstr(21 + address, 5, contents, color)
+        stdscr.addstr(21 + address - offset, 4, '                               ', color)
+        stdscr.addstr(21 + address - offset, 5, contents, color)
 
     # Halt message
     if state.control.halt:

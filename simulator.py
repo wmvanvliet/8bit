@@ -32,7 +32,7 @@ class State:  # Classes are namespaces
         a_in = False
         b_in = False
         instruction_in = False
-        instruction_out = False
+        t_step_reset = False
         memory_address_in = False
         program_counter_jump = False
         program_counter_enable = False
@@ -73,7 +73,7 @@ class State:  # Classes are namespaces
         # This is done on the down-flank of the clock.
         if not self.clock:
             # Build microcode ROM address
-            self.rom_address = (self.register.instruction & 0xf0) >> 1
+            self.rom_address = (self.register.instruction & 0x0f) << 3
             self.rom_address += self.microinstruction_counter
             if self.flag.carry:
                 self.rom_address += 1 << 7
@@ -86,7 +86,7 @@ class State:  # Classes are namespaces
             self.control.memory_address_in = microinstruction & microcode.MI
             self.control.memory_in = microinstruction & microcode.RI
             self.control.memory_out = microinstruction & microcode.RO
-            self.control.instruction_out = microinstruction & microcode.IO
+            self.control.t_step_reset = microinstruction & microcode.TR
             self.control.instruction_in = microinstruction & microcode.II
             self.control.a_in = microinstruction & microcode.AI
             self.control.a_out = microinstruction & microcode.AO
@@ -104,8 +104,6 @@ class State:  # Classes are namespaces
             self.bus = self.register.a
         if self.control.alu_out:
             self.bus = self.alu
-        if self.control.instruction_out:
-            self.bus = self.register.instruction & 0x0f
         if self.control.program_counter_out:
             self.bus = self.register.program_counter
         if self.control.memory_out:
@@ -152,7 +150,9 @@ class State:  # Classes are namespaces
         if self.control.program_counter_enable and self.clock:
             self.register.program_counter = (self.register.program_counter + 1) % 255
         if not self.clock:
-            self.microinstruction_counter = (self.microinstruction_counter + 1) % 5
+            self.microinstruction_counter = (self.microinstruction_counter + 1) % 8
+            if self.control.t_step_reset:
+                self.microinstruction_counter = 0
 
         return self
 
