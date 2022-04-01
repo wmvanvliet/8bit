@@ -11,32 +11,31 @@ schematic = """
    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  ┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━┛ ┃       ZC ┃
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  ┃┃┃┃┃┃┃┃                          ┗━━━━━━━━━━┛
    ┃ Instr. Reg: ●●●●●●●● (dec)     ┃  ┃┃┃┃┃┃┃┃  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃             (asm)              ┃  ┃┃┃┃┃┃┃┃──┃ "B" Register: ●●●●●●●● (dec) ┃
-   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  ┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  ┃┃┃┃┃┃┃┃  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃ Micro Step: ●●●● (dec)         ┃  ┃┃┃┃┃┃┃┃──┃       Output: dec            ┃
-   ┃  ROM addr.: ●●●●●●●●● (dec)    ┃─┐┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ │          ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │          ┃ Control: ●●●●●●●●●●●●●●●●    ┃
-   ┃ Memory contents                ┃ │          ┃          HMRRTIAAΣSBOCCJF    ┃
-   ┠────────────────────────────────┨ └──────────┃          LIIORIIOOUIIEO I    ┃
-   ┃ 00                             ┃            ┃          T                   ┃
-   ┃ 01                             ┃            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-   ┃ 02                             ┃
+   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  ┃┃┃┃┃┃┃┃──┃ "B" Register: ●●●●●●●● (dec) ┃
+   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  ┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+   ┃ Micro Step: ●●●● (dec)         ┃  ┃┃┃┃┃┃┃┃  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+   ┃  ROM addr.: ●●●●●●●●● (dec)    ┃  ┃┃┃┃┃┃┃┃──┃       Output: dec            ┃
+   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛─┐┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │          ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+   ┃ Memory contents                ┃ │          ┃ Control: ●●●●●●●●●●●●●●●●    ┃
+   ┠────────────────────────────────┨ │          ┃          HMRRTIAAΣSBOCCJF    ┃
+   ┃ 00                             ┃ └──────────┃          LIIORIIOOUIIEO I    ┃
+   ┃ 01                             ┃            ┃          T                   ┃
+   ┃ 02                             ┃            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┃ 03                             ┃
    ┃ 04                             ┃
    ┃ 05                             ┃            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃ 06                             ┃            ┃ Keyboard commands             ┃
-   ┃ 07                             ┃            ┠───────────────────────────────┨
-   ┃ 08                             ┃            ┃ Space: start/stop clock       ┃
-   ┃ 09                             ┃            ┃     →: step clock             ┃
-   ┃ 10                             ┃            ┃     ↑: increase clock speed   ┃
-   ┃ 11                             ┃            ┃     ↓: decrease clock speed   ┃
-   ┃ 12                             ┃            ┃     h: halt system            ┃
-   ┃ 13                             ┃            ┃ Enter: step clock 10x (cycle) ┃
-   ┃ 14                             ┃            ┃   ESC: quit                   ┃
-   ┃ 15                             ┃            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+   ┃ 06                             ┃            ┃ Keyboard commands             ┃            
+   ┃ 07                             ┃            ┠───────────────────────────────┨            
+   ┃ 08                             ┃            ┃ Space: start/stop clock       ┃            
+   ┃ 09                             ┃            ┃     →: step clock             ┃            
+   ┃ 10                             ┃            ┃     ←: step clock backwards   ┃
+   ┃ 11                             ┃            ┃     ↑: increase clock speed   ┃
+   ┃ 12                             ┃            ┃     ↓: decrease clock speed   ┃
+   ┃ 13                             ┃            ┃     h: halt system            ┃
+   ┃ 14                             ┃            ┃ Enter: run until next instr.  ┃
+   ┃ 15                             ┃            ┃   ESC: quit                   ┃
+   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 """
 
 import curses
@@ -54,8 +53,8 @@ def init(stdscr):
         The curses screen object as created by curses.wrapper().
     """
     # Check minimal screen size
-    if curses.LINES < 39 or curses.COLS < 84:
-        raise RuntimeError('Your terminal window should be at least 39x84.')
+    if curses.LINES < 38 or curses.COLS < 84:
+        raise RuntimeError('Your terminal window should be at least 38x84.')
 
     # Setup the colors
     curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
@@ -118,95 +117,59 @@ def update(stdscr, state):
     draw_leds(2, 13, num=state.clock, n=1, color=4, dec=False)
 
     # Program counter
-    draw_leds(2, 65, num=state.register.program_counter, n=8, color=3)
+    draw_leds(2, 65, num=state.reg_program_counter, n=8, color=3)
 
     # Memory address
-    draw_leds(5, 17, num=state.register.memory_address, n=8, color=5)
+    draw_leds(5, 17, num=state.reg_memory_address, n=8, color=5)
 
     # "A" register
-    draw_leds(5, 65, num=state.register.a, n=8, color=2)
+    draw_leds(5, 65, num=state.reg_a, n=8, color=2)
 
     # RAM
-    draw_leds(8, 17, num=state.memory[state.register.memory_address], n=8, color=2)
+    draw_leds(8, 17, num=state.memory[state.reg_memory_address], n=8, color=2)
 
     # ALU
     draw_leds(8, 56, num=state.alu, n=8, color=2)
 
     # Flags register
     flags = 0
-    if state.flag.carry:
+    if state.flag_carry:
         flags += 0b01
-    if state.flag.zero:
+    if state.flag_zero:
         flags += 0b10
     draw_leds(8, 81, num=flags, n=2, color=3, dec=False)
 
     # Instruction register
-    draw_leds(11, 17, num=state.register.instruction, n=8, color=5)
-    # Print the assembler instruction (clear the line first)
-    stdscr.addstr(12, 17, '         ', curses.color_pair(1))
-    #stdscr.addstr(12, 17, f'({state.memory_human_readable[state.register.instruction]})', curses.color_pair(1))
+    draw_leds(10, 17, num=state.reg_instruction, n=8, color=5)
 
     # "B" register
-    draw_leds(12, 65, num=state.register.b, n=8, color=2)
+    draw_leds(12, 65, num=state.reg_b, n=8, color=2)
 
     # Output register
-    stdscr.addstr(15, 65, f'{state.register.output:04d}', curses.color_pair(2))
+    stdscr.addstr(15, 65, f'{state.reg_output:04d}', curses.color_pair(2))
 
     # Microinstruction step
-    draw_leds(15, 17, num=state.microinstruction_counter, n=4, color=5)
-    draw_leds(16, 17, num=state.rom_address, n=9, color=5)
+    draw_leds(14, 17, num=state.microinstruction_counter, n=4, color=5)
+    draw_leds(15, 17, num=state.rom_address, n=9, color=5)
 
     # Control lines
-    control_lines = 0
-    if state.control.halt:
-        control_lines += microcode.HLT
-    if state.control.memory_address_in:
-        control_lines += microcode.MI
-    if state.control.memory_in:
-        control_lines += microcode.RI
-    if state.control.memory_out:
-        control_lines += microcode.RO
-    if state.control.t_step_reset:
-        control_lines += microcode.TR
-    if state.control.instruction_in:
-        control_lines += microcode.II
-    if state.control.a_in:
-        control_lines += microcode.AI
-    if state.control.a_out:
-        control_lines += microcode.AO
-    if state.control.alu_out:
-        control_lines += microcode.EO
-    if state.control.alu_subtract:
-        control_lines += microcode.SU
-    if state.control.b_in:
-        control_lines += microcode.BI
-    if state.control.output_in:
-        control_lines += microcode.OI
-    if state.control.program_counter_enable:
-        control_lines += microcode.CE
-    if state.control.program_counter_out:
-        control_lines += microcode.CO
-    if state.control.program_counter_jump:
-        control_lines += microcode.J
-    if state.control.flags_in:
-        control_lines += microcode.FI
-    draw_leds(18, 60, num=control_lines, n=16, color=4, dec=False)
+    draw_leds(18, 60, num=state.control_signals, n=16, color=4, dec=False)
 
     # Memory contents
-    offset = state.register.program_counter // 16 * 16
+    offset = state.reg_program_counter // 16 * 16
     for address, contents in enumerate(state.memory_human_readable[offset:offset + 16], offset):
         color = curses.color_pair(1)
-        if address == state.register.program_counter:
+        if address == state.reg_program_counter:
             color = curses.color_pair(3)
-        if address == state.register.memory_address:
+        if address == state.reg_memory_address:
             color = curses.color_pair(5)
 
         # Blank the line before drawing memory contents
-        stdscr.addstr(21 + address - offset, 4, '                               ', color)
-        stdscr.addstr(21 + address - offset, 5, contents, color)
+        stdscr.addstr(20 + address - offset, 4, '                               ', color)
+        stdscr.addstr(20 + address - offset, 5, contents, color)
 
     # Halt message
-    if state.control.halt:
+    if state.control_signals & microcode.HLT:
         print_message(stdscr, 'System halted. Press any key to quit simulator.')
 
     # Do the actual drawing to the screen
@@ -220,39 +183,43 @@ def print_message(stdscr, msg):
     stdscr.refresh()
 
 
-def handle_keypresses(stdscr, state):
+def handle_keypresses(stdscr, simulator):
     """Handle user keypresses.
 
     Parameters
     ----------
-    stdscr : curses screen
-        The curses screen object as created by curses.wrapper().
+    simulator : Simulator
+        The simulator objet running the show.
     """
     try:
         c = stdscr.getch()
         if c == ord(' '):
-            state.clock_automatic = not state.clock_automatic
-            if state.clock_automatic:
+            simulator.clock_automatic = not simulator.clock_automatic
+            if simulator.clock_automatic:
                 print_message(stdscr, 'Started clock.')
             else:
                 print_message(stdscr, 'Stopped clock.')
         elif c == curses.KEY_RIGHT:
             print_message(stdscr, 'Stepping clock.')
-            state.step()
+            simulator.step()
+        elif c == curses.KEY_LEFT:
+            print_message(stdscr, 'Stepping clock backwards.')
+            simulator.state.revert()
         elif c == curses.KEY_UP:
-            state.clock_speed *= 2
-            print_message(stdscr, f'Increased clock to {state.clock_speed} Hz.')
+            simulator.clock_speed *= 2
+            print_message(stdscr, f'Increased clock to {simulator.clock_speed} Hz.')
         elif c == curses.KEY_DOWN:
-            state.clock_speed /= 2
-            if state.clock_speed < 0:
-                state.clock_speed = 0
-            print_message(stdscr, f'Decreased clock to {state.clock_speed} Hz.')
+            simulator.clock_speed /= 2
+            if simulator.clock_speed < 0:
+                simulator.clock_speed = 0
+            print_message(stdscr, f'Decreased clock to {simulator.clock_speed} Hz.')
         elif c == ord('\n'):
-            for _ in range(10):
-                state.step()
-            print_message(stdscr, 'Stepping clock by one instruction cycle (10 steps).')
+            simulator.step()
+            while (simulator.state.microinstruction_counter > 0 or not simulator.state.clock) and not simulator.state.control_signals & microcode.HLT:
+                simulator.step()
+            print_message(stdscr, 'Stepping clock until we reach next instruction.')
         elif c == ord('h') or c == ord('q'):
-            state.control.halt = True
+            simulator.state.control_signals |= microcode.HLT
         elif c == 27:
             sys.exit(0)
     except curses.error as e:

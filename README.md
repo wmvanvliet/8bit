@@ -5,6 +5,10 @@ This is an assembler + simulator/emulator of [Ben Eater's 8bit breadboard comput
 
 For Ben Eater's original architecture, see the [main branch](https://github.com/wmvanvliet/8bit/tree/main) of this repo.
 
+This is an assembler + simulator/emulator of [Ben Eater's 8bit breadboard computer](https://www.youtube.com/playlist?list=PLowKtXNTBypGqImE405J2565dvjafglHU).
+
+For a version with its RAM upgraded to 256 bytes following the instructions by [/u/MironV](https://www.reddit.com/r/beneater/comments/h8y28k), see, see the [ext_memory branch](https://github.com/wmvanvliet/8bit/tree/ext_memory) of this repo.
+
 <img alt="Screenshot of the simulator in action" src="screenshot.jpg" width="600">
 
 
