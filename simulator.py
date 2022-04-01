@@ -136,12 +136,9 @@ class State:  # Classes are namespaces
 
     def revert(self):
         global _previous_states
-        print('prev. states:', len(_previous_states))
         if len(_previous_states) > 0:
             prev_state = _previous_states.pop()
             self._load_serialized_state(prev_state)
-        else:
-            print('Already at oldest state.')
 
 
 class Simulator:
