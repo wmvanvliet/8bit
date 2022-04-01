@@ -4,204 +4,204 @@ Simulator for the SAP-1 8-bit breadboard computer.
 import sys
 import curses
 from time import time, sleep
+from collections import deque
+from dataclasses import dataclass, asdict, field
 
 import microcode
 import interface
 from assembler import assemble
 
 
+_previous_states = deque(maxlen=10_000)
+
+
+@dataclass
 class State:  # Classes are namespaces
-    bus = 0
-    memory, memory_human_readable = assemble(sys.argv[1])
-    microcode = microcode.ucode
-    rom_address = 0
+    bus: int = 0
+    memory: list[int] = field(default_factory=lambda: assemble(sys.argv[1])[0])
+    memory_human_readable: list[str]  = field(default_factory=lambda: assemble(sys.argv[1])[1])
+    rom_address: int = 0
 
     # Content of the registers
-    class register:
-        a = 0
-        b = 0
-        instruction = 0
-        memory_address = 0
-        program_counter = 0
-        output = 0
+    reg_a: int = 0
+    reg_b: int = 0
+    reg_instruction: int = 0
+    reg_memory_address: int = 0
+    reg_program_counter: int = 0
+    reg_output: int = 0
 
-    # Control signals
-    class control:
-        halt = False
-        a_out = False
-        a_in = False
-        b_in = False
-        instruction_in = False
-        instruction_out = False
-        memory_address_in = False
-        program_counter_jump = False
-        program_counter_enable = False
-        program_counter_out = False
-        output_in = False
-        alu_subtract = False
-        alu_out = False
-        memory_in = False
-        memory_out = False
-        flags_in = False
+    control_signals: int = 0
 
     # Flags
-    class flag:
-        carry = False
-        zero = False
+    flag_carry: bool = False
+    flag_zero: bool = False
 
     # Clock
-    clock = True
-    clock_automatic = False
-    clock_speed = 1.0  # Hz
-    last_clock_time = 0 # Keep track of when the next clock was last stepped
+    clock: bool = True
 
     # Other stuff
-    alu = 0
-    microinstruction_counter = 0
+    alu: int = 0
+    microinstruction_counter: int = 0
 
     def step(self):
         """Perform a single step (half a clock-cycle)."""
         # When system is halted, do nothing
-        if self.control.halt:
+        if self.control_signals & microcode.HLT:
             return
+
+        # Before we update the state, keep a copy of the current state so we
+        # could revert later if we want.
+        global _previous_states
+        _previous_states.append(asdict(self))
 
         # Flip clock signal
         self.clock = not self.clock
-        self.last_clock_time = time()
 
         # Set control lines based on current microinstruction.
         # This is done on the down-flank of the clock.
         if not self.clock:
             # Build microcode ROM address
-            self.rom_address = (self.register.instruction & 0xf0) >> 1
+            self.rom_address = (self.reg_instruction & 0xf0) >> 1
             self.rom_address += self.microinstruction_counter
-            if self.flag.carry:
+            if self.flag_carry:
                 self.rom_address += 1 << 7
-            if self.flag.zero:
+            if self.flag_zero:
                 self.rom_address += 1 << 8
 
-            microinstruction = self.microcode[self.rom_address]
-
-            self.control.halt = microinstruction & microcode.HLT
-            self.control.memory_address_in = microinstruction & microcode.MI
-            self.control.memory_in = microinstruction & microcode.RI
-            self.control.memory_out = microinstruction & microcode.RO
-            self.control.instruction_out = microinstruction & microcode.IO
-            self.control.instruction_in = microinstruction & microcode.II
-            self.control.a_in = microinstruction & microcode.AI
-            self.control.a_out = microinstruction & microcode.AO
-            self.control.alu_out = microinstruction & microcode.EO
-            self.control.alu_subtract = microinstruction & microcode.SU
-            self.control.b_in = microinstruction & microcode.BI
-            self.control.output_in = microinstruction & microcode.OI
-            self.control.program_counter_enable = microinstruction & microcode.CE
-            self.control.program_counter_out = microinstruction & microcode.CO
-            self.control.program_counter_jump = microinstruction & microcode.J
-            self.control.flags_in = microinstruction & microcode.FI
+            self.control_signals = microcode.ucode[self.rom_address]
 
         # Write to the bus
-        if self.control.a_out:
-            self.bus = self.register.a
-        if self.control.alu_out:
+        if self.control_signals & microcode.AO:
+            self.bus = self.reg_a
+        if self.control_signals & microcode.EO:
             self.bus = self.alu
-        if self.control.instruction_out:
-            self.bus = self.register.instruction & 0x0f
-        if self.control.program_counter_out:
-            self.bus = self.register.program_counter
-        if self.control.memory_out:
-            self.bus = self.memory[self.register.memory_address]
+        if self.control_signals & microcode.IO:
+            self.bus = self.reg_instruction & 0x0f
+        if self.control_signals & microcode.CO:
+            self.bus = self.reg_program_counter
+        if self.control_signals & microcode.RO:
+            self.bus = self.memory[self.reg_memory_address]
 
         # Read from the bus
-        if self.control.a_in and self.clock:
-            self.register.a = self.bus
-        if self.control.b_in and self.clock:
-            self.register.b = self.bus
-        if self.control.instruction_in and self.clock:
-            self.register.instruction = self.bus
-        if self.control.memory_address_in and self.clock:
-            self.register.memory_address = self.bus
-        if self.control.program_counter_jump:
-            self.register.program_counter = self.bus
-        if self.control.memory_in and self.clock:
-            address = self.register.memory_address
-            self.memory[address] = self.bus
-            human_readable = f'{address:02d}: {self.bus >> 4:04b} {self.bus & 0x0f:04b}'
-            self.memory_human_readable[address] = human_readable
-        if self.control.output_in and self.clock:
-            if self.bus != self.register.output:
-                self.register.output = self.bus
+        if self.clock:
+            if self.control_signals & microcode.AI:
+                self.reg_a = self.bus
+            if self.control_signals & microcode.BI:
+                self.reg_b = self.bus
+            if self.control_signals & microcode.II:
+                self.reg_instruction = self.bus
+            if self.control_signals & microcode.MI:
+                self.reg_memory_address = self.bus
+            if self.control_signals & microcode.J:
+                self.reg_program_counter = self.bus
+            if self.control_signals & microcode.RI:
+                address = self.reg_memory_address
+                self.memory[address] = self.bus
+                human_readable = f'{address:02d}: {self.bus >> 4:04b} {self.bus & 0x0f:04b}'
+                self.memory_human_readable[address] = human_readable
+            if self.control_signals & microcode.OI:
+                if self.bus != self.reg_output:
+                    self.reg_output = self.bus
 
         # Do ALU stuff, set flags
-        if self.control.alu_subtract:
-            self.alu = self.register.a - self.register.b
+        if self.control_signals & microcode.SU:
+            self.alu = self.reg_a - self.reg_b
         else:
-            self.alu = self.register.a + self.register.b
+            self.alu = self.reg_a + self.reg_b
         if self.alu > 255:
-            if self.control.flags_in:
-                self.flag.carry = True
+            if self.control_signals & microcode.FI:
+                self.flag_carry = True
             self.alu = self.alu % 255
         else:
-            if self.control.flags_in:
-                self.flag.carry = False
+            if self.control_signals & microcode.FI:
+                self.flag_carry = False
         if self.alu < 0:
             self.alu += 255
-        if self.control.flags_in:
-            self.flag.zero = self.alu == 0
+        if self.control_signals & microcode.FI:
+            self.flag_zero = self.alu == 0
 
         # Increment counters
-        if self.control.program_counter_enable and self.clock:
-            self.register.program_counter = (self.register.program_counter + 1) % 255
+        if self.control_signals & microcode.CE and self.clock:
+            self.reg_program_counter = (self.reg_program_counter + 1) % 255
         if not self.clock:
             self.microinstruction_counter = (self.microinstruction_counter + 1) % 5
 
         return self
 
+    def _load_serialized_state(self, prev_state):
+        for k, v in prev_state.items():
+            if k.startswith('_'):
+                continue
+            setattr(self, k, v)
 
-def main(stdscr):
-    """Main function to start the simulator with its console user interface.
-
-    Parameters
-    ----------
-    stdscr : curses screen
-        The curses screen object as created by curses.wrapper().
-    """
-    interface.init(stdscr)
-
-    # Create a freshly minted system state
-    state = State()
-
-    # Run the program until halt
-    while not state.control.halt:
-        interface.update(stdscr, state)
-        if state.clock_automatic:
-            wait_time = (0.5 / state.clock_speed) - (time() - state.last_clock_time)
-            if wait_time > 0.1:
-                curses.halfdelay(int(10 * wait_time))
-                interface.handle_keypresses(stdscr, state)
-                state.step()
-            else:
-                curses.nocbreak()
-                if wait_time > 0:
-                    sleep(wait_time)
-                curses.nocbreak()
-                stdscr.nodelay(True)
-                interface.handle_keypresses(stdscr, state)
-                state.step()
+    def revert(self):
+        global _previous_states
+        print('prev. states:', len(_previous_states))
+        if len(_previous_states) > 0:
+            prev_state = _previous_states.pop()
+            self._load_serialized_state(prev_state)
         else:
-            curses.cbreak()
-            interface.handle_keypresses(stdscr, state)
-        interface.update(stdscr, state)
+            print('Already at oldest state.')
 
-    # Press any key to exit the simulation
-    interface.update(stdscr, state)
-    curses.nocbreak()
-    curses.cbreak()
-    stdscr.nodelay(False)
-    stdscr.getkey()
+
+class Simulator:
+    def __init__(self):
+        # Create a freshly minted system state
+        self.state = State()
+
+        # Variables related to automatic stepping of the clock
+        self.clock_automatic = False
+        self.clock_speed = 1  # Hz
+        self.last_clock_time = 0 # Keep track of when the next clock was last stepped
+
+    def run(self, stdscr):
+        """Main function to run the simulator with its console user interface.
+
+        Parameters
+        ----------
+        stdscr : curses screen
+            The curses screen object as created by curses.wrapper().
+        """
+        interface.init(stdscr)
+
+        # Run the program until halt
+        while not self.state.control_signals & microcode.HLT:
+            interface.update(stdscr, self.state)
+            if self.clock_automatic:
+                wait_time = (0.5 / self.clock_speed) - (time() - self.last_clock_time)
+                if wait_time > 0.1:
+                    curses.halfdelay(int(10 * wait_time))
+                    interface.handle_keypresses(stdscr, self)
+                    self.step()
+                else:
+                    curses.nocbreak()
+                    if wait_time > 0:
+                        sleep(wait_time)
+                    curses.nocbreak()
+                    stdscr.nodelay(True)
+                    interface.handle_keypresses(stdscr, self)
+                    self.step()
+            else:
+                curses.cbreak()
+                interface.handle_keypresses(stdscr, self)
+            interface.update(stdscr, self.state)
+
+        # Press any key to exit the simulation
+        interface.update(stdscr, self.state)
+        curses.nocbreak()
+        curses.cbreak()
+        stdscr.nodelay(False)
+        stdscr.getkey()
+
+    def step(self):
+        """Step the clock while keeping track of time."""
+        self.last_clock_time = time()
+        self.state.step()
 
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         print('python simulator.py PROGRAM_TO_EXECUTE')
         sys.exit(1)
-    curses.wrapper(main)
+    simulator = Simulator()
+    curses.wrapper(simulator.run)
