@@ -24,8 +24,11 @@ If you want a closer look at the assembler output:
 python assembler.py test.asm
 ```
 
+
 Programming the computer using assembly language
 ------------------------------------------------
+
+This simulator reads its memory contents from a text file with the `.asm` extension. The file should contain programming code written in assembler.
 
 Supported assembler instructions:
 
@@ -43,18 +46,17 @@ out     Output contents of register A
 hlt     Halt the CPU, end of program
 ```
 
-The assembler also supports writing raw values with `db` and labels:
+The assembler also supports comments using the `;` character, writing raw values with `db` and labels. Here is an example assembler program that uses all the features of the assembler:
 ```asm
 ;
 ; Test program that adds two numbers
 ;
-	lda a
-	add b
-	out
-	hlt
+	lda a  ; Load the memory contents at the (a) label into register "A".
+	add b  ; Add the memory contents at the (b) label to the value in register "A".
+	out    ; Display the value in register "A" on the 7-segment display.
+	hlt    ; Halt the clock. This signals the end of the program.
 
-a:
-	db 28
-b:
-	db 14
-``` 
+a:         ; Label that marks memory location (a)
+	db 28  ; Write the literatal value "28" at this memory location.
+b:         ; Label that marks memory location (b)
+	db 14  ; Write the literal value "14" at this memory location.

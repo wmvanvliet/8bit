@@ -23,13 +23,17 @@ def assemble(fname, verbose=False):
     # Parse file
     with open(fname) as f:
         for line in f:
+            # Deal with comments
+            if ';' in line:
+                line, _ = line.split(';', 1)
+            
+            # Deal with labels:
+            if ':' in line:
+                label, line = line.split(':', 1)
+                labels[label.strip().lower()] = len(output)
+
             line = line.strip()
             if len(line) == 0:
-                continue
-            if line.startswith(';'):
-                continue
-            if line.endswith(':'):
-                labels[line[:-1].lower()] = len(output)
                 continue
 
             instruction, *params = line.split(' ')
