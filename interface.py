@@ -140,7 +140,7 @@ def update(stdscr, state):
     draw_leds(8, 81, num=flags, n=2, color=3, dec=False)
 
     # Instruction register
-    draw_leds(10, 17, num=state.reg_instruction, n=8, color=5)
+    draw_leds(11, 17, num=state.reg_instruction, n=8, color=5)
 
     # "B" register
     draw_leds(12, 65, num=state.reg_b, n=8, color=2)
