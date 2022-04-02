@@ -43,16 +43,8 @@ class State:  # Classes are namespaces
     alu: int = 0
     microinstruction_counter: int = 0
 
-    def step(self, pulse_clock=True):
-        """Perform a single step (half a clock-cycle).
-
-        Parameters
-        ----------
-        init : bool
-            Whether to pulse the clock as part of the update to the machine
-            state. Normally, you would always want to do this. The exception is
-            once after the machine has just turned on.
-        """
+    def step(self):
+        """Perform a single step (half a clock-cycle)."""
         # When system is halted, do nothing
         if self.control_signals & microcode.HLT:
             return
@@ -63,15 +55,12 @@ class State:  # Classes are namespaces
         _previous_states.append(asdict(self))
 
         # Flip clock signal
-        if pulse_clock:
-            self.clock = not self.clock
+        self.clock = not self.clock
 
         # Set control lines based on current microinstruction.
         # This is done on the down-flank of the clock.
         if not self.clock:
             # Build microcode ROM address
-            if pulse_clock:
-                self.microinstruction_counter = (self.microinstruction_counter + 1) % 5
             self.rom_address = (self.reg_instruction & 0xf0) >> 1
             self.rom_address += self.microinstruction_counter
             if self.flag_carry:
@@ -134,6 +123,8 @@ class State:  # Classes are namespaces
         # Increment program counters
         if self.control_signals & microcode.CE and self.clock:
             self.reg_program_counter = (self.reg_program_counter + 1) % 255
+        if not self.clock:
+            self.microinstruction_counter = (self.microinstruction_counter + 1) % 5
 
         return self
 
@@ -154,7 +145,7 @@ class Simulator:
     def __init__(self):
         # Create a freshly minted system state
         self.state = State()
-        self.state.step(pulse_clock=False)
+        self.state.control_signals = microcode.ucode[self.state.rom_address]
 
         # Variables related to automatic stepping of the clock
         self.clock_automatic = False
