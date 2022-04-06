@@ -170,7 +170,7 @@ def update(stdscr, state):
         stdscr.addstr(20 + address - offset, 4, '                               ', color)
         stdscr.addstr(20 + address - offset, 5, contents, color)
     # Blank any remaining empty lines in the memory contents display
-    for i in range(20 + address - offset, 36):
+    for i in range(21 + address - offset, 36):
         stdscr.addstr(i, 4, '                               ', color)
 
     # Halt message
