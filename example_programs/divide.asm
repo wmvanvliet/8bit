@@ -3,25 +3,22 @@
 ; Credit to Edoardo's comment here:
 ; https://theshamblog.com/programs-and-more-commands-for-the-ben-eater-8-bit-breadboard-computer
 ;
-loop:
-	lda dividend
-	sub divisor
-	jz end
-	jc inc
+loop:	lda numer
+	sub denom
+	jc inc     ; result was non-negative
 	jmp end
+
 inc:
-	sta dividend
+	sta numer
 	ldi 1
 	add ans
 	sta ans
 	jmp loop
-end:
-	lda ans
+
+end:    lda ans
 	out
 	hlt
-ans:
-	db 1   ; to be set to 1 at each start
-divisor:
-	db 2
-dividend:
-	db 14
+
+numer:	db 14
+denom:	db 2
+ans:	db 0
