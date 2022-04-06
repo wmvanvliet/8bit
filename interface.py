@@ -220,7 +220,7 @@ def handle_keypresses(stdscr, simulator):
             print_message(stdscr, 'Stepping clock until we reach next instruction.')
         elif c == ord('r'):
             simulator.reset()
-        elif c == 27 or c == ord('q'):
+        elif c == 27 or c == ord('q') or c == 3:
             sys.exit(0)
     except curses.error as e:
         # No key pressed
