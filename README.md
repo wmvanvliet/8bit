@@ -20,12 +20,12 @@ Usage
 -----
 Write your test program in assembler and run it through the simulator.
 ```
-python simulator.py test.asm
+python simulator.py example_programs/test.asm
 ```
 
 If you want a closer look at the assembler output:
 ```
-python assembler.py test.asm
+python assembler.py example_programs/test.asm
 ```
 
 
@@ -64,3 +64,6 @@ a:         ; Label that marks memory location (a)
 	db 28  ; Write the literatal value "28" at this memory location.
 b:         ; Label that marks memory location (b)
 	db 14  ; Write the literal value "14" at this memory location.
+``` 
+
+More example programs can be found in the `example_programs/` folder of this repository.

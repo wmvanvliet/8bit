@@ -29,10 +29,11 @@ class State:  # Classes are namespaces
     reg_memory_address: int = 0
     reg_program_counter: int = 0
     reg_output: int = 0
+    reg_flags: int = 0
 
     control_signals: int = 0
 
-    # Flags
+    # Flag outputs from the ALU
     flag_carry: bool = False
     flag_zero: bool = False
 
@@ -64,9 +65,9 @@ class State:  # Classes are namespaces
             self.rom_address = (self.reg_instruction & 0xf0) >> 1
             self.rom_address = (self.reg_instruction & 0x0f) << 3
             self.rom_address += self.microinstruction_counter
-            if self.flag_carry:
+            if self.reg_flags & 0b01:  # Carry flag
                 self.rom_address += 1 << 7
-            if self.flag_zero:
+            if self.reg_flags & 0b10:  # Zero flag
                 self.rom_address += 1 << 8
 
             self.control_signals = microcode.ucode[self.rom_address]
@@ -102,21 +103,25 @@ class State:  # Classes are namespaces
                 if self.bus != self.reg_output:
                     self.reg_output = self.bus
 
-        # Do ALU stuff, set flags
+        # Transfer ALU flag outputs to the flags register
+        if self.clock and (self.control_signals & microcode.FI):
+            self.reg_flags = self.flag_carry + (self.flag_zero << 1)
+
+        # Do ALU stuff, set flag outputs
         if self.control_signals & microcode.SU:
             self.alu = self.reg_a - self.reg_b
         else:
             self.alu = self.reg_a + self.reg_b
         if self.alu > 255:
-            if self.control_signals & microcode.FI:
+            if self.control_signals:
                 self.flag_carry = True
             self.alu = self.alu % 255
         else:
-            if self.control_signals & microcode.FI:
+            if self.control_signals:
                 self.flag_carry = False
         if self.alu < 0:
             self.alu += 255
-        if self.control_signals & microcode.FI:
+        if self.control_signals:
             self.flag_zero = self.alu == 0
 
         # Increment program counters
@@ -144,14 +149,13 @@ class State:  # Classes are namespaces
 
 class Simulator:
     def __init__(self):
-        # Create a freshly minted system state
-        self.state = State()
-        self.state.control_signals = microcode.ucode[self.state.rom_address]
-
         # Variables related to automatic stepping of the clock
         self.clock_automatic = False
         self.clock_speed = 1  # Hz
         self.last_clock_time = 0 # Keep track of when the next clock was last stepped
+
+        # Initialize system state
+        self.reset()
 
     def run(self, stdscr):
         """Main function to run the simulator with its console user interface.
@@ -163,8 +167,10 @@ class Simulator:
         """
         interface.init(stdscr)
 
-        # Run the program until halt
-        while not self.state.control_signals & microcode.HLT:
+        # Start simulation and UI loop. This loop only terminates when the ESC
+        # key is pressed, which is detected inside the handle_keypresses()
+        # function.
+        while True:
             interface.update(stdscr, self.state)
             if self.clock_automatic:
                 wait_time = (0.5 / self.clock_speed) - (time() - self.last_clock_time)
@@ -183,19 +189,25 @@ class Simulator:
             else:
                 curses.cbreak()
                 interface.handle_keypresses(stdscr, self)
-            interface.update(stdscr, self.state)
 
-        # Press any key to exit the simulation
-        interface.update(stdscr, self.state)
-        curses.nocbreak()
-        curses.cbreak()
-        stdscr.nodelay(False)
-        stdscr.getkey()
+            # When we reach the end of the program, set the clock to manual
+            # mode so we don't keep generating useless system states.
+            if self.state.control_signals & microcode.HLT:
+                self.clock_automatic = False
+            interface.update(stdscr, self.state)
 
     def step(self):
         """Step the clock while keeping track of time."""
         self.last_clock_time = time()
         self.state.step()
+
+    def reset(self):
+        """Reset the machine."""
+        global _previous_states
+        _previous_states.clear()
+        self.state = State()
+        self.state.control_signals = microcode.ucode[self.state.rom_address]
+
 
 
 if __name__ == '__main__':
