@@ -1,4 +1,6 @@
 ; Compute the square root of a number, based on the Babylonian method.
+; Uses a subroutine for division, with the self-modifying code technique
+; demonstrated in subroutine.asm.
 iter:
 	lda S      ; prepare for computing S / x
 	sta numer
@@ -6,20 +8,10 @@ iter:
 	sta denom
 	ldi 0
 	sta ans
-	
-S_x:	lda numer  ; start computing S / x
-	sub denom 
-	jc S_x_inc
-	jmp S_x_e   ; result was negative
-
-S_x_inc:
-	sta numer
-	ldi 1    ; increment `ans` by 1
-	add ans
-	sta ans
-	jmp S_x
-
-S_x_e:  lda ans
+	ldi a      ; setup return address
+	sta 61     ; address of the param of the jmp instruction
+	jmp div    ; call division subroutine
+a:	lda ans
         add x
 
 	sta numer  ; prepare for computing (x + S / x) / 2
@@ -27,23 +19,12 @@ S_x_e:  lda ans
 	sta denom 
 	ldi 0
 	sta ans
-
-S_2:	lda numer  ; start computing (x + S / x) / 2
-	sub denom 
-	jc S_2_inc
-	jmp S_2_e 
-
-S_2_inc:
-	sta numer
-	ldi 1
-	add ans
-	sta ans
-	jmp S_2
-
-S_2_e:	lda ans
-	sta x
+	ldi b      ; setup return address
+	sta 61     ; address of the param of the jmp instruction
+	jmp div    ; call division subroutine
+b:	lda ans
+        sta x
 	out
-
 	sub x_prev ; Check for convergence
 	jz end	
 
@@ -53,8 +34,22 @@ S_2_e:	lda ans
 
 end:    hlt
 
+
+; Subroutine for division
+div:	lda numer  ; start computing numer / denom
+	sub denom 
+	jc div_i
+	jmp 0      ; we are done, jump to return address
+div_i:
+	sta numer
+	ldi 1      ; increment `ans` by 1
+	add ans
+	sta ans
+	jmp div    ; loop
+
+; Variables
 S:	db 49  ; number of compute sqrt of
-x:	db 5   ; initial guess of the square root
+x:	db 1   ; initial guess of the square root
 x_prev: db 0
 numer:  db 0
 denom:  db 0
