@@ -36,7 +36,7 @@ def assemble(fname, verbose=False):
             if len(line) == 0:
                 continue
 
-            instruction, *params = line.split(' ')
+            instruction, *params = line.split()
             instruction = instruction.lower()
             if instruction in ['nop', 'out', 'hlt']:
                 assert len(params) == 0, f'{instruction} takes no parameters'
