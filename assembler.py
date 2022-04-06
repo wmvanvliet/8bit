@@ -1,5 +1,3 @@
-import sys
-
 instruction_to_num = {
     'nop': 0,
     'lda': 1,
@@ -10,6 +8,7 @@ instruction_to_num = {
     'jmp': 6,
     'jc': 7,
     'jz': 8,
+    'ji': 9,
     'out': 14,
     'hlt': 15,
 }
@@ -57,11 +56,11 @@ def assemble(fname, verbose=False):
         if instruction == 'db':
             bin_line = 0
         else:
-            bin_line = instruction_to_num[instruction] << 4
+            bin_line = instruction_to_num[instruction.lower()] << 4
         if len(line) == 2:
             param = line[1]
             if type(param) == str:
-                param = labels[param]
+                param = labels[param.lower()]
             bin_line += param
         bin_output.append(bin_line)
 
