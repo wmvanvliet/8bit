@@ -71,6 +71,7 @@ def assemble(fname, verbose=False):
         if label:
             label = f'({label})'
         human_readable.append(f"{addr:02x}: {bin_content:08b} {content} {label}")
+
     if verbose:
         for line in human_readable:
             print(line)
