@@ -56,10 +56,10 @@ def assemble(fname, verbose=False):
     bin_output = list()
     for typ, content in output:
         if typ == 'instr':
-            bin_line = instruction_to_num[content]
+            bin_line = instruction_to_num[content.lower()]
         elif typ == 'param':
             if type(content) == str:
-                content = labels[content]
+                content = labels[content.lower()]
             bin_line = content
         bin_output.append(bin_line)
 
