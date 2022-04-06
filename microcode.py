@@ -45,6 +45,10 @@ UCODE_TEMPLATE = [
 ]
 
 ucode = [deepcopy(UCODE_TEMPLATE) for _ in range(4)]
+ucode[FLAGS_Z0C1][JC][2] = MI|CO
+ucode[FLAGS_Z1C0][JZ][2] = MI|CO
+ucode[FLAGS_Z1C1][JC][2] = MI|CO
+ucode[FLAGS_Z1C1][JZ][2] = MI|CO
 ucode[FLAGS_Z0C1][JC][3] = RO|J
 ucode[FLAGS_Z1C0][JZ][3] = RO|J
 ucode[FLAGS_Z1C1][JC][3] = RO|J
