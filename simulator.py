@@ -43,6 +43,7 @@ class State:  # Classes are namespaces
     # Other stuff
     alu: int = 0
     microinstruction_counter: int = 0
+    output_signed_mode: bool = False
 
     def step(self):
         """Perform a single step (half a clock-cycle)."""
