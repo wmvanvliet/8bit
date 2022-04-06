@@ -134,6 +134,9 @@ class State:  # Classes are namespaces
             self.microinstruction_counter = (self.microinstruction_counter + 1) % 8
             if self.control_signals & microcode.TR:
                 self.microinstruction_counter = 0
+                # Changing the microinstruction counter has an immediate effect
+                # on the system state.
+                self.update()
 
         return self
 
