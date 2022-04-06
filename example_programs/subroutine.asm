@@ -1,6 +1,5 @@
 ; Demonstrate calling a subroutine with the original instruction set.
 ; Works by self-modifying code
-;
 	ldi cont1   ; set return address (cont)
 	add jmp_op  ; set jmp instruction
 	sta sub_ret ; overwrite return jump instruction of subroutine
