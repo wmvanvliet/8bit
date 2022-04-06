@@ -162,6 +162,9 @@ def update(stdscr, state):
         # Blank the line before drawing memory contents
         stdscr.addstr(20 + address - offset, 4, '                               ', color)
         stdscr.addstr(20 + address - offset, 5, contents, color)
+    # Blank any remaining empty lines in the memory contents display
+    for i in range(20 + address - offset, 36):
+        stdscr.addstr(i, 4, '                               ', color)
 
     # Halt message
     if state.control_signals & microcode.HLT:

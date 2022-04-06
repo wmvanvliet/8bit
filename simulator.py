@@ -97,7 +97,7 @@ class State:  # Classes are namespaces
             if self.control_signals & microcode.RI:
                 address = self.reg_memory_address
                 self.memory[address] = self.bus
-                human_readable = f'{address:02d}: {self.bus >> 4:04b} {self.bus & 0x0f:04b}'
+                human_readable = f'{address:02x}: {self.bus:08b}'
                 self.memory_human_readable[address] = human_readable
             if self.control_signals & microcode.OI:
                 if self.bus != self.reg_output:
