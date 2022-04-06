@@ -144,7 +144,7 @@ def update(stdscr, state):
     if state.output_signed_mode:
         # Convert 8bit twos-complement number to a Python signed integer
         out = state.reg_output
-        if out & 0xa0:
+        if out & 0x80:
             out = (out ^ 0xff) - 1
         stdscr.addstr(15, 59, f'{out:04d} (signed)  ', curses.color_pair(2))
     else:
