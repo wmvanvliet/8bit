@@ -45,19 +45,10 @@ class State:  # Classes are namespaces
     microinstruction_counter: int = 0
     output_signed_mode: bool = False
 
-    def step(self):
-        """Perform a single step (half a clock-cycle)."""
-        # When system is halted, do nothing
-        if self.control_signals & microcode.HLT:
-            return
-
-        # Before we update the state, keep a copy of the current state so we
-        # could revert later if we want.
-        global _previous_states
-        _previous_states.append(asdict(self))
-
-        # Flip clock signal
-        self.clock = not self.clock
+    def update(self):
+        """Update the state based on the values of the control lines. This does
+        not touch the various clocks, so this can be called as often as needed
+        to keep every component in sync."""
 
         # Set control lines based on current microinstruction.
         # This is done on the down-flank of the clock.
@@ -119,6 +110,23 @@ class State:  # Classes are namespaces
         self.flag_carry = self.alu > 0xff
         self.alu &= 0xff
         self.flag_zero = self.alu == 0
+
+    def step(self):
+        """Perform a single step (half a clock-cycle)."""
+        # When system is halted, do nothing
+        if self.control_signals & microcode.HLT:
+            return
+
+        # Before we update the state, keep a copy of the current state so we
+        # could revert later if we want.
+        global _previous_states
+        _previous_states.append(asdict(self))
+
+        # Flip clock signal
+        self.clock = not self.clock
+
+        # Update the system state now that the clock has changed
+        self.update()
 
         # Increment program counters
         if self.control_signals & microcode.CE and self.clock:
@@ -200,7 +208,7 @@ class Simulator:
         global _previous_states
         _previous_states.clear()
         self.state = State()
-        self.state.control_signals = microcode.ucode[self.state.rom_address]
+        self.state.update()
 
 
 
