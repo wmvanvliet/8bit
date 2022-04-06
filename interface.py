@@ -32,7 +32,7 @@ schematic = """
    ┃ 09                             ┃            ┃     ←: step clock backwards   ┃
    ┃ 10                             ┃            ┃     ↑: increase clock speed   ┃
    ┃ 11                             ┃            ┃     ↓: decrease clock speed   ┃
-   ┃ 12                             ┃            ┃     h: halt system            ┃
+   ┃ 12                             ┃            ┃     r: reset system           ┃
    ┃ 13                             ┃            ┃ Enter: run until next instr.  ┃
    ┃ 14                             ┃            ┃   ESC: quit                   ┃
    ┃ 15                             ┃            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
@@ -134,12 +134,7 @@ def update(stdscr, state):
     draw_leds(8, 56, num=state.alu, n=8, color=2)
 
     # Flags register
-    flags = 0
-    if state.flag_carry:
-        flags += 0b01
-    if state.flag_zero:
-        flags += 0b10
-    draw_leds(8, 81, num=flags, n=2, color=3, dec=False)
+    draw_leds(8, 81, num=state.reg_flags, n=2, color=3, dec=False)
 
     # Instruction register
     draw_leds(11, 17, num=state.reg_instruction >> 4, n=4, color=4)
@@ -175,7 +170,7 @@ def update(stdscr, state):
 
     # Halt message
     if state.control_signals & microcode.HLT:
-        print_message(stdscr, 'System halted. Press any key to quit simulator.')
+        print_message(stdscr, 'System halted.')
 
     # Do the actual drawing to the screen
     stdscr.refresh()
@@ -223,9 +218,9 @@ def handle_keypresses(stdscr, simulator):
             while (simulator.state.microinstruction_counter > 0 or not simulator.state.clock) and not simulator.state.control_signals & microcode.HLT:
                 simulator.step()
             print_message(stdscr, 'Stepping clock until we reach next instruction.')
-        elif c == ord('h') or c == ord('q'):
-            simulator.state.control_signals |= microcode.HLT
-        elif c == 27:
+        elif c == ord('r'):
+            simulator.reset()
+        elif c == 27 or c == ord('q'):
             sys.exit(0)
     except curses.error as e:
         # No key pressed

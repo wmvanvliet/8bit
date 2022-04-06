@@ -148,14 +148,13 @@ class State:  # Classes are namespaces
 
 class Simulator:
     def __init__(self):
-        # Create a freshly minted system state
-        self.state = State()
-        self.state.control_signals = microcode.ucode[self.state.rom_address]
-
         # Variables related to automatic stepping of the clock
         self.clock_automatic = False
         self.clock_speed = 1  # Hz
         self.last_clock_time = 0 # Keep track of when the next clock was last stepped
+
+        # Initialize system state
+        self.reset()
 
     def run(self, stdscr):
         """Main function to run the simulator with its console user interface.
@@ -167,8 +166,10 @@ class Simulator:
         """
         interface.init(stdscr)
 
-        # Run the program until halt
-        while not self.state.control_signals & microcode.HLT:
+        # Start simulation and UI loop. This loop only terminates when the ESC
+        # key is pressed, which is detected inside the handle_keypresses()
+        # function.
+        while True:
             interface.update(stdscr, self.state)
             if self.clock_automatic:
                 wait_time = (0.5 / self.clock_speed) - (time() - self.last_clock_time)
@@ -187,19 +188,25 @@ class Simulator:
             else:
                 curses.cbreak()
                 interface.handle_keypresses(stdscr, self)
-            interface.update(stdscr, self.state)
 
-        # Press any key to exit the simulation
-        interface.update(stdscr, self.state)
-        curses.nocbreak()
-        curses.cbreak()
-        stdscr.nodelay(False)
-        stdscr.getkey()
+            # When we reach the end of the program, set the clock to manual
+            # mode so we don't keep generating useless system states.
+            if self.state.control_signals & microcode.HLT:
+                self.clock_automatic = False
+            interface.update(stdscr, self.state)
 
     def step(self):
         """Step the clock while keeping track of time."""
         self.last_clock_time = time()
         self.state.step()
+
+    def reset(self):
+        """Reset the machine."""
+        global _previous_states
+        _previous_states.clear()
+        self.state = State()
+        self.state.control_signals = microcode.ucode[self.state.rom_address]
+
 
 
 if __name__ == '__main__':
