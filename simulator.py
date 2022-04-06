@@ -29,10 +29,11 @@ class State:  # Classes are namespaces
     reg_memory_address: int = 0
     reg_program_counter: int = 0
     reg_output: int = 0
+    reg_flags: int = 0
 
     control_signals: int = 0
 
-    # Flags
+    # Flag outputs from the ALU
     flag_carry: bool = False
     flag_zero: bool = False
 
@@ -63,9 +64,9 @@ class State:  # Classes are namespaces
             # Build microcode ROM address
             self.rom_address = (self.reg_instruction & 0xf0) >> 1
             self.rom_address += self.microinstruction_counter
-            if self.flag_carry:
+            if self.reg_flags & 0b01:  # Carry flag
                 self.rom_address += 1 << 7
-            if self.flag_zero:
+            if self.reg_flags & 0b10:  # Zero flag
                 self.rom_address += 1 << 8
 
             self.control_signals = microcode.ucode[self.rom_address]
@@ -103,21 +104,25 @@ class State:  # Classes are namespaces
                 if self.bus != self.reg_output:
                     self.reg_output = self.bus
 
-        # Do ALU stuff, set flags
+        # Transfer ALU flag outputs to the flags register
+        if self.clock and (self.control_signals & microcode.FI):
+            self.reg_flags = self.flag_carry + (self.flag_zero << 1)
+
+        # Do ALU stuff, set flag outputs
         if self.control_signals & microcode.SU:
             self.alu = self.reg_a - self.reg_b
         else:
             self.alu = self.reg_a + self.reg_b
         if self.alu > 255:
-            if self.control_signals & microcode.FI:
+            if self.control_signals:
                 self.flag_carry = True
             self.alu = self.alu % 255
         else:
-            if self.control_signals & microcode.FI:
+            if self.control_signals:
                 self.flag_carry = False
         if self.alu < 0:
             self.alu += 255
-        if self.control_signals & microcode.FI:
+        if self.control_signals:
             self.flag_zero = self.alu == 0
 
         # Increment program counters
