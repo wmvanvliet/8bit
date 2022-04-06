@@ -110,20 +110,14 @@ class State:  # Classes are namespaces
 
         # Do ALU stuff, set flag outputs
         if self.control_signals & microcode.SU:
-            self.alu = self.reg_a - self.reg_b
+            # Perform subtraction by computing the 8bit twos-complement
+            # representation of register B.
+            self.alu = self.reg_a + (self.reg_b ^ 0xff & 0xff) + 1
         else:
             self.alu = self.reg_a + self.reg_b
-        if self.alu > 255:
-            if self.control_signals:
-                self.flag_carry = True
-            self.alu = self.alu % 255
-        else:
-            if self.control_signals:
-                self.flag_carry = False
-        if self.alu < 0:
-            self.alu += 255
-        if self.control_signals:
-            self.flag_zero = self.alu == 0
+        self.flag_carry = self.alu > 0xff
+        self.alu &= 0xff
+        self.flag_zero = self.alu == 0
 
         # Increment program counters
         if self.control_signals & microcode.CE and self.clock:
