@@ -1,9 +1,9 @@
 ; Demonstrate calling a subroutine
 	ldi cont  ; load the return address (cont) into (ret)
 	sta ret
-	ldi 11    ; setup argument for the subroutine
+	ldi 1     ; setup argument for the subroutine
 	jmp sub   ; call the subroutine
-cont:	ldi 42    ; subroutine returned to here
+cont:	ldi 2     ; subroutine returned to here
 	out
 	hlt
 
