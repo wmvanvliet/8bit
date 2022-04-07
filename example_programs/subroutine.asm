@@ -1,6 +1,6 @@
 ;
 ; Demonstrate calling a subroutine with the original instruction set.
-; Works through self-modifying code.
+; Works through self-modifying code
 ;
 	ldi cont1       ; set return address (cont1)
 	sta sub_ret + 1 ; overwrite parameter of return jump instruction of subroutine
