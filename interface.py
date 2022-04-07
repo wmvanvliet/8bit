@@ -14,7 +14,7 @@ schematic = """
    ┃             (asm)              ┃  ┃┃┃┃┃┃┃┃──┃ "B" Register: ●●●●●●●● (dec) ┃
    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  ┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  ┃┃┃┃┃┃┃┃  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃ Micro Step: ●●● (dec)          ┃  ┃┃┃┃┃┃┃┃──┃       Output: dec            ┃
+   ┃ Micro Step: ●●● (dec)          ┃  ┃┃┃┃┃┃┃┃──┃ Output: -dec (unsigned)      ┃
    ┃  ROM addr.: ●●●●●●●●● (dec)    ┃─┐┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ │          ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │          ┃ Control: ●●●●●●●●●●●●●●●●    ┃
@@ -32,11 +32,11 @@ schematic = """
    ┃ 09                             ┃            ┃     ←: step clock backwards   ┃
    ┃ 10                             ┃            ┃     ↑: increase clock speed   ┃
    ┃ 11                             ┃            ┃     ↓: decrease clock speed   ┃
-   ┃ 12                             ┃            ┃     r: reset system           ┃
-   ┃ 13                             ┃            ┃ Enter: run until next instr.  ┃
-   ┃ 14                             ┃            ┃   ESC: quit                   ┃
-   ┃ 15                             ┃            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+   ┃ 12                             ┃            ┃     o: toggle output mode     ┃
+   ┃ 13                             ┃            ┃     r: reset system           ┃
+   ┃ 14                             ┃            ┃ Enter: run until next instr.  ┃
+   ┃ 15                             ┃            ┃   ESC: quit                   ┃
+   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 """
 
 import curses
@@ -147,7 +147,14 @@ def update(stdscr, state):
     draw_leds(12, 65, num=state.reg_b, n=8, color=2)
 
     # Output register
-    stdscr.addstr(15, 65, f'{state.reg_output:04d}', curses.color_pair(2))
+    if state.output_signed_mode:
+        # Convert 8bit twos-complement number to a Python signed integer
+        out = state.reg_output
+        if out & 0x80:
+            out = (out ^ 0xff) - 1
+        stdscr.addstr(15, 59, f'{out:04d} (signed)  ', curses.color_pair(2))
+    else:
+        stdscr.addstr(15, 59, f'{state.reg_output:04d} (unsigned)', curses.color_pair(2))
 
     # Microinstruction step
     draw_leds(15, 17, num=state.microinstruction_counter, n=3, color=5)
@@ -218,6 +225,9 @@ def handle_keypresses(stdscr, simulator):
             while (simulator.state.microinstruction_counter > 0 or not simulator.state.clock) and not simulator.state.control_signals & microcode.HLT:
                 simulator.step()
             print_message(stdscr, 'Stepping clock until we reach next instruction.')
+        elif c == ord('o'):
+            simulator.state.output_signed_mode = not simulator.state.output_signed_mode
+            update(stdscr, simulator.state)
         elif c == ord('r'):
             simulator.reset()
         elif c == 27 or c == ord('q') or c == 3:

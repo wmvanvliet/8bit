@@ -35,7 +35,7 @@ def assemble(fname, verbose=False):
             if len(line) == 0:
                 continue
 
-            instruction, *params = line.split(' ')
+            instruction, *params = line.split()
             instruction = instruction.lower()
             if instruction in ['nop', 'out', 'hlt']:
                 assert len(params) == 0, f'{instruction} takes no parameters'
@@ -73,8 +73,10 @@ def assemble(fname, verbose=False):
         if label:
             label = f'({label})'
         human_readable.append(f"{addr:02d}: {b >> 4:04b} {b & 0x0f:04b}  {i} {label}")
+
     if verbose:
-        print(human_readable)
+        for line in human_readable:
+            print(line)
 
     return bin_output, human_readable
 
