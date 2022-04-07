@@ -1,6 +1,6 @@
 import sys
 
-instruction_to_num = {
+opcodes = {
     'nop': 0,
     'lda': 1,
     'add': 2,
@@ -13,7 +13,36 @@ instruction_to_num = {
     'out': 14,
     'hlt': 15,
 }
-num_to_instruction = {v: k for k, v in instruction_to_num.items()}
+
+
+def parse_param(param, labels):
+    """Parse a parameter given a list of tokens."""
+    parsed_tokens = list()
+
+    for token in param.split():
+        try:  # try parsing token as a number
+            parsed_token = int(token, 0)
+        except ValueError:  # not a number
+            if token == '+' or token == '-':
+                parsed_token = token  # we'll resolve this later
+            elif token.lower() in labels:
+                parsed_token = labels[token.lower()]
+            else:
+                raise ValueError('Unknown label "{token}"')
+        parsed_tokens.append(parsed_token)
+
+    # Resolve + and -
+    if (len(parsed_tokens) - 1) % 2 != 0:
+        raise ValueError(f'Cannot parse "{param}"')
+    value = parsed_tokens[0]
+    for op, v in zip(parsed_tokens[1::2], parsed_tokens[2::2]):
+        if op == '+':
+            value += v
+        elif op == '-':
+            value -= v
+        else:
+            raise ValueError(f'Cannot parse "{param}"')
+    return value
 
 
 def assemble(fname, verbose=False):
@@ -36,31 +65,24 @@ def assemble(fname, verbose=False):
             if len(line) == 0:
                 continue
 
-            instruction, *params = line.split()
+            instruction, *param = line.split(None, 1)
             instruction = instruction.lower()
             if instruction in ['nop', 'out', 'hlt']:
-                assert len(params) == 0, f'{instruction} takes no parameters'
+                assert len(param) == 0, f'{instruction} takes no parameters'
                 output.append(('instr', instruction))
             else:
-                assert len(params) == 1, f'{instruction} takes a single parameter'
-                param = params[0]
-                if param.isnumeric():
-                    param = int(param)
-                    assert 0 <= param <= 255, 'Parameter must be 0-255'
-
+                assert len(param) > 0, f'{instruction} takes a single parameter'
                 if instruction != 'db':
                     output.append(('instr', instruction))
-                output.append(('param', param))
+                output.append(('param', param[0]))
 
     # Resolve labels and convert to binary
     bin_output = list()
     for typ, content in output:
         if typ == 'instr':
-            bin_line = instruction_to_num[content.lower()]
+            bin_line = opcodes[content]
         elif typ == 'param':
-            if type(content) == str:
-                content = labels[content.lower()]
-            bin_line = content
+            bin_line = parse_param(content, labels)
         bin_output.append(bin_line)
 
     # Create human readable version of the memory contents
