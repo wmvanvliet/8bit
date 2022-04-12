@@ -5,13 +5,10 @@
 ;
 loop:	lda numer
 	sub denom
-	jc inc     ; result was non-negative
-	jmp end
-
-inc:
+	jnc end     ; result was negative
 	sta numer
-	ldi 1
-	add ans
+	lda ans
+	inc 1
 	sta ans
 	jmp loop
 

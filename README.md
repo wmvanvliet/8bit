@@ -1,7 +1,9 @@
 8bit breadboard computer simulator
 ==================================
 
-This is an assembler + simulator/emulator of [Ben Eater's 8bit breadboard computer](https://www.youtube.com/playlist?list=PLowKtXNTBypGqImE405J2565dvjafglHU).
+This is an assembler + simulator/emulator of [Ben Eater's 8bit breadboard computer](https://www.youtube.com/playlist?list=PLowKtXNTBypGqImE405J2565dvjafglHU) with some additional instructions implemented (see below).
+
+For Ben Eater's original archtecture, see the [main branch](https://github.com/wmvanvliet/8bit/tree/main) of this repo.
 
 For a version with its RAM upgraded to 256 bytes following the instructions by [/u/MironV](https://www.reddit.com/r/beneater/comments/h8y28k), see, see the [ext_memory branch](https://github.com/wmvanvliet/8bit/tree/ext_memory) of this repo.
 
@@ -42,6 +44,11 @@ ldi #   Load the value # into register A
 jmp #   Jump to memory location #
 jc #    Jump to memory location # if the carry flag is set
 jz #    Jump to memory location # if the zero flag is set
+jnc #   Jump to memory location # if the carry flag is not set
+jnz #   Jump to memory location # if the zero flag is not set
+cmp #   Subtract memory contents at # from register and only set flags, answer is thrown away
+inc #   Increment register A by #
+dec #   Decrement register A by #
 out     Output contents of register A
 hlt     Halt the CPU, end of program
 ```

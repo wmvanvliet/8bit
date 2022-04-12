@@ -1,3 +1,5 @@
+import sys
+
 instruction_to_num = {
     'nop': 0,
     'lda': 1,
@@ -8,7 +10,11 @@ instruction_to_num = {
     'jmp': 6,
     'jc': 7,
     'jz': 8,
-    'ji': 9,
+    'jnc': 9,
+    'jzc': 10,
+    'cmp': 11,
+    'inc': 12,
+    'dec': 13,
     'out': 14,
     'hlt': 15,
 }

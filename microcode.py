@@ -24,24 +24,26 @@ FLAGS_Z1C1 = 3
 
 JC = 0b0111
 JZ = 0b1000
+JNC = 0b1001
+JNZ = 0b1010
 
 UCODE_TEMPLATE = [
-    [MI|CO,  RO|II|CE,  0,      0,      0,           0, 0, 0],   # 0000 - NOP
-    [MI|CO,  RO|II|CE,  IO|MI,  RO|AI,  0,           0, 0, 0],   # 0001 - LDA
-    [MI|CO,  RO|II|CE,  IO|MI,  RO|BI,  EO|AI|FI,    0, 0, 0],   # 0010 - ADD
-    [MI|CO,  RO|II|CE,  IO|MI,  RO|BI,  EO|AI|SU|FI, 0, 0, 0],   # 0011 - SUB
-    [MI|CO,  RO|II|CE,  IO|MI,  AO|RI,  0,           0, 0, 0],   # 0100 - STA
-    [MI|CO,  RO|II|CE,  IO|AI,  0,      0,           0, 0, 0],   # 0101 - LDI
-    [MI|CO,  RO|II|CE,  IO|J,   0,      0,           0, 0, 0],   # 0110 - JMP
-    [MI|CO,  RO|II|CE,  0,      0,      0,           0, 0, 0],   # 0111 - JC
-    [MI|CO,  RO|II|CE,  0,      0,      0,           0, 0, 0],   # 1000 - JZ
-    [MI|CO,  RO|II|CE,  IO|MI,  RO|J,   0,           0, 0, 0],   # 1001 - JI
-    [MI|CO,  RO|II|CE,  0,      0,      0,           0, 0, 0],   # 1010
-    [MI|CO,  RO|II|CE,  0,      0,      0,           0, 0, 0],   # 1011
-    [MI|CO,  RO|II|CE,  0,      0,      0,           0, 0, 0],   # 1100
-    [MI|CO,  RO|II|CE,  0,      0,      0,           0, 0, 0],   # 1101
-    [MI|CO,  RO|II|CE,  AO|OI,  0,      0,           0, 0, 0],   # 1110 - OUT
-    [MI|CO,  RO|II|CE,  HLT,    0,      0,           0, 0, 0],   # 1111 - HLT
+    [MI|CO,  RO|II|CE,  0,      0,           0,           0, 0, 0],   # 0000 - NOP
+    [MI|CO,  RO|II|CE,  IO|MI,  RO|AI,       0,           0, 0, 0],   # 0001 - LDA
+    [MI|CO,  RO|II|CE,  IO|MI,  RO|BI,       EO|AI|FI,    0, 0, 0],   # 0010 - ADD
+    [MI|CO,  RO|II|CE,  IO|MI,  RO|BI,       EO|AI|SU|FI, 0, 0, 0],   # 0011 - SUB
+    [MI|CO,  RO|II|CE,  IO|MI,  AO|RI,       0,           0, 0, 0],   # 0100 - STA
+    [MI|CO,  RO|II|CE,  IO|AI,  0,           0,           0, 0, 0],   # 0101 - LDI
+    [MI|CO,  RO|II|CE,  IO|J,   0,           0,           0, 0, 0],   # 0110 - JMP
+    [MI|CO,  RO|II|CE,  0,      0,           0,           0, 0, 0],   # 0111 - JC
+    [MI|CO,  RO|II|CE,  0,      0,           0,           0, 0, 0],   # 1000 - JZ
+    [MI|CO,  RO|II|CE,  IO|J,   0,           0,           0, 0, 0],   # 1001 - JNC
+    [MI|CO,  RO|II|CE,  IO|J,   0,           0,           0, 0, 0],   # 1010 - JNZ
+    [MI|CO,  RO|II|CE,  IO|MI,  RO|BI,       SU|FI,       0, 0, 0],   # 1011 - CMP
+    [MI|CO,  RO|II|CE,  IO|BI,  EO|AI|FI,    0,           0, 0, 0],   # 1100 - INC
+    [MI|CO,  RO|II|CE,  IO|BI,  EO|SU|AI|FI, 0,           0, 0, 0],   # 1101 - DEC
+    [MI|CO,  RO|II|CE,  AO|OI,  0,           0,           0, 0, 0],   # 1110 - OUT
+    [MI|CO,  RO|II|CE,  HLT,    0,           0,           0, 0, 0],   # 1111 - HLT
 ]
 
 ucode = [deepcopy(UCODE_TEMPLATE) for _ in range(4)]
@@ -49,6 +51,10 @@ ucode[FLAGS_Z0C1][JC][2] = IO|J
 ucode[FLAGS_Z1C0][JZ][2] = IO|J
 ucode[FLAGS_Z1C1][JC][2] = IO|J
 ucode[FLAGS_Z1C1][JZ][2] = IO|J
+ucode[FLAGS_Z0C1][JNC][2] = 0
+ucode[FLAGS_Z1C0][JNZ][2] = 0
+ucode[FLAGS_Z1C1][JNC][2] = 0
+ucode[FLAGS_Z1C1][JNZ][2] = 0
 
 ucode = [ucode[i][j][k] for i in range(4) for j in range(16) for k in range(8)]
 
