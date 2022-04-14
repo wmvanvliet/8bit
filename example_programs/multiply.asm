@@ -1,3 +1,6 @@
+;
+; Multiply two numbers using a loop (Ben Eater's design)
+;
 loop:	lda prod
 	add x
 	sta prod
