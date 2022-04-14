@@ -46,7 +46,7 @@ jc #    Jump to memory location # if the carry flag is set
 jz #    Jump to memory location # if the zero flag is set
 jnc #   Jump to memory location # if the carry flag is not set
 jnz #   Jump to memory location # if the zero flag is not set
-cmp #   Subtract memory contents at # from register and only set flags, answer is thrown away
+shl #   Bit-shift the A register to the left
 inc #   Increment register A by #
 dec #   Decrement register A by #
 out     Output contents of register A
