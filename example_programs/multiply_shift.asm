@@ -2,14 +2,13 @@
 ; Multiply two numbers (x and y) using left-shift
 ;
 loop:	lda y
-	add y
+	shl
 	sta y
 	lda prod
 	jnc a
 	add x
 	out
-a:	sta prod
-        add prod
+a:	shl
 	sta prod
 	jmp loop
 
