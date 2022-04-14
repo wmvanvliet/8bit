@@ -39,7 +39,7 @@ UCODE_TEMPLATE = [
     [MI|CO,  RO|II|CE,  0,      0,           0,           0, 0, 0],   # 1000 - JZ
     [MI|CO,  RO|II|CE,  IO|J,   0,           0,           0, 0, 0],   # 1001 - JNC
     [MI|CO,  RO|II|CE,  IO|J,   0,           0,           0, 0, 0],   # 1010 - JNZ
-    [MI|CO,  RO|II|CE,  IO|MI,  RO|BI,       SU|FI,       0, 0, 0],   # 1011 - CMP
+    [MI|CO,  RO|II|CE,  AO|BI,  EO|AI|FI,    0,           0, 0, 0],   # 1011 - SHL
     [MI|CO,  RO|II|CE,  IO|BI,  EO|AI|FI,    0,           0, 0, 0],   # 1100 - INC
     [MI|CO,  RO|II|CE,  IO|BI,  EO|SU|AI|FI, 0,           0, 0, 0],   # 1101 - DEC
     [MI|CO,  RO|II|CE,  AO|OI,  0,           0,           0, 0, 0],   # 1110 - OUT

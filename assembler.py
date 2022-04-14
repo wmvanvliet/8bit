@@ -12,7 +12,7 @@ instruction_to_num = {
     'jz': 8,
     'jnc': 9,
     'jzc': 10,
-    'cmp': 11,
+    'shl': 11,
     'inc': 12,
     'dec': 13,
     'out': 14,
@@ -43,7 +43,7 @@ def assemble(fname, verbose=False):
 
             instruction, *params = line.split()
             instruction = instruction.lower()
-            if instruction in ['nop', 'out', 'hlt']:
+            if instruction in ['nop', 'out', 'hlt', 'shl']:
                 assert len(params) == 0, f'{instruction} takes no parameters'
                 output.append((instruction,))
             else:
