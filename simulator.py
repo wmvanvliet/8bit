@@ -130,7 +130,7 @@ class State:  # Classes are namespaces
 
         # Increment program counters
         if self.control_signals & microcode.CE and self.clock:
-            self.reg_program_counter = (self.reg_program_counter + 1) % 255
+            self.reg_program_counter = (self.reg_program_counter + 1) % 16
         if not self.clock:
             self.microinstruction_counter = (self.microinstruction_counter + 1) % 5
 
