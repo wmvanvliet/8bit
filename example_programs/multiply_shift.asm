@@ -5,14 +5,15 @@ loop:	lda y
 	add y
 	sta y
 	lda prod
-	jnc a
-	add x
+	jc a
+	jmp b
+a:	add x
 	out
-a:	sta prod
+b:	sta prod
         add prod
 	sta prod
 	jmp loop
 
-x:	db 5
-y:	db 7
+x:	db 17
+y:	db 15
 prod:	db 0
