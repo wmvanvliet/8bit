@@ -10,33 +10,33 @@ schematic = """
    ┃        RAM: ●●●●●●●● (dec)     ┠──┃┃┃┃┃┃┃┃──┨ ALU: ●●●●●●●● (dec) ┠─┨Flags: ●● ┃
    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  ┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━┛ ┃       ZC ┃
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  ┃┃┃┃┃┃┃┃                          ┗━━━━━━━━━━┛
-   ┃ Instr. Reg: ●●●●●●●● (dec)     ┃  ┃┃┃┃┃┃┃┃  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+   ┃ Instr. Reg: ●●●●●●●● (dec)     ┠──┃┃┃┃┃┃┃┃  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
    ┃                (ins)           ┃  ┃┃┃┃┃┃┃┃──┨ "B" Register: ●●●●●●●● (dec) ┃
    ┗━━━━━━━━━━━━━━━━┯━━━━━━━━━━━━━━━┛  ┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┏━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━┓  ┃┃┃┃┃┃┃┃  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
    ┃ Micro Step: ●●●● (dec)         ┃  ┃┃┃┃┃┃┃┃──┨ Output: -dec (unsigned)      ┃
-   ┃  ROM addr.: ●●●●●●●●● (dec)    ┠─┐┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+   ┃ ROM addr.: ●●●●●●●●●●●● (dec)  ┠─┐┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ │
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │          ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃ Memory contents                ┃ │          ┃ Control: ●●●●●●●●●●●●●●●●    ┃
-   ┠────────────────────────────────┨ │          ┃          HMRRIIAAΣSBOCCJF    ┃
-   ┃ 00                             ┃ └──────────┨          LIIOOIIOOUIIEO I    ┃
+   ┃ Memory contents                ┃ │          ┃ Control: ●●●●●●●●●●●●●●●●●●  ┃
+   ┠────────────────────────────────┨ │          ┃          HMRIJABOFCSRICAΣBT  ┃
+   ┃ 00                             ┃ └──────────┨          LIII IIIIEUOOOOOOR  ┃
    ┃ 01                             ┃            ┃          T                   ┃
-   ┃ 02                             ┃            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-   ┃ 03                             ┃
-   ┃ 04                             ┃            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃ 05                             ┃            ┃ Keyboard commands             ┃            
-   ┃ 06                             ┃            ┠───────────────────────────────┨            
-   ┃ 07                             ┃            ┃ Space: start/stop clock       ┃            
-   ┃ 08                             ┃            ┃     →: step clock             ┃            
-   ┃ 09                             ┃            ┃     ←: step clock backwards   ┃
-   ┃ 10                             ┃            ┃     ↑: increase clock speed   ┃
-   ┃ 11                             ┃            ┃     ↓: decrease clock speed   ┃
-   ┃ 12                             ┃            ┃     o: toggle output mode     ┃
-   ┃ 13                             ┃            ┃     r: reset system           ┃
-   ┃ 14                             ┃            ┃ Enter: run until next instr.  ┃
-   ┃ 15                             ┃            ┃   ESC: quit                   ┃
-   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+   ┃ 02                             ┃            ┃           input     output   ┃
+   ┃ 03                             ┃            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+   ┃ 04                             ┃            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+   ┃ 05                             ┃            ┃ Keyboard commands            ┃            
+   ┃ 06                             ┃            ┠──────────────────────────────┨            
+   ┃ 07                             ┃            ┃ Space: start/stop clock      ┃            
+   ┃ 08                             ┃            ┃     →: step clock            ┃            
+   ┃ 09                             ┃            ┃     ←: step clock backwards  ┃
+   ┃ 10                             ┃            ┃     ↑: increase clock speed  ┃
+   ┃ 11                             ┃            ┃     ↓: decrease clock speed  ┃
+   ┃ 12                             ┃            ┃     o: toggle output mode    ┃
+   ┃ 13                             ┃            ┃     r: reset system          ┃
+   ┃ 14                             ┃            ┃ Enter: run until next instr. ┃
+   ┃ 15                             ┃            ┃   ESC: quit                  ┃
+   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 """
 
 import curses
@@ -110,7 +110,10 @@ def update(stdscr, state):
             led_color = color if (num >> i) & 1 else 1
             stdscr.addstr(row, col + n - 1 - i, '●', curses.color_pair(led_color))
         if dec:
-            stdscr.addstr(row, col + n, f' ({num:03d})', curses.color_pair(1))
+            if n <= 8:
+                stdscr.addstr(row, col + n, f' ({num:03d})', curses.color_pair(1))
+            else:
+                stdscr.addstr(row, col + n, f' ({num:04d})', curses.color_pair(1))
 
     # Bus
     draw_leds(1, 39, num=state.bus, n=8, color=5, dec=False)
@@ -155,10 +158,10 @@ def update(stdscr, state):
 
     # Microinstruction step
     draw_leds(15, 17, num=state.microinstruction_counter, n=4, color=5)
-    draw_leds(16, 17, num=state.rom_address, n=9, color=5)
+    draw_leds(16, 16, num=state.rom_address, n=12, color=5)
 
     # Control lines
-    draw_leds(19, 60, num=state.control_signals, n=16, color=4, dec=False)
+    draw_leds(19, 60, num=state.control_signals, n=18, color=4, dec=False)
 
     # Memory contents
     offset = state.reg_program_counter // 16 * 16

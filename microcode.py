@@ -1,21 +1,23 @@
 from copy import deepcopy
 
-HLT = 0b1000000000000000  # Halt clock
-MI  = 0b0100000000000000  # Memory address register in
-RI  = 0b0010000000000000  # RAM data in
-RO  = 0b0001000000000000  # RAM data out
-TR  = 0b0000100000000000  # Micocode counter reset
-II  = 0b0000010000000000  # Instruction register in
-AI  = 0b0000001000000000  # A register in
-AO  = 0b0000000100000000  # A register out
-EO  = 0b0000000010000000  # ALU out
-SU  = 0b0000000001000000  # ALU subtract
-BI  = 0b0000000000100000  # B register in
-OI  = 0b0000000000010000  # Output register in
-CE  = 0b0000000000001000  # Program counter enable
-CO  = 0b0000000000000100  # Program counter out
-J   = 0b0000000000000010  # Jump (program counter in)
-FI  = 0b0000000000000001  # Flags in
+HLT = 0b100000000000000000  # Halt clock
+MI  = 0b010000000000000000  # Memory address register in
+RI  = 0b001000000000000000  # RAM data in
+II  = 0b000100000000000000  # Instruction register in
+J   = 0b000010000000000000  # Jump
+AI  = 0b000001000000000000  # A register in
+BI  = 0b000000100000000000  # B register in
+OI  = 0b000000010000000000  # Output register in
+FI  = 0b000000001000000000  # Flags register in
+CE  = 0b000000000100000000  # Program counter enable (inc)
+SU  = 0b000000000010000000  # ALU Subtract
+RO  = 0b000000000001000000  # RAM out
+IO  = 0b000000000000100000  # Instruction register out
+CO  = 0b000000000000010000  # Program counter out
+AO  = 0b000000000000001000  # A register out
+EO  = 0b000000000000000100  # ALU out
+BO  = 0b000000000000000010  # B register out
+TR  = 0b000000000000000001  # Time reset
 
 FLAGS_Z0C0 = 0
 FLAGS_Z0C1 = 1

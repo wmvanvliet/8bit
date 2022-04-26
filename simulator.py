@@ -104,13 +104,12 @@ class State:  # Classes are namespaces
     def update_control_signals(self):
         """Update the control signals based on the state of the microcode ROM
         module."""
-        self.rom_address = (self.reg_instruction & 0xf0) >> 1
-        self.rom_address = (self.reg_instruction & 0x0f) << 3
+        self.rom_address = self.reg_instruction << 3
         self.rom_address += self.microinstruction_counter
         if self.reg_flags & 0b01:  # Carry flag
-            self.rom_address += 1 << 7
+            self.rom_address += 1 << 11
         if self.reg_flags & 0b10:  # Zero flag
-            self.rom_address += 1 << 8
+            self.rom_address += 1 << 12
 
         self.control_signals = microcode.ucode[self.rom_address]
 

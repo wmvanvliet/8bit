@@ -1,17 +1,20 @@
 import sys
 
 opcodes = {
-    'nop': 0,
-    'lda': 1,
-    'add': 2,
-    'sub': 3,
-    'sta': 4,
-    'ldi': 5,
-    'jmp': 6,
-    'jc': 7,
-    'jz': 8,
-    'out': 14,
-    'hlt': 15,
+    'nop': 0x00,
+    'hlt': 0xFF,
+    'ld':  dict(RA=1 << 3, RV=2 << 3, RR=3 << 3, AR=4 << 3, AV=1, AA=2),
+    'add': dict(RA=5 << 3, RV=6 << 3, RR=7 << 3, AR=8 << 3, AV=3, AA=4),
+    'sub': dict(RA=9 << 3, RV=10 << 3, RR=11 << 3, AR=12 << 3, AV=5, AA=6),
+    'cmp': dict(RA=10 << 3, RV=11 << 3, RR=12 << 3, AR=13 << 3, AV=29 << 3 + 0),
+    'sla': dict(R=14 << 3, A=29 << 3 + 1),
+    'jp':  dict(R=15 << 3, A=29 << 3 + 2, V=29 << 3 + 3),
+    'jc':  dict(R=18 << 3, A=29 << 3 + 4, V=29 << 3 + 5),
+    'jz':  dict(R=19 << 3, A=29 << 3 + 6, V=29 << 3 + 7),
+    'jr':  dict(R=20 << 3, A=30 << 3 + 0, V=30 << 3 + 1),
+    'jrc':  dict(R=21 << 3, A=30 << 3 + 2, V=30 << 3 + 3),
+    'jrz':  dict(R=22 << 3, A=30 << 3 + 4, V=30 << 3 + 5),
+    'out': dict(R=23 << 3, A=31 << 3 + 0),
 }
 num_to_instruction = {v: k for k, v in opcodes.items()}
 
