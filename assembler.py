@@ -13,6 +13,7 @@ opcodes = {
     'out': 14,
     'hlt': 15,
 }
+num_to_instruction = {v: k for k, v in opcodes.items()}
 
 
 def parse_param(param, labels):

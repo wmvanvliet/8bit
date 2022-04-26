@@ -11,10 +11,10 @@ schematic = """
    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  ┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━┛ ┃       ZC ┃
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  ┃┃┃┃┃┃┃┃                          ┗━━━━━━━━━━┛
    ┃ Instr. Reg: ●●●●●●●● (dec)     ┃  ┃┃┃┃┃┃┃┃  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┗━━━━━━━━━━━━━━━━┯━━━━━━━━━━━━━━━┛  ┃┃┃┃┃┃┃┃──┨ "B" Register: ●●●●●●●● (dec) ┃
-   ┏━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━┓  ┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-   ┃ Micro Step: ●●●● (dec)         ┃  ┃┃┃┃┃┃┃┃  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃  ROM addr.: ●●●●●●●●● (dec)    ┃  ┃┃┃┃┃┃┃┃──┨ Output: -dec (unsigned)      ┃
+   ┃                (ins)           ┃  ┃┃┃┃┃┃┃┃──┨ "B" Register: ●●●●●●●● (dec) ┃
+   ┗━━━━━━━━━━━━━━━━┯━━━━━━━━━━━━━━━┛  ┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+   ┏━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━┓  ┃┃┃┃┃┃┃┃  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+   ┃ Micro Step: ●●●● (dec)         ┃  ┃┃┃┃┃┃┃┃──┨ Output: -dec (unsigned)      ┃
    ┃  ROM addr.: ●●●●●●●●● (dec)    ┠─┐┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ │
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │          ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -43,6 +43,7 @@ import curses
 import sys
 
 import microcode
+from assembler import num_to_instruction
 
 
 def init(stdscr):
@@ -137,6 +138,7 @@ def update(stdscr, state):
 
     # Instruction register
     draw_leds(11, 17, num=state.reg_instruction, n=8, color=5)
+    stdscr.addstr(12, 20, f'({num_to_instruction[state.reg_instruction]:>3s})', curses.color_pair(1))
 
     # "B" register
     draw_leds(12, 65, num=state.reg_b, n=8, color=2)
@@ -152,11 +154,11 @@ def update(stdscr, state):
         stdscr.addstr(15, 59, f'{state.reg_output:04d} (unsigned)', curses.color_pair(2))
 
     # Microinstruction step
-    draw_leds(14, 17, num=state.microinstruction_counter, n=4, color=5)
-    draw_leds(15, 17, num=state.rom_address, n=9, color=5)
+    draw_leds(15, 17, num=state.microinstruction_counter, n=4, color=5)
+    draw_leds(16, 17, num=state.rom_address, n=9, color=5)
 
     # Control lines
-    draw_leds(18, 60, num=state.control_signals, n=16, color=4, dec=False)
+    draw_leds(19, 60, num=state.control_signals, n=16, color=4, dec=False)
 
     # Memory contents
     offset = state.reg_program_counter // 16 * 16
@@ -168,10 +170,10 @@ def update(stdscr, state):
             color = curses.color_pair(5)
 
         # Blank the line before drawing memory contents
-        stdscr.addstr(20 + address - offset, 4, '                               ', color)
-        stdscr.addstr(20 + address - offset, 5, contents, color)
+        stdscr.addstr(21 + address - offset, 4, '                               ', color)
+        stdscr.addstr(21 + address - offset, 5, contents, color)
     # Blank any remaining empty lines in the memory contents display
-    for i in range(21 + address - offset, 36):
+    for i in range(22 + address - offset, 37):
         stdscr.addstr(i, 4, '                               ', color)
 
     # Halt message
