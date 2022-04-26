@@ -1,7 +1,14 @@
 8bit breadboard computer simulator (extended memory)
 ====================================================
 
-This is an assembler + simulator/emulator of [Ben Eater's 8bit breadboard computer](https://www.youtube.com/playlist?list=PLowKtXNTBypGqImE405J2565dvjafglHU) with its RAM upgraded to 256 bytes following the instructions by [/u/MironV](https://www.reddit.com/r/beneater/comments/h8y28k).
+This is an assembler + simulator/emulator of [Ben Eater's 8bit breadboard computer](https://www.youtube.com/playlist?list=PLowKtXNTBypGqImE405J2565dvjafglHU) with Marijn's modifications added to it:
+
+ - RAM upgraded to 256 bytes
+ - Output control lines multiplexed using a 3->8 decoder
+   - Register B out control line available
+   - TR control line available that immediately resets the microstep counter
+ - Microcode ROM address latched to only change on down-flank of clock
+ - Vastly extended instruction set
 
 For Ben Eater's original architecture, see the [main branch](https://github.com/wmvanvliet/8bit/tree/main) of this repo.
 

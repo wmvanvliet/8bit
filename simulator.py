@@ -50,8 +50,10 @@ class State:  # Classes are namespaces
         not touch the various clocks, so this can be called as often as needed
         to keep every component in sync."""
 
-        # Set control lines based on current microinstruction.
-        self.update_control_signals()
+        # Set control lines based on current microinstruction. Only happens on
+        # the down flank of the clock.
+        if not self.clock:
+            self.update_control_signals()
 
         # Write to the bus
         if self.control_signals & microcode.AO:
@@ -99,9 +101,6 @@ class State:  # Classes are namespaces
         self.alu &= 0xff
         self.flag_zero = self.alu == 0
 
-        # Changes of instruction and flags registers affect the control lines
-        self.update_control_signals()
-    
     def update_control_signals(self):
         """Update the control signals based on the state of the microcode ROM
         module."""
