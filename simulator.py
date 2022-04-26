@@ -51,18 +51,7 @@ class State:  # Classes are namespaces
         to keep every component in sync."""
 
         # Set control lines based on current microinstruction.
-        # This is done on the down-flank of the clock.
-        if not self.clock:
-            # Build microcode ROM address
-            self.rom_address = (self.reg_instruction & 0xf0) >> 1
-            self.rom_address = (self.reg_instruction & 0x0f) << 3
-            self.rom_address += self.microinstruction_counter
-            if self.reg_flags & 0b01:  # Carry flag
-                self.rom_address += 1 << 7
-            if self.reg_flags & 0b10:  # Zero flag
-                self.rom_address += 1 << 8
-
-            self.control_signals = microcode.ucode[self.rom_address]
+        self.update_control_signals()
 
         # Write to the bus
         if self.control_signals & microcode.AO:
@@ -110,6 +99,22 @@ class State:  # Classes are namespaces
         self.alu &= 0xff
         self.flag_zero = self.alu == 0
 
+        # Changes of instruction and flags registers affect the control lines
+        self.update_control_signals()
+    
+    def update_control_signals(self):
+        """Update the control signals based on the state of the microcode ROM
+        module."""
+        self.rom_address = (self.reg_instruction & 0xf0) >> 1
+        self.rom_address = (self.reg_instruction & 0x0f) << 3
+        self.rom_address += self.microinstruction_counter
+        if self.reg_flags & 0b01:  # Carry flag
+            self.rom_address += 1 << 7
+        if self.reg_flags & 0b10:  # Zero flag
+            self.rom_address += 1 << 8
+
+        self.control_signals = microcode.ucode[self.rom_address]
+
     def step(self):
         """Perform a single step (half a clock-cycle)."""
         # When system is halted, do nothing
@@ -124,9 +129,6 @@ class State:  # Classes are namespaces
         # Flip clock signal
         self.clock = not self.clock
 
-        # Update the system state now that the clock has changed
-        self.update()
-
         # Increment program counters
         if self.control_signals & microcode.CE and self.clock:
             self.reg_program_counter = (self.reg_program_counter + 1) % 256
@@ -137,6 +139,9 @@ class State:  # Classes are namespaces
                 # Changing the microinstruction counter has an immediate effect
                 # on the system state.
                 self.update()
+
+        # Update the system state now that the clock has changed
+        self.update()
 
         return self
 
