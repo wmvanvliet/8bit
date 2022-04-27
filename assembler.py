@@ -68,7 +68,7 @@ def assemble(fname, verbose=False):
     # Memory dedicated to registers
     for _ in range(8):
         output.append(('db', 0))
-    output_readable.append(('db  0 (x8)', 8))
+    output_readable.append(('db 0 (x8)', 8))
 
     # Parse file
     with open(fname) as f:
@@ -98,7 +98,7 @@ def assemble(fname, verbose=False):
                     raise ValueError(f'Instruction {instruction} needs a parameter.')
                 try:
                     output.append(('db', int(params[0])))
-                    output_readable.append((f'db  {int(params[0]):d}', 1))
+                    output_readable.append((f'db {int(params[0]):d}', 1))
 
                 except:
                     raise ValueError(f'Invalid value for "db": {params[0]}')
@@ -126,28 +126,28 @@ def assemble(fname, verbose=False):
                     if 'R' not in opcode:
                         raise ValueError(f'Instruction {instruction} does not take a register as a parameter.')
                     output.append(('instr_with_reg', instruction, opcode['R'], register))
-                    output_readable.append((f'{instruction:3s} {register}', 1))
+                    output_readable.append((f'{instruction} {register}', 1))
                 elif typ == 'value':
                     value = params[0][1]
                     if 'V' not in opcode:
                         raise ValueError(f'Instruction {instruction} does not take a value as a parameter.')
                     output.append(('instr', instruction, opcode['V']))
                     output.append(('param', value))
-                    output_readable.append((f'{instruction:3s} {value:d}', 2))
+                    output_readable.append((f'{instruction} {value:d}', 2))
                 elif typ == 'label':
                     label, offset, readable = params[0][1:]
                     if 'A' not in opcode:
                         raise ValueError(f'Instruction {instruction} does not take an address as a parameter.')
                     output.append(('instr', instruction, opcode['A']))
                     output.append(('label', label, offset))
-                    output_readable.append((f'{instruction:3s} {readable}', 2))
+                    output_readable.append((f'{instruction} {readable}', 2))
                 elif typ == 'address':
                     address = params[0]
                     if 'A' not in opcode:
                         raise ValueError(f'Instruction {instruction} does not take an address as a parameter.')
                     output.append(('instr', instruction, opcode['A']))
                     output.append(('param', address))
-                    output_readable.append((f'{instruction:3s} ${address:d}', 2))
+                    output_readable.append((f'{instruction} ${address:d}', 2))
                 continue
 
             if len(params) == 2:
@@ -165,7 +165,7 @@ def assemble(fname, verbose=False):
                         raise ValueError(f'Instruction {instruction} does not take two registers as parameters.')
                     output.append(('instr_with_reg', instruction, opcode[order], register1))
                     output.append(('param', 'abcdefgh'.index(register2)))
-                    output_readable.append((f'{instruction:3s} {params[0][1]}, {params[1][1]}', 2))
+                    output_readable.append((f'{instruction} {params[0][1]},{params[1][1]}', 2))
                 elif typ1 == 'register' and typ2 == 'address':
                     register = params[0][1]
                     address = params[1][1]
@@ -173,7 +173,7 @@ def assemble(fname, verbose=False):
                         raise ValueError(f'Instruction {instruction} does not take a register and an address as parameters.')
                     output.append(('instr_with_reg', instruction, opcode['RA'], register))
                     output.append(('param', address))
-                    output_readable.append((f'{instruction:3s} {register}, ${address:d}', 2))
+                    output_readable.append((f'{instruction} {register},${address:d}', 2))
                 elif typ1 == 'register' and typ2 == 'label':
                     register = params[0][1]
                     label, offset, readable = params[1][1:]
@@ -181,7 +181,7 @@ def assemble(fname, verbose=False):
                         raise ValueError(f'Instruction {instruction} does not take a register and an address as parameters.')
                     output.append(('instr_with_reg', instruction, opcode['RA'], register))
                     output.append(('label', label, offset))
-                    output_readable.append((f'{instruction:3s} {register}, {readable}', 2))
+                    output_readable.append((f'{instruction} {register},{readable}', 2))
                 elif typ1 == 'register' and typ2 == 'value':
                     register = params[0][1]
                     value = params[1][1]
@@ -189,7 +189,7 @@ def assemble(fname, verbose=False):
                         raise ValueError(f'Instruction {instruction} does not take a register and a value as parameters.')
                     output.append(('instr_with_reg', instruction, opcode['RV'], register))
                     output.append(('param', value))
-                    output_readable.append((f'{instruction:3s} {register}, {value:d}', 2))
+                    output_readable.append((f'{instruction} {register},{value:d}', 2))
                 elif typ1 == 'address' and typ2 == 'register':
                     address = params[0][1]
                     register = params[1][1]
@@ -197,7 +197,7 @@ def assemble(fname, verbose=False):
                         raise ValueError(f'Instruction {instruction} does not take an address and a register as parameters.')
                     output.append(('instr_with_reg', instruction, opcode['AR'], register))
                     output.append(('param', address))
-                    output_readable.append((f'{instruction:3s} ${address:d} {register}', 2))
+                    output_readable.append((f'{instruction} ${address:d},{register}', 2))
                 elif typ1 == 'address' and typ2 == 'address':
                     address1 = params[0][1]
                     address2 = params[1][1]
@@ -206,7 +206,7 @@ def assemble(fname, verbose=False):
                     output.append(('instr', instruction, opcode['AA']))
                     output.append(('param', address2))
                     output.append(('param', address1))
-                    output_readable.append((f'{instruction:3s} ${address1:d} ${address2:d}', 3))
+                    output_readable.append((f'{instruction} ${address1:d},${address2:d}', 3))
                 elif typ1 == 'address' and typ2 == 'label':
                     address = params[0][1]
                     label, offset, readable = params[1][1:]
@@ -215,7 +215,7 @@ def assemble(fname, verbose=False):
                     output.append(('instr', instruction, opcode['AA']))
                     output.append(('label', label, offset))
                     output.append(('param', address))
-                    output_readable.append((f'{instruction:3s} ${address:d} {readable}', 3))
+                    output_readable.append((f'{instruction} ${address:d},{readable}', 3))
                 elif typ1 == 'address' and typ2 == 'value':
                     address = params[0][1]
                     value = params[1][1]
@@ -224,7 +224,7 @@ def assemble(fname, verbose=False):
                     output.append(('instr_with', instruction, opcode['AV']))
                     output.append(('param', value))
                     output.append(('param', address))
-                    output_readable.append((f'{instruction:3s} ${address:d} {value:d}', 3))
+                    output_readable.append((f'{instruction} ${address:d},{value:d}', 3))
                 elif typ1 == 'label' and typ2 == 'register':
                     label, offset, readable = params[0][1:]
                     register = params[1][1]
@@ -232,7 +232,7 @@ def assemble(fname, verbose=False):
                         raise ValueError(f'Instruction {instruction} does not take an address and a register as parameters.')
                     output.append(('instr_with_reg', instruction, opcode['AR'], register))
                     output.append(('label', label, offset))
-                    output_readable.append((f'{instruction:3s} {readable} {register}', 2))
+                    output_readable.append((f'{instruction} {readable},{register}', 2))
                 elif typ1 == 'label' and typ2 == 'address':
                     label, offset, readable = params[0][1:]
                     address = params[1][1]
@@ -241,7 +241,7 @@ def assemble(fname, verbose=False):
                     output.append(('instr', instruction, opcode['AA']))
                     output.append(('label', label, offset))
                     output.append(('param', address))
-                    output_readable.append((f'{instruction:3s} {readable} ${address:d}', 3))
+                    output_readable.append((f'{instruction} {readable},${address:d}', 3))
                 elif typ1 == 'label' and typ2 == 'label':
                     label1, offset1, readable1 = params[0][1:]
                     label2, offset2, readable2 = params[1][1:]
@@ -250,7 +250,7 @@ def assemble(fname, verbose=False):
                     output.append(('instr', instruction, opcode['AA']))
                     output.append(('label', label2, offset2))
                     output.append(('label', label1, offset1))
-                    output_readable.append((f'{instruction:3s} {readable1} {readable2}', 3))
+                    output_readable.append((f'{instruction} {readable1},{readable2}', 3))
                 elif typ1 == 'label' and typ2 == 'value':
                     label, offset, readable = params[0][1:]
                     value = params[1][1]
@@ -259,7 +259,7 @@ def assemble(fname, verbose=False):
                     output.append(('instr', instruction, opcode['AV']))
                     output.append(('param', value))
                     output.append(('label', label, offset))
-                    output_readable.append((f'{instruction:3s} {readable} {value:d}', 3))
+                    output_readable.append((f'{instruction} {readable},{value:d}', 3))
                 continue
 
     # from pprint import pprint
@@ -290,13 +290,13 @@ def assemble(fname, verbose=False):
     bin_iter = enumerate(bin_output)
     for readable, n_bytes in output_readable:
         addr, binary = next(bin_iter)
-        s = f'{addr:02x} {binary:08b} {readable}'
+        s = f'{addr:02x}: {binary:08b} {readable}'
         if label := addr_to_label.get(addr, ''):
-            s += f'    ({label})'
+            s += f' ({label})'
         human_readable.append(s)
         for _ in range(n_bytes - 1):
             addr, binary = next(bin_iter)
-            s = f'{addr:02x} {binary:08b}'
+            s = f'{addr:02x}: {binary:08b}'
             if label := addr_to_label.get(addr, ''):
                 s += f' ({label})'
             human_readable.append(s)
