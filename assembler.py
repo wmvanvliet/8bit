@@ -290,15 +290,15 @@ def assemble(fname, verbose=False):
     bin_iter = enumerate(bin_output)
     for readable, n_bytes in output_readable:
         addr, binary = next(bin_iter)
-        s = f'{addr:3d} {addr:08b}    {binary:08b}    {readable}'
+        s = f'{addr:02x} {binary:08b} {readable}'
         if label := addr_to_label.get(addr, ''):
             s += f'    ({label})'
         human_readable.append(s)
         for _ in range(n_bytes - 1):
             addr, binary = next(bin_iter)
-            s = f'{addr:3d} {addr:08b}    {binary:08b}'
+            s = f'{addr:02x} {binary:08b}'
             if label := addr_to_label.get(addr, ''):
-                s += f'    ({label})'
+                s += f' ({label})'
             human_readable.append(s)
 
     if verbose:
