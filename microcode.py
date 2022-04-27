@@ -30,7 +30,7 @@ JZ = 0b1000
 UCODE_TEMPLATE = [
     [MI|CO,  RO|II|CE,  TR,        0,         0,         0,            0,         0    ],  # 00000000 - NOP
     [MI|CO,  RO|II|CE,  MI|CO,     RO|BI|CE,  MI|CO,     RO|MI|CE,     RI|BO,     TR   ],  # 00000001 - LD_AV
-    [MI|CO,  RO|II|CE,  MI|CO,     RO|MI|CE,  RO|BI,     MI|CO,        RO|MI,     MI|BO],  # 00000010 - LD_AA
+    [MI|CO,  RO|II|CE,  MI|CO,     RO|MI|CE,  RO|BI,     MI|CO,        RO|MI|CE,  MI|BO],  # 00000010 - LD_AA
     [MI|CO,  RO|II|CE,  MI|CO,     RO|BI|CE,  MI|CO,     RO|MI|CE,     RO|AI,     EO|MI],  # 00000011 - ADD_AV
     [MI|CO,  RO|II|CE,  MI|CO,     RO|BI|CE,  MI|CO,     RO|MI|CE,     RO|AI|SU,  EO|MI],  # 00000100 - SUB_AV
     [MI|CO,  RO|II|CE,  TR,        0,         0,         0,            0,         0    ],  # 00000101 - NOP

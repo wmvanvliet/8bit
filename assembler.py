@@ -150,7 +150,19 @@ def assemble(fname, verbose=False):
             if len(params) == 2:
                 typ1 = params[0][0]
                 typ2 = params[1][0]
-                if typ1 == 'register' and typ2 == 'address':
+                if typ1 == 'register' and typ2 == 'register':
+                    register1 = params[0][1]
+                    register2 = params[1][1]
+                    if register1 == 'a':
+                        order = 'RA'
+                    else:
+                        register1, register2 = register2, register1
+                        order = 'AR'
+                    if order not in opcode:
+                        raise ValueError(f'Instruction {instruction} does not take two registers as parameters.')
+                    output.append(('instr_with_reg', instruction, opcode[order], register1))
+                    output.append(('param', 'abcdefgh'.index(register2)))
+                elif typ1 == 'register' and typ2 == 'address':
                     register = params[0][1]
                     address = params[1][1]
                     if 'RA' not in opcode:
