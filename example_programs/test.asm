@@ -7,6 +7,7 @@
 	ld  [data2], 10      ; data2 = 10
 	ld  [data3], a       ; data3 = a = 28
 	ld  [data4], [data2] ; data4 = data2 = 10
+	out 1                ; Display "1" on the 7-segment display.
 	out a                ; Display the value in register "A" on the 7-segment display.
 	out b                ; Display the value in register "B" on the 7-segment display.
 	out c                ; Display the value in register "C" on the 7-segment display.
