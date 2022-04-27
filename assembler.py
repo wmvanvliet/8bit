@@ -3,14 +3,15 @@ import sys
 opcodes = {
     'nop': 0x00,
     'ld':  dict(RA=1 << 3, RV=2 << 3, AR=3 << 3, AV=1, AA=2),
-    'add': dict(RA=4 << 3, RV=5 << 3, AR=6 << 3, AV=3, AA=4),
-    'sub': dict(RA=7 << 3, RV=8 << 3, AR=9 << 3, AV=5, AA=6),
-    'cmp': dict(RA=10 << 3, RV=11 << 3, AR=12 << 3, AV=(30 << 3) + 0),
-    'sla': dict(R=13 << 3, A=(30 << 3) + 1),
-    'jp':  dict(R=14 << 3, A=(30 << 3) + 2, V=(30 << 3) + 3),
-    'jc':  dict(R=15 << 3, A=(30 << 3) + 4, V=(30 << 3) + 5),
-    'jz':  dict(R=16 << 3, A=(30 << 3) + 6, V=(30 << 3) + 7),
-    'out': dict(R=(31 << 3) + 0, A=(31 << 3) + 1),
+    'add': dict(RA=4 << 3, RV=5 << 3, AR=6 << 3, AV=3),
+    'sub': dict(RA=7 << 3, RV=8 << 3, AR=9 << 3, AV=4),
+    'cmp': dict(RA=10 << 3, RV=11 << 3, AR=12 << 3, AV=5),
+    'sla': dict(R=13 << 3, A=6),
+    'jp':  dict(R=14 << 3, A=7, V=(30 << 3) + 0),
+    'jc':  dict(R=15 << 3, A=(30 << 3) + 1, V=(30 << 3) + 2),
+    'jz':  dict(R=16 << 3, A=(30 << 3) + 3, V=(30 << 3) + 4),
+    'out': dict(R=(17 << 3) + 0, A=(30 << 3) + 5, V=(30 << 3) + 6),
+    'js':  (30 << 3) + 7,
     'hlt': 0xFF,
 }
 #num_to_instruction = {v: k for k, v in opcodes.items()}
@@ -59,6 +60,19 @@ def assemble(fname, verbose=False):
     labels = dict()
     output = list()
 
+    # Jump past the registers
+    output.append(('instr', 'js', opcodes['js']))
+
+    # Memory dedicated to registers
+    output.append(('db', 0))
+    output.append(('db', 0))
+    output.append(('db', 0))
+    output.append(('db', 0))
+    output.append(('db', 0))
+    output.append(('db', 0))
+    output.append(('db', 0))
+    output.append(('db', 0))
+
     # Parse file
     with open(fname) as f:
         for line in f:
@@ -75,7 +89,6 @@ def assemble(fname, verbose=False):
             if len(line) == 0:
                 continue
 
-            #print(line)
             instruction, *params = line.split(None, 1)
             if len(params) > 0:
                 params = params[0].split(',')
@@ -124,7 +137,6 @@ def assemble(fname, verbose=False):
                     label, offset = params[0][1:]
                     if 'A' not in opcode:
                         raise ValueError(f'Instruction {instruction} does not take an address as a parameter.')
-                    print(line, typ, opcode)
                     output.append(('instr', instruction, opcode['A']))
                     output.append(('label', label, offset))
                 elif typ == 'address':
@@ -172,24 +184,24 @@ def assemble(fname, verbose=False):
                     if 'AA' not in opcode:
                         raise ValueError(f'Instruction {instruction} does not take two addresses as parameters.')
                     output.append(('instr', instruction, opcode['AA']))
-                    output.append(('param', address1))
                     output.append(('param', address2))
+                    output.append(('param', address1))
                 elif typ1 == 'address' and typ2 == 'label':
                     address = params[0][1]
                     label, offset = params[1][1:]
                     if 'AA' not in opcode:
                         raise ValueError(f'Instruction {instruction} does not take two addresses as parameters.')
                     output.append(('instr', instruction, opcode['AA']))
-                    output.append(('param', address))
                     output.append(('label', label, offset))
+                    output.append(('param', address))
                 elif typ1 == 'address' and typ2 == 'value':
                     address = params[0][1]
                     value = params[1][1]
                     if 'AV' not in opcode:
                         raise ValueError(f'Instruction {instruction} does not take an address and a value as parameters.')
                     output.append(('instr_with', instruction, opcode['AV']))
-                    output.append(('param', address))
                     output.append(('param', value))
+                    output.append(('param', address))
                 elif typ1 == 'label' and typ2 == 'register':
                     label, offset = params[0][1:]
                     register = params[1][1]
@@ -211,20 +223,20 @@ def assemble(fname, verbose=False):
                     if 'AA' not in opcode:
                         raise ValueError(f'Instruction {instruction} does not take two addresses as parameters.')
                     output.append(('instr', instruction, opcode['AA']))
-                    output.append(('label', label1, offset1))
                     output.append(('label', label2, offset2))
+                    output.append(('label', label1, offset1))
                 elif typ1 == 'label' and typ2 == 'value':
                     label, offset = params[0][1:]
                     value = params[1][1]
                     if 'AV' not in opcode:
                         raise ValueError(f'Instruction {instruction} does not take an address and a value as parameters.')
                     output.append(('instr', instruction, opcode['AV']))
-                    output.append(('label', label, offset))
                     output.append(('param', value))
+                    output.append(('label', label, offset))
                 continue
 
-    from pprint import pprint
-    pprint(output)
+    # from pprint import pprint
+    # pprint(output)
 
     # Resolve labels and convert to binary
     bin_output = list()
@@ -240,8 +252,10 @@ def assemble(fname, verbose=False):
                 bin_output.append(labels[content[0]] + content[1])
             except KeyError:
                 raise ValueError(f'Unknown label {content[0]}')
+        elif typ == 'db':
+            bin_output.append(content[0])
 
-    #pprint(bin_output)
+    # pprint(bin_output)
 
     # Create human readable version of the memory contents
     human_readable = list()
@@ -263,6 +277,8 @@ def assemble(fname, verbose=False):
                 content = content[0]
         elif typ == 'param':
             content = str(content[0])
+        elif typ == 'db':
+            content = f'db {content[0]}'
         human_readable.append(f"{addr:02x}: {bin_content:08b} {content} {label}")
 
     if verbose:

@@ -43,7 +43,7 @@ import curses
 import sys
 
 import microcode
-from assembler import num_to_instruction
+#from assembler import num_to_instruction
 
 
 def init(stdscr):
@@ -141,7 +141,7 @@ def update(stdscr, state):
 
     # Instruction register
     draw_leds(11, 17, num=state.reg_instruction, n=8, color=5)
-    stdscr.addstr(12, 20, f'({num_to_instruction[state.reg_instruction]:>3s})', curses.color_pair(1))
+    #stdscr.addstr(12, 20, f'({num_to_instruction[state.reg_instruction]:>3s})', curses.color_pair(1))
 
     # "B" register
     draw_leds(12, 65, num=state.reg_b, n=8, color=2)

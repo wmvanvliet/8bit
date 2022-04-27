@@ -58,12 +58,16 @@ class State:  # Classes are namespaces
         # Write to the bus
         if self.control_signals & microcode.AO:
             self.bus = self.reg_a
+        if self.control_signals & microcode.BO:
+            self.bus = self.reg_b
         if self.control_signals & microcode.EO:
             self.bus = self.alu
         if self.control_signals & microcode.CO:
             self.bus = self.reg_program_counter
         if self.control_signals & microcode.RO:
             self.bus = self.memory[self.reg_memory_address]
+        if self.control_signals & microcode.IO:
+            self.bus = self.reg_instruction & 0b111
 
         # Read from the bus
         if self.clock:
