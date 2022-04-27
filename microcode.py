@@ -60,22 +60,22 @@ UCODE_TEMPLATE = [
     [MI|CO,  RO|II|CE,  IO|MI,     RO|BI,     MI|CO,     MI|RO|CE,     BO|RI,     TR,  ],  # 00011101 -      _F
     [MI|CO,  RO|II|CE,  IO|MI,     RO|BI,     MI|CO,     MI|RO|CE,     BO|RI,     TR,  ],  # 00011110 -      _G
     [MI|CO,  RO|II|CE,  IO|MI,     RO|BI,     MI|CO,     MI|RO|CE,     BO|RI,     TR,  ],  # 00011111 -      _H
-    [MI|CO,  RO|II|CE,  TR,        0,         0,         0,            0,         0    ],  # 00100000 - NOP
-    [MI|CO,  RO|II|CE,  TR,        0,         0,         0,            0,         0    ],  # 00100001 - NOP
-    [MI|CO,  RO|II|CE,  TR,        0,         0,         0,            0,         0    ],  # 00100010 - NOP
-    [MI|CO,  RO|II|CE,  TR,        0,         0,         0,            0,         0    ],  # 00100011 - NOP
-    [MI|CO,  RO|II|CE,  TR,        0,         0,         0,            0,         0    ],  # 00100100 - NOP
-    [MI|CO,  RO|II|CE,  TR,        0,         0,         0,            0,         0    ],  # 00100101 - NOP
-    [MI|CO,  RO|II|CE,  TR,        0,         0,         0,            0,         0    ],  # 00100110 - NOP
-    [MI|CO,  RO|II|CE,  TR,        0,         0,         0,            0,         0    ],  # 00100111 - NOP
-    [MI|CO,  RO|II|CE,  TR,        0,         0,         0,            0,         0    ],  # 00101000 - NOP
-    [MI|CO,  RO|II|CE,  TR,        0,         0,         0,            0,         0    ],  # 00101001 - NOP
-    [MI|CO,  RO|II|CE,  TR,        0,         0,         0,            0,         0    ],  # 00101010 - NOP
-    [MI|CO,  RO|II|CE,  TR,        0,         0,         0,            0,         0    ],  # 00101011 - NOP
-    [MI|CO,  RO|II|CE,  TR,        0,         0,         0,            0,         0    ],  # 00101100 - NOP
-    [MI|CO,  RO|II|CE,  TR,        0,         0,         0,            0,         0    ],  # 00101101 - NOP
-    [MI|CO,  RO|II|CE,  TR,        0,         0,         0,            0,         0    ],  # 00101110 - NOP
-    [MI|CO,  RO|II|CE,  TR,        0,         0,         0,            0,         0    ],  # 00101111 - NOP
+    [MI|CO,  RO|II|CE,  AO|BI,     EO|AI,     TR,        0,            0,         0    ],  # 00100000 - ADD_R_A
+    [MI|CO,  RO|II|CE,  IO|MI,     RO|BI,     EO|AI,     TR,           0,         0,   ],  # 00100001 -      _B
+    [MI|CO,  RO|II|CE,  IO|MI,     RO|BI,     EO|AI,     TR,           0,         0,   ],  # 00100001 -      _C
+    [MI|CO,  RO|II|CE,  IO|MI,     RO|BI,     EO|AI,     TR,           0,         0,   ],  # 00100001 -      _D
+    [MI|CO,  RO|II|CE,  IO|MI,     RO|BI,     EO|AI,     TR,           0,         0,   ],  # 00100001 -      _E
+    [MI|CO,  RO|II|CE,  IO|MI,     RO|BI,     EO|AI,     TR,           0,         0,   ],  # 00100001 -      _F
+    [MI|CO,  RO|II|CE,  IO|MI,     RO|BI,     EO|AI,     TR,           0,         0,   ],  # 00100001 -      _G
+    [MI|CO,  RO|II|CE,  IO|MI,     RO|BI,     EO|AI,     TR,           0,         0,   ],  # 00100001 -      _H
+    [MI|CO,  RO|II|CE,  AO|BI,     EO|AI,     TR,        0,            0,         0    ],  # 00101000 - SUB_R_A
+    [MI|CO,  RO|II|CE,  IO|MI,     RO|BI|SU,  EO|AI|SU,  TR,           0,         0,   ],  # 00101001 -      _B
+    [MI|CO,  RO|II|CE,  IO|MI,     RO|BI|SU,  EO|AI|SU,  TR,           0,         0,   ],  # 00101010 -      _C
+    [MI|CO,  RO|II|CE,  IO|MI,     RO|BI|SU,  EO|AI|SU,  TR,           0,         0,   ],  # 00101011 -      _D
+    [MI|CO,  RO|II|CE,  IO|MI,     RO|BI|SU,  EO|AI|SU,  TR,           0,         0,   ],  # 00101100 -      _E
+    [MI|CO,  RO|II|CE,  IO|MI,     RO|BI|SU,  EO|AI|SU,  TR,           0,         0,   ],  # 00101101 -      _F
+    [MI|CO,  RO|II|CE,  IO|MI,     RO|BI|SU,  EO|AI|SU,  TR,           0,         0,   ],  # 00101110 -      _G
+    [MI|CO,  RO|II|CE,  IO|MI,     RO|BI|SU,  EO|AI|SU,  TR,           0,         0,   ],  # 00101111 -      _H
     [MI|CO,  RO|II|CE,  TR,        0,         0,         0,            0,         0    ],  # 00110000 - NOP
     [MI|CO,  RO|II|CE,  TR,        0,         0,         0,            0,         0    ],  # 00110001 - NOP
     [MI|CO,  RO|II|CE,  TR,        0,         0,         0,            0,         0    ],  # 00110010 - NOP
