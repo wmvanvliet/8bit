@@ -2,16 +2,16 @@ import sys
 
 opcodes = {
     'nop': 0x00,
-    'ld':  dict(RA=1 << 3, RV=2 << 3, AR=3 << 3, AV=1, AA=2),
-    'add': dict(RA=4 << 3, RV=5 << 3, AR=6 << 3, AV=3),
-    'sub': dict(RA=7 << 3, RV=8 << 3, AR=9 << 3, AV=4),
-    'cmp': dict(RA=10 << 3, RV=11 << 3, AR=12 << 3, AV=5),
-    'sla': dict(R=13 << 3, A=6),
-    'jp':  dict(R=14 << 3, A=7, V=(30 << 3) + 0),
-    'jc':  dict(R=15 << 3, A=(30 << 3) + 1, V=(30 << 3) + 2),
-    'jz':  dict(R=16 << 3, A=(30 << 3) + 3, V=(30 << 3) + 4),
-    'out': dict(R=(17 << 3) + 0, A=(30 << 3) + 5, V=(30 << 3) + 6),
-    'js':  (30 << 3) + 7,
+    'ld':  dict(RA=1 << 3, RV=2 << 3, AR=3 << 3, AV=128, AA=129),
+    'add': dict(R=4 << 3, A=130, V=131),
+    'sub': dict(R=5 << 3, A=132, V=133),
+    'cmp': dict(R=6 << 3, A=134, V=135),
+    'sla': dict(R=7 << 3, A=136),
+    'jp':  dict(R=8 << 3, A=137, V=138),
+    'jc':  dict(R=9 << 3, A=139, V=140),
+    'jz':  dict(R=10 << 3, A=141, V=142),
+    'out': dict(R=11 << 3, A=143, V=144),
+    'js':  0xF7,
     'hlt': 0xFF,
 }
 #num_to_instruction = {v: k for k, v in opcodes.items()}
