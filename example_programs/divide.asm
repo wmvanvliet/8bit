@@ -3,20 +3,20 @@
 ; Credit to Edoardo's comment here:
 ; https://theshamblog.com/programs-and-more-commands-for-the-ben-eater-8-bit-breadboard-computer
 ;
-loop:	lda numer
-	sub denom
-	jc inc     ; result was non-negative
-	jmp end
+loop:	ld  a,numer
+	sub a,denom
+	jc  inc     ; result was non-negative
+	jp  end
 
 inc:
-	sta numer
-	ldi 1
-	add ans
-	sta ans
-	jmp loop
+	ld  numer,a
+	ld  a,1
+	add a,ans
+	ld  ans,a
+	jp  loop
 
-end:    lda ans
-	out
+end:    ld  a,ans
+	out a
 	hlt
 
 numer:	db 14
