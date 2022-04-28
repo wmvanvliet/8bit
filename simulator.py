@@ -1,8 +1,8 @@
 """
 Simulator for the SAP-1 8-bit breadboard computer.
 """
-import sys
 import curses
+from argparse import ArgumentParser
 from time import time, sleep
 from collections import deque
 from dataclasses import dataclass, asdict, field
@@ -18,9 +18,9 @@ _previous_states = deque(maxlen=10_000)
 @dataclass
 class State:  # Classes are namespaces
     bus: int = 0
-    memory: list[int] = field(default_factory=lambda: assemble(sys.argv[1])[0])
-    memory_human_readable: list[str]  = field(default_factory=lambda: assemble(sys.argv[1])[1])
     rom_address: int = 0
+    memory: list[int] = field(default_factory=list)
+    memory_human_readable: list[str] = field(default_factory=list)
 
     # Content of the registers
     reg_a: int = 0
@@ -121,7 +121,7 @@ class State:  # Classes are namespaces
         """Perform a single step (half a clock-cycle)."""
         # When system is halted, do nothing
         if self.control_signals & microcode.HLT:
-            return
+            return None
 
         # Before we update the state, keep a copy of the current state so we
         # could revert later if we want.
@@ -145,7 +145,10 @@ class State:  # Classes are namespaces
         # Update the system state now that the clock has changed
         self.update()
 
-        return self
+        if self.clock and (self.control_signals & microcode.OI):
+            return self.reg_output
+        else:
+            return None
 
     def _load_serialized_state(self, prev_state):
         for k, v in prev_state.items():
@@ -161,16 +164,19 @@ class State:  # Classes are namespaces
 
 
 class Simulator:
-    def __init__(self):
+    def __init__(self, program_code):
         # Variables related to automatic stepping of the clock
         self.clock_automatic = False
         self.clock_speed = 1  # Hz
         self.last_clock_time = 0 # Keep track of when the next clock was last stepped
+        self.memory, self.memory_human_readable = assemble(program_code)
+        while len(self.memory) < 256:
+            self.memory.append(0)
 
         # Initialize system state
         self.reset()
 
-    def run(self, stdscr):
+    def run_interface(self, stdscr):
         """Main function to run the simulator with its console user interface.
 
         Parameters
@@ -209,23 +215,42 @@ class Simulator:
                 self.clock_automatic = False
             interface.update(stdscr, self.state)
 
+    def run_batch(self):
+        """Run the simulator in batch mode."""
+        outputs = list()
+        while not (self.state.control_signals & microcode.HLT):
+            out = self.state.step()
+            if out is not None:
+                outputs.append(out)
+        return outputs
+
     def step(self):
         """Step the clock while keeping track of time."""
         self.last_clock_time = time()
-        self.state.step()
+        return self.state.step()
 
     def reset(self):
         """Reset the machine."""
         global _previous_states
         _previous_states.clear()
         self.state = State()
+        self.state.memory = self.memory
+        self.state.memory_human_readable = self.memory_human_readable
         self.state.update()
 
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print('python simulator.py PROGRAM_TO_EXECUTE')
-        sys.exit(1)
-    simulator = Simulator()
-    curses.wrapper(simulator.run)
+    parser = ArgumentParser(description=__doc__)
+    parser.add_argument('file', type=str, help='Program to execute')
+    parser.add_argument('--no-interface', action='store_true', help="Don't show the interface, but run the program in batch mode")
+    args = parser.parse_args()
+
+    with open(args.file) as f:
+        simulator = Simulator(f.read())
+
+    if args.no_interface:
+        for out in simulator.run_batch():
+            print(out)
+    else: 
+        curses.wrapper(simulator.run_interface)

@@ -35,7 +35,7 @@ UCODE_TEMPLATE = [
     [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 00000101 - NOP
     [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 00000110 - NOP
     [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 00000111 - NOP
-    [MI|CO,  RO|II|CE,  MI|CO,     MI|RO|CE,    AO|RI,       TR,           0,         0    ],  # 00001000 - LD_RA_A
+    [MI|CO,  RO|II|CE,  MI|CO,     MI|RO|CE,    RO|AI,       TR,           0,         0    ],  # 00001000 - LD_RA_A
     [MI|CO,  RO|II|CE,  MI|CO,     MI|RO|CE,    RO|BI,       IO|MI,        BO|RI,     TR   ],  # 00001001 -      _B
     [MI|CO,  RO|II|CE,  MI|CO,     MI|RO|CE,    RO|BI,       IO|MI,        BO|RI,     TR   ],  # 00001010 -      _C
     [MI|CO,  RO|II|CE,  MI|CO,     MI|RO|CE,    RO|BI,       IO|MI,        BO|RI,     TR   ],  # 00001011 -      _D
@@ -158,7 +158,7 @@ UCODE_TEMPLATE = [
     [MI|CO,  RO|II|CE,  MI|CO,     BI|RO|CE,    MI|CO,       MI|RO|CE,     BO|RI,     TR   ],  # 10000000 - LD_AV
     [MI|CO,  RO|II|CE,  MI|CO,     MI|RO|CE,    RO|BI,       MI|CO,        MI|RO|CE,  BO|RI],  # 10000001 - LD_AA
     [MI|CO,  RO|II|CE,  MI|CO,     MI|RO|CE,    RO|BI,       EO|AI|FI,     TR,        0    ],  # 10000010 - ADD_A
-    [MI|CO,  RO|II|CE,  MI|CO,     RO|BI|CE,    EO|AI,       TR,           0,         0    ],  # 10000011 - ADD_V
+    [MI|CO,  RO|II|CE,  MI|CO,     RO|BI|CE,    EO|AI|FI,    TR,           0,         0    ],  # 10000011 - ADD_V
     [MI|CO,  RO|II|CE,  MI|CO,     MI|RO|CE,    RO|BI|SU,    EO|AI|SU|FI,  TR,        0    ],  # 10000100 - SUB_A
     [MI|CO,  RO|II|CE,  MI|CO,     RO|BI|SU|CE, EO|AI|SU|FI, TR,           0,         0    ],  # 10000101 - SUB_V
     [MI|CO,  RO|II|CE,  MI|CO,     MI|RO|CE,    RO|BI|SU,    SU|FI,        TR,        0    ],  # 10000110 - CMP_A
