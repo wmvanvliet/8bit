@@ -6,12 +6,13 @@ opcodes = {
     'add': dict(R=4 << 3, A=130, V=131),
     'sub': dict(R=5 << 3, A=132, V=133),
     'cmp': dict(R=6 << 3, A=134, V=135),
-    'sla': dict(R=7 << 3, A=136),
-    'jp':  dict(R=8 << 3, A=137, V=138),
-    'jc':  dict(R=9 << 3, A=139, V=140),
-    'jz':  dict(R=10 << 3, A=141, V=142),
-    'out': dict(R=11 << 3, A=143, V=144),
-    'js':  0xF7,
+    'jp':  dict(R=7 << 3, A=136, V=137),
+    'jc':  dict(R=8 << 3, A=138, V=139),
+    'jz':  dict(R=9 << 3, A=140, V=141),
+    'jnc':  dict(R=10 << 3, A=142, V=143),
+    'jnz':  dict(R=11 << 3, A=144, V=145),
+    'out': dict(R=12 << 3, A=146, V=147),
+    'rst':  0xF7,
     'hlt': 0xFF,
 }
 #num_to_instruction = {v: k for k, v in opcodes.items()}
@@ -63,8 +64,8 @@ def assemble(fname, verbose=False):
     output_readable = list()
 
     # Jump past the registers
-    output.append(('instr', 'js', opcodes['js']))
-    output_readable.append(('js', 1))
+    output.append(('instr', 'rst', opcodes['rst']))
+    output_readable.append(('rst', 1))
 
     # Memory dedicated to registers
     for _ in range(8):
