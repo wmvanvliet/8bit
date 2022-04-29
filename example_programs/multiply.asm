@@ -1,18 +1,15 @@
 ;
-; Multiply two numbers using a loop (Ben Eater's design)
+; Multiply two numbers using a loop
 ;
-loop:	lda prod
-	add x
-	sta prod
-	lda y
-	sub one
-	jz end
-	sta y
-	jmp loop
-end:    lda prod
-	out
+        ld  b,5
+	ld  c,7
+loop:	ld  a,d
+        add b
+	ld  d,a
+	ld  a,c
+	sub 1
+	jz  end
+	ld  c,a
+	jp  loop
+end:    out c
 	hlt
-one:	db 1
-x:	db 5
-y:	db 7
-prod:	db 0
