@@ -18,11 +18,11 @@ schematic = """
    ┃ ROM addr.: ●●●●●●●●●●●● (dec)  ┠─┐┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ │
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │          ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃ Memory contents                ┃ │          ┃ Control: ●●●●●●●●●●●●●●●●●●  ┃
-   ┠────────────────────────────────┨ │          ┃          HMRIJABFOSCRICABΣT  ┃
-   ┃ 00                             ┃ └──────────┨          LIII IIIIUEOOOOOOR  ┃
+   ┃ Memory contents                ┃ │          ┃ Control: ●●●●●●●●●●●●●●●●●●● ┃
+   ┠────────────────────────────────┨ │          ┃          HMRIJABFOSCMRICABΣT ┃
+   ┃ 00                             ┃ └──────────┨          LIII IIIIUEPOOOOOOR ┃
    ┃ 01                             ┃            ┃          T                   ┃
-   ┃ 02                             ┃            ┃           input     output   ┃
+   ┃ 02                             ┃            ┃           input      output  ┃
    ┃ 03                             ┃            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┃ 04                             ┃            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
    ┃ 05                             ┃            ┃ Keyboard commands            ┃            
@@ -131,7 +131,11 @@ def update(stdscr, state):
     draw_leds(5, 65, num=state.reg_a, n=8, color=2)
 
     # RAM
-    draw_leds(8, 17, num=state.memory[state.reg_memory_address], n=8, color=2)
+    address = state.reg_memory_address
+    if state.control_signals & microcode.MP:
+        address += 1 << 8
+        print_message(stdscr, f'{address:d} {state.memory[address]}')
+    draw_leds(8, 17, num=state.memory[address], n=8, color=2)
 
     # ALU
     draw_leds(8, 56, num=state.alu, n=8, color=2)
@@ -161,7 +165,7 @@ def update(stdscr, state):
     draw_leds(16, 16, num=state.rom_address, n=12, color=5)
 
     # Control lines
-    draw_leds(19, 60, num=state.control_signals, n=18, color=4, dec=False)
+    draw_leds(19, 60, num=state.control_signals, n=19, color=4, dec=False)
 
     # Memory contents
     offset = state.reg_program_counter // 16 * 16

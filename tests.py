@@ -15,6 +15,7 @@ def test_output():
                         out b       ; output general purpose register
                         out [four]  ; output memory address
                         hlt
+                        section .data
                         four: db 4''').run_batch() == [1, 2, 3, 4]
 
 
@@ -37,6 +38,7 @@ def test_ld():
                         ld b,[seven] ; Load address into register
                         out b
                         hlt
+                        section .data
                         six: db 6
                         seven: db 7''').run_batch() == [1, 2, 3, 4, 5, 6, 7]
 
@@ -53,6 +55,7 @@ def test_add():
                         add a        ; Add accumulator
                         out a
                         hlt
+                        section .data
                         one: db 1''').run_batch() == [1, 2, 3, 6]
 
     # Test flags
@@ -111,6 +114,7 @@ def test_add():
     sim = Simulator('''ld a,1
                        add [x]
                        hlt
+                       section .data
                        x: db 2''')
     sim.run_batch()
     assert sim.state.reg_flags == 0b00
@@ -118,6 +122,7 @@ def test_add():
     sim = Simulator('''ld a,10
                        add [x]
                        hlt
+                       section .data
                        x: db 255''')
     sim.run_batch()
     assert sim.state.reg_flags == 0b01
@@ -125,6 +130,7 @@ def test_add():
     sim = Simulator('''ld a,0
                        add [x]
                        hlt
+                       section .data
                        x: db 0''')
     sim.run_batch()
     assert sim.state.reg_flags == 0b10
@@ -132,6 +138,7 @@ def test_add():
     sim = Simulator('''ld a,1
                        add [x]
                        hlt
+                       section .data
                        x: db 255''')
     sim.run_batch()
     assert sim.state.reg_flags == 0b11
@@ -151,6 +158,7 @@ def test_sub():
                         sub a        ; Subtract accumulator
                         out a
                         hlt
+                        section .data
                         one: db 1''').run_batch() == [1, 2, 3, 0]
 
     # Test flags
@@ -218,7 +226,8 @@ def test_jp():
                         ld a,2
                         out a
                         hlt
-                        x: db 15''').run_batch() == [1]
+                        section .data
+                        x: db 6''').run_batch() == [1]
 
     assert Simulator('''ld a,1
                         ld b,x

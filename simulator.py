@@ -65,7 +65,10 @@ class State:  # Classes are namespaces
         if self.control_signals & microcode.CO:
             self.bus = self.reg_program_counter
         if self.control_signals & microcode.RO:
-            self.bus = self.memory[self.reg_memory_address]
+            address = self.reg_memory_address
+            if self.control_signals & microcode.MP:
+                address += 1 << 8
+            self.bus = self.memory[address]
         if self.control_signals & microcode.IO:
             self.bus = self.reg_instruction & 0b111
 
@@ -83,6 +86,8 @@ class State:  # Classes are namespaces
                 self.reg_program_counter = self.bus
             if self.control_signals & microcode.RI:
                 address = self.reg_memory_address
+                if self.control_signals & microcode.MP:
+                    address += 1 << 8
                 self.memory[address] = self.bus
                 human_readable = f'{address:02x}: {self.bus:08b}'
                 self.memory_human_readable[address] = human_readable
@@ -170,8 +175,10 @@ class Simulator:
         self.clock_speed = 1  # Hz
         self.last_clock_time = 0 # Keep track of when the next clock was last stepped
         self.memory, self.memory_human_readable = assemble(program_code)
-        while len(self.memory) < 256:
+        while len(self.memory) < 512:
             self.memory.append(0)
+        while len(self.memory_human_readable) < 512:
+            self.memory_human_readable.append(f'{len(self.memory_human_readable):02x}: 0')
 
         # Initialize system state
         self.reset()

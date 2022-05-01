@@ -1,6 +1,7 @@
 ;
 ; Test program that adds two numbers
 ;
+	section .text
 	ld  a, 28            ; a = 28
 	ld  b, [data1]       ; b = 42
 	ld  c, b             ; c = b = 42
@@ -17,6 +18,7 @@
 	out [data4]          ; Display the value at memory adress "data4" on the 7-segment display.
 	hlt                  ; Halt the clock. This signals the end of the program.
 
+	section .data
 data1:  db 42
 data2:  db 10
 data3:  db 0

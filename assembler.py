@@ -59,18 +59,18 @@ def parse_param(param, as_address=False):
 
 
 def assemble(program_code, verbose=False):
-    labels = dict()
-    output = list()
-    output_readable = list()
+    labels_text = dict()
+    labels_data = dict()
+    output_text = list()
+    output_data = list()
+    output_text_readable = list()
+    output_data_readable = list()
 
-    # Jump past the registers
-    output.append(('instr', 'rst', opcodes['rst']))
-    output_readable.append(('rst', 1))
+    labels = labels_text
+    output = output_text
+    output_readable = output_text_readable
 
-    # Memory dedicated to registers
-    for _ in range(8):
-        output.append(('db', 0))
-    output_readable.append(('db 0 (x8)', 8))
+    output_data_readable.append(('db 0 (x8)', 8))
 
     # Parse text
     for line in program_code.split('\n'):
@@ -103,6 +103,20 @@ def assemble(program_code, verbose=False):
 
             except:
                 raise ValueError(f'Invalid value for "db": {params[0]}')
+            continue
+        elif instruction == 'section':
+            if not len(params) == 1:
+                raise ValueError(f'Instruction {instruction} needs a parameter.')
+            if params[0] == '.text':
+                labels = labels_text
+                output = output_text
+                output_readable = output_text_readable
+            elif params[0] == '.data':
+                labels = labels_data
+                output = output_data
+                output_readable = output_data_readable
+            else:
+                raise ValueError('Section name must be either .text or .data')
             continue
 
         if not instruction in opcodes:
@@ -298,50 +312,86 @@ def assemble(program_code, verbose=False):
                 raise ValueError(f'Invalid instruction: {line}')
             continue
 
-    # from pprint import pprint
-    # pprint(output)
-
     # Resolve labels and convert to binary
-    bin_output = list()
-    for typ, *content in output:
+    output_bin_text = list()
+    for typ, *content in output_text:
         if typ == 'instr':
-            bin_output.append(content[1])
+            output_bin_text.append(content[1])
         elif typ == 'instr_with_reg':
-            bin_output.append(content[1] + 'abcdefgh'.index(content[2]))
+            output_bin_text.append(content[1] + 'abcdefgh'.index(content[2]))
         elif typ == 'param':
-            bin_output.append(content[0])
+            output_bin_text.append(content[0])
         elif typ == 'label':
-            try:
-                bin_output.append(labels[content[0]] + content[1])
-            except KeyError:
-                raise ValueError(f'Unknown label {content[0]}')
+            if content[0] in labels_text:
+                output_bin_text.append(labels_text[content[0]] + content[1])
+            elif content[0] in labels_data:
+                output_bin_text.append(labels_data[content[0]] + content[1] + 8)
+            else:
+                raise KeyError(f'Unknown label {content[0]}')
         elif typ == 'db':
-            bin_output.append(content[0])
+            output_bin_text.append(content[0])
 
-    # pprint(bin_output)
+    output_bin_data = [0] * 8
+    for typ, *content in output_data:
+        if typ == 'db':
+            output_bin_data.append(content[0])
+        else:
+            raise ValueError('Only db pseudo-instructions are allowed in the .data section.')
 
     # Create human readable version of the memory contents
-    human_readable = list()
-    addr_to_label = {v: k for k, v in labels.items()}
-    bin_iter = enumerate(bin_output)
-    for readable, n_bytes in output_readable:
+    human_readable_text = list()
+    addr_to_label = {v: k for k, v in labels_text.items()}
+    bin_iter = enumerate(output_bin_text)
+    for readable, n_bytes in output_text_readable:
         addr, binary = next(bin_iter)
         s = f'{addr:02x}: {binary:08b} {readable}'
         if label := addr_to_label.get(addr, ''):
             s += f' ({label})'
-        human_readable.append(s)
+        human_readable_text.append(s)
         for _ in range(n_bytes - 1):
             addr, binary = next(bin_iter)
             s = f'{addr:02x}: {binary:08b}'
             if label := addr_to_label.get(addr, ''):
                 s += f' ({label})'
-            human_readable.append(s)
+            human_readable_text.append(s)
+
+    human_readable_data = list()
+    addr_to_label = {v + 8: k for k, v in labels_data.items()}
+    bin_iter = enumerate(output_bin_data)
+    for readable, n_bytes in output_data_readable:
+        addr, binary = next(bin_iter)
+        s = f'{addr:02x}: {binary:08b} {readable}'
+        if label := addr_to_label.get(addr, ''):
+            s += f' ({label})'
+        human_readable_data.append(s)
+        for _ in range(n_bytes - 1):
+            addr, binary = next(bin_iter)
+            s = f'{addr:02x}: {binary:08b}'
+            if label := addr_to_label.get(addr, ''):
+                s += f' ({label})'
+            human_readable_data.append(s)
+
+    #from pprint import pprint
+    #pprint(output_bin_text)
+    #pprint(human_readable)
+
+    output_bin = list(output_bin_text)
+    while len(output_bin) < 256:
+        output_bin.append(0)
+    output_bin += output_bin_data
 
     if verbose:
-        for line in human_readable:
+        print('------TEXT------')
+        for line in human_readable_text:
             print(line)
+        print('\n------DATA------')
+        for line in human_readable_data:
+            print(line)
+        print('\n------BIN------')
+        for addr, content in enumerate(output_bin):
+            print(f'{addr:03x} {content:08b} ({content:d})')
 
-    return bin_output, human_readable
+    return output_bin, human_readable_text
 
 
 if __name__ == '__main__':
