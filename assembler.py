@@ -387,9 +387,9 @@ def assemble(program_code, verbose=False):
         print('\n------DATA------')
         for line in human_readable_data:
             print(line)
-        print('\n------BIN------')
-        for addr, content in enumerate(output_bin):
-            print(f'{addr:03x} {content:08b} ({content:d})')
+        #print('\n------BIN------')
+        #for addr, content in enumerate(output_bin):
+        #    print(f'{addr:03x} {content:08b} ({content:d})')
 
     return output_bin, human_readable_text
 
