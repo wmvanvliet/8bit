@@ -176,8 +176,8 @@ UCODE_TEMPLATE = [
     [MI|CO,  RO|II|CE,  MI|CO,     RO|J,        TR,          TR,           0,         0,   ],  # 10010001 - JP_NZ_V
     [MI|CO,  RO|II|CE,  MI|CO,     RO|MI|CE,    MP|RO|OI,    TR,           0,         0    ],  # 10010010 - OUT_A
     [MI|CO,  RO|II|CE,  MI|CO,     RO|OI|CE,    TR,          0,            0,         0    ],  # 10010011 - OUT_V
-    [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 10010100 - NOP
-    [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 10010101 - NOP
+    [MI|CO,  RO|II|CE,  MI|CO,     RO|BI|CE,    MI,          MP|CO|RI,     BO|J,      TR   ],  # 10010100 - JSR_V
+    [MI|CO,  RO|II|CE,  MI,        MP|RO|J,     TR,          0,            0,         0    ],  # 10010101 - RET
     [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 10010110 - NOP
     [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 10010111 - NOP
     [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 10011000 - NOP

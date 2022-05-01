@@ -49,6 +49,7 @@ class State:  # Classes are namespaces
         """Update the state based on the values of the control lines. This does
         not touch the various clocks, so this can be called as often as needed
         to keep every component in sync."""
+        self.bus = 0
 
         # Set control lines based on current microinstruction. Only happens on
         # the down flank of the clock.

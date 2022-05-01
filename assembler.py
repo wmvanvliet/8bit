@@ -9,10 +9,12 @@ opcodes = {
     'jp':  dict(R=7 << 3, A=136, V=137),
     'jc':  dict(R=8 << 3, A=138, V=139),
     'jz':  dict(R=9 << 3, A=140, V=141),
-    'jnc':  dict(R=10 << 3, A=142, V=143),
-    'jnz':  dict(R=11 << 3, A=144, V=145),
+    'jnc': dict(R=10 << 3, A=142, V=143),
+    'jnz': dict(R=11 << 3, A=144, V=145),
     'out': dict(R=12 << 3, A=146, V=147),
-    'rst':  0xF7,
+    'jsr': dict(V=148),
+    'ret': 149,
+    'rst': 0xF7,
     'hlt': 0xFF,
 }
 #num_to_instruction = {v: k for k, v in opcodes.items()}
