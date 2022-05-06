@@ -1,34 +1,33 @@
 ;
 ; Multiply two numbers (x and y) using left-shift
 ;
-loop:	lda y            ; Step 1: look at the most-significant bit of y
-	add y            ; Left-shift y, sets the carry flag if MSB was a 1
-	sta y            ; Store y with the MSB removed
-	lda prod         ; Load intermediate result (the product)
-	jc add_x         ; If the MSB was a 1, add x to the intermediate result
-	jmp check_done   ; Else skip over the adding part
-add_x:	add x            ; Add x to the intermediate result
-	sta prod         ; Left-shift intermediate result
+        ld  b,17         ; We are computing 17 x 15
+	ld  c,15
+	ld  d,0          ; Product
+	ld  e,8          ; Counter
+
+loop:
+	ld  a,c          ; Step 1: look at the most-significant bit of c
+	add a            ; Left-shift, sets the carry flag if MSB was a 1
+	ld  c,a          ; Store c with the MSB removed
+	ld  a,d          ; Load intermediate result (the product)
+	jc  add_b        ; If the MSB was a 1, add b to the intermediate result
+	jp  check_done   ; Else skip over the adding part
+add_b:	add b            ; Add x to the intermediate result
+	ld  d,a          ; Left-shift intermediate result
 	
 check_done:
-	lda count        ; Decrease the counter
-	sub one
-	jz end           ; When counter reaches 0 program is done
-	sta count        ; Store the decreased counter
+	ld  a,e          ; Decrease the counter
+	sub 1
+	jz  end          ; When counter reaches 0 program is done
+	ld  e,a          ; Store the decreased counter
 
 shift_result:
-	lda prod         ; Shift-left on the intemediate result
-        add prod         ; 
-	sta prod         ;
-	jmp loop         ; Next iteration
+	ld  a,d          ; Shift-left on the intemediate result
+        add a            ; 
+	ld  d,a          ;
+	jp  loop         ; Next iteration
 
 end:
-	lda prod
-	out
+	out d
 	hlt
-
-x:	db 17            ; We are computing 17 x 15
-y:	db 15            ;
-prod:	db 0             ; The (intermediate) result is stored here
-count:  db 8             ; Counter
-one:    db 1             ; A literal one

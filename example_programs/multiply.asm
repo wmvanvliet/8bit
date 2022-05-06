@@ -1,8 +1,10 @@
 ;
 ; Multiply two numbers using a loop
 ;
-        ld  b,5
+; computes d = b * c
+        ld  b,5  ; 5 x 7
 	ld  c,7
+	ld  d,0  ; result
 loop:	ld  a,d
         add b
 	ld  d,a
@@ -11,5 +13,5 @@ loop:	ld  a,d
 	jz  end
 	ld  c,a
 	jp  loop
-end:    out c
+end:    out d
 	hlt

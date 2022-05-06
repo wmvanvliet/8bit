@@ -92,22 +92,22 @@ UCODE_TEMPLATE = [
     [MI|CO,  RO|II|CE,  IO|MI,     MP|RO|J,     TR,          0,            0,         0    ],  # 00111101 -     _F
     [MI|CO,  RO|II|CE,  IO|MI,     MP|RO|J,     TR,          0,            0,         0    ],  # 00111110 -     _G
     [MI|CO,  RO|II|CE,  IO|MI,     MP|RO|J,     TR,          0,            0,         0    ],  # 00111111 -     _H
-    [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 01000000 - JP_C_R_A
-    [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 01000001 -       _B
-    [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 01000010 -       _C
-    [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 01000011 -       _D
-    [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 01000100 -       _E
-    [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 01000101 -       _F
-    [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 01000110 -       _G
-    [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 01000111 -       _H
-    [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 01001000 - JP_Z_R_A
-    [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 01001001 -       _B
-    [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 01001010 -       _C
-    [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 01001011 -       _D
-    [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 01001100 -       _E
-    [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 01001101 -       _F
-    [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 01001110 -       _G
-    [MI|CO,  RO|II|CE,  TR,        0,           0,           0,            0,         0    ],  # 01001111 -       _H
+    [MI|CO,  RO|II|CE,  CE,        TR,           0,           0,            0,         0    ],  # 01000000 - JP_C_R_A
+    [MI|CO,  RO|II|CE,  CE,        TR,           0,           0,            0,         0    ],  # 01000001 -       _B
+    [MI|CO,  RO|II|CE,  CE,        TR,           0,           0,            0,         0    ],  # 01000010 -       _C
+    [MI|CO,  RO|II|CE,  CE,        TR,           0,           0,            0,         0    ],  # 01000011 -       _D
+    [MI|CO,  RO|II|CE,  CE,        TR,           0,           0,            0,         0    ],  # 01000100 -       _E
+    [MI|CO,  RO|II|CE,  CE,        TR,           0,           0,            0,         0    ],  # 01000101 -       _F
+    [MI|CO,  RO|II|CE,  CE,        TR,           0,           0,            0,         0    ],  # 01000110 -       _G
+    [MI|CO,  RO|II|CE,  CE,        TR,           0,           0,            0,         0    ],  # 01000111 -       _H
+    [MI|CO,  RO|II|CE,  CE,        TR,           0,           0,            0,         0    ],  # 01001000 - JP_Z_R_A
+    [MI|CO,  RO|II|CE,  CE,        TR,           0,           0,            0,         0    ],  # 01001001 -       _B
+    [MI|CO,  RO|II|CE,  CE,        TR,           0,           0,            0,         0    ],  # 01001010 -       _C
+    [MI|CO,  RO|II|CE,  CE,        TR,           0,           0,            0,         0    ],  # 01001011 -       _D
+    [MI|CO,  RO|II|CE,  CE,        TR,           0,           0,            0,         0    ],  # 01001100 -       _E
+    [MI|CO,  RO|II|CE,  CE,        TR,           0,           0,            0,         0    ],  # 01001101 -       _F
+    [MI|CO,  RO|II|CE,  CE,        TR,           0,           0,            0,         0    ],  # 01001110 -       _G
+    [MI|CO,  RO|II|CE,  CE,        TR,           0,           0,            0,         0    ],  # 01001111 -       _H
     [MI|CO,  RO|II|CE,  AO|J,      TR,          0,           0,            0,         0    ],  # 01010000 - JP_NC_A
     [MI|CO,  RO|II|CE,  IO|MI,     MP|RO|J,     TR,          0,            0,         0    ],  # 01010001 -      _B
     [MI|CO,  RO|II|CE,  IO|MI,     MP|RO|J,     TR,          0,            0,         0    ],  # 01010010 -      _C
@@ -166,10 +166,10 @@ UCODE_TEMPLATE = [
     [MI|CO,  RO|II|CE,  MI|CO,     RO|BI|SU|CE, SU|FI,       TR,           0,         0    ],  # 10000111 - CMP_V
     [MI|CO,  RO|II|CE,  MI|CO,     RO|MI,       MP|RO|J,     TR,           0,         0    ],  # 10001000 - JP_A
     [MI|CO,  RO|II|CE,  MI|CO,     RO|J,        TR,          0,            0,         0,   ],  # 10001001 - JP_V
-    [MI|CO,  RO|II|CE,  TR,        TR,          0,           0,            0,         0,   ],  # 10001010 - JP_C_A
-    [MI|CO,  RO|II|CE,  TR,        TR,          0,           0,            0,         0,   ],  # 10001011 - JP_C_V
-    [MI|CO,  RO|II|CE,  TR,        TR,          0,           0,            0,         0,   ],  # 10001100 - JP_Z_A
-    [MI|CO,  RO|II|CE,  TR,        TR,          0,           0,            0,         0,   ],  # 10001101 - JP_Z_V
+    [MI|CO,  RO|II|CE,  CE,        TR,          0,           0,            0,         0,   ],  # 10001010 - JP_C_A
+    [MI|CO,  RO|II|CE,  CE,        TR,          0,           0,            0,         0,   ],  # 10001011 - JP_C_V
+    [MI|CO,  RO|II|CE,  CE,        TR,          0,           0,            0,         0,   ],  # 10001100 - JP_Z_A
+    [MI|CO,  RO|II|CE,  CE,        TR,          0,           0,            0,         0,   ],  # 10001101 - JP_Z_V
     [MI|CO,  RO|II|CE,  MI|CO,     RO|MI,       RO|J,        TR,           TR,        0    ],  # 10011110 - JP_NC_A
     [MI|CO,  RO|II|CE,  MI|CO,     RO|J,        TR,          TR,           0,         0,   ],  # 10011111 - JP_NC_V
     [MI|CO,  RO|II|CE,  MI|CO,     RO|MI,       RO|J,        TR,           TR,        0    ],  # 10010000 - JP_NZ_A
@@ -309,7 +309,7 @@ for i, c in enumerate([MI|CO, RO|J, TR]):  # JP_X_V
     ucode[FLAGS_Z1C0][opcodes['jz']['V']][2 + i] = c
     ucode[FLAGS_Z1C1][opcodes['jc']['V']][2 + i] = c
     ucode[FLAGS_Z1C1][opcodes['jz']['V']][2 + i] = c
-for i, c in enumerate([TR, 0, 0, 0, 0, 0]):  # NOP
+for i, c in enumerate([CE, TR, 0, 0, 0, 0]):  # No jump
     for j in range(8):
         ucode[FLAGS_Z0C1][opcodes['jnc']['R'] + j][2 + i] = c
         ucode[FLAGS_Z1C0][opcodes['jnz']['R'] + j][2 + i] = c
