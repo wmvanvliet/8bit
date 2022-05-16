@@ -11,9 +11,9 @@ loop:
 	add a            ; Left-shift, sets the carry flag if MSB was a 1
 	ld  c,a          ; Store c with the MSB removed
 	ld  a,d          ; Load intermediate result (the product)
-	jc  add_b        ; If the MSB was a 1, add b to the intermediate result
-	jp  check_done   ; Else skip over the adding part
-add_b:	add b            ; Add x to the intermediate result
+	jnc check_done   ; If the MSB was a 0, skip over the adding part
+
+        add b            ; Add x to the intermediate result
 	ld  d,a          ; Left-shift intermediate result
 	
 check_done:
@@ -22,7 +22,6 @@ check_done:
 	jz  end          ; When counter reaches 0 program is done
 	ld  e,a          ; Store the decreased counter
 
-shift_result:
 	ld  a,d          ; Shift-left on the intemediate result
         add a            ; 
 	ld  d,a          ;

@@ -243,6 +243,7 @@ def test_jp():
                         x: out b
                         hlt''').run_batch() == [1]
 
+
 def test_jc():
     assert Simulator('''ld a,1
                         add 255
@@ -250,6 +251,7 @@ def test_jc():
                         ld a,2
                         x: out a
                         hlt''').run_batch() == [0]
+
 
 def test_jz():
     assert Simulator('''ld a,10
@@ -259,6 +261,7 @@ def test_jz():
                         x: out a
                         hlt''').run_batch() == [0]
 
+
 def test_jnc():
     assert Simulator('''ld a,10
                         add 10
@@ -267,6 +270,7 @@ def test_jnc():
                         x: out a
                         hlt''').run_batch() == [20]
 
+
 def test_jnz():
     assert Simulator('''ld a,10
                         sub 9 
@@ -274,3 +278,33 @@ def test_jnz():
                         ld a,2
                         x: out a
                         hlt''').run_batch() == [1]
+
+
+def test_program_test():
+    with open('example_programs/test.asm') as f:
+        assert Simulator(f.read()).run_batch() == [42]
+
+
+def test_program_multiply():
+    with open('example_programs/multiply.asm') as f:
+        assert Simulator(f.read()).run_batch() == [35]
+
+
+def test_program_multiply_shift():
+    with open('example_programs/multiply_shift.asm') as f:
+        assert Simulator(f.read()).run_batch() == [255]
+
+
+def test_program_fibonacci():
+    with open('example_programs/fibonacci.asm') as f:
+        assert Simulator(f.read()).run_batch() == [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233]
+
+
+def test_program_shift():
+    with open('example_programs/shift.asm') as f:
+        assert Simulator(f.read()).run_batch() == [1, 2, 4, 8, 16, 32, 0]
+
+
+def test_program_sqrt():
+    with open('example_programs/sqrt.asm') as f:
+        assert Simulator(f.read()).run_batch() == [4, 8, 7, 7]

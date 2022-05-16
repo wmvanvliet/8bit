@@ -1,23 +1,16 @@
 ;
 ; Generate Fibonacci sequence
 ;
-	ldi 1
-	sta x
-	ldi 0
+	ld  b,1
+	ld  c,0
+
 loop:
-	sta y
-	out
-	lda x
-	add y
-	sta x
-	out 
-	lda y
-	add x 
-	jc end
-	jmp loop
+	out b
+	ld  a,b
+	add c
+	jc  end
+	ld  c,b
+	ld  b,a
+	jp  loop
 end:
 	hlt
-x:
-	db 0
-y:
-	db 0
