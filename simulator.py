@@ -57,51 +57,51 @@ class State:  # Classes are namespaces
             self.update_control_signals()
 
         # Write to the bus
-        if self.control_signals & microcode.AO:
+        if self.is_line_active(microcode.AO):
             self.bus = self.reg_a
-        if self.control_signals & microcode.BO:
+        if self.is_line_active(microcode.BO):
             self.bus = self.reg_b
-        if self.control_signals & microcode.EO:
+        if self.is_line_active(microcode.EO):
             self.bus = self.alu
-        if self.control_signals & microcode.CO:
+        if self.is_line_active(microcode.CO):
             self.bus = self.reg_program_counter
-        if self.control_signals & microcode.RO:
+        if self.is_line_active(microcode.RO):
             address = self.reg_memory_address
-            if self.control_signals & microcode.MP:
+            if self.is_line_active(microcode.SS):
                 address += 1 << 8
             self.bus = self.memory[address]
-        if self.control_signals & microcode.IO:
+        if self.is_line_active(microcode.IO):
             self.bus = self.reg_instruction & 0b111
 
         # Read from the bus
         if self.clock:
-            if self.control_signals & microcode.AI:
+            if self.is_line_active(microcode.AI):
                 self.reg_a = self.bus
-            if self.control_signals & microcode.BI:
+            if self.is_line_active(microcode.BI):
                 self.reg_b = self.bus
-            if self.control_signals & microcode.II:
+            if self.is_line_active(microcode.II):
                 self.reg_instruction = self.bus
-            if self.control_signals & microcode.MI:
+            if self.is_line_active(microcode.MI):
                 self.reg_memory_address = self.bus
-            if self.control_signals & microcode.J:
+            if self.is_line_active(microcode.J):
                 self.reg_program_counter = self.bus
-            if self.control_signals & microcode.RI:
+            if self.is_line_active(microcode.RI):
                 address = self.reg_memory_address
-                if self.control_signals & microcode.MP:
+                if self.is_line_active(microcode.SS):
                     address += 1 << 8
                 self.memory[address] = self.bus
                 human_readable = f'{address:02x}: {self.bus:08b}'
                 self.memory_human_readable[address] = human_readable
-            if self.control_signals & microcode.OI:
+            if self.is_line_active(microcode.OI):
                 if self.bus != self.reg_output:
                     self.reg_output = self.bus
 
         # Transfer ALU flag outputs to the flags register
-        if self.clock and (self.control_signals & microcode.FI):
+        if self.clock and self.is_line_active(microcode.FI):
             self.reg_flags = self.flag_carry + (self.flag_zero << 1)
 
         # Do ALU stuff, set flag outputs
-        if self.control_signals & microcode.SU:
+        if self.is_line_active(microcode.SU):
             # Perform subtraction by computing the 8bit twos-complement
             # representation of register B.
             self.alu = self.reg_a + (self.reg_b ^ 0xff & 0xff) + 1
@@ -126,7 +126,7 @@ class State:  # Classes are namespaces
     def step(self):
         """Perform a single step (half a clock-cycle)."""
         # When system is halted, do nothing
-        if self.control_signals & microcode.HLT:
+        if self.is_line_active(microcode.HLT):
             return None
 
         # Before we update the state, keep a copy of the current state so we
@@ -138,11 +138,11 @@ class State:  # Classes are namespaces
         self.clock = not self.clock
 
         # Increment program counters
-        if self.control_signals & microcode.CE and self.clock:
+        if self.is_line_active(microcode.CE) and self.clock:
             self.reg_program_counter = (self.reg_program_counter + 1) % 256
         if not self.clock:
             self.microinstruction_counter = (self.microinstruction_counter + 1) % 8
-            if self.control_signals & microcode.TR:
+            if self.is_line_active(microcode.SR):
                 self.microinstruction_counter = 0
                 # Changing the microinstruction counter has an immediate effect
                 # on the system state.
@@ -151,7 +151,7 @@ class State:  # Classes are namespaces
         # Update the system state now that the clock has changed
         self.update()
 
-        if self.clock and (self.control_signals & microcode.OI):
+        if self.clock and self.is_line_active(microcode.OI):
             return self.reg_output
         else:
             return None
@@ -167,6 +167,12 @@ class State:  # Classes are namespaces
         if len(_previous_states) > 0:
             prev_state = _previous_states.pop()
             self._load_serialized_state(prev_state)
+
+    def is_line_active(self, line):
+        if line & 0b111: 
+            return (self.control_signals & 0b111) == line
+        else:
+            return self.control_signals & line
 
 
 class Simulator:
@@ -219,14 +225,14 @@ class Simulator:
 
             # When we reach the end of the program, set the clock to manual
             # mode so we don't keep generating useless system states.
-            if self.state.control_signals & microcode.HLT:
+            if self.state.is_line_active(microcode.HLT):
                 self.clock_automatic = False
             interface.update(stdscr, self.state)
 
     def run_batch(self):
         """Run the simulator in batch mode."""
         outputs = list()
-        while not (self.state.control_signals & microcode.HLT):
+        while not self.state.is_line_active(microcode.HLT):
             out = self.state.step()
             if out is not None:
                 outputs.append(out)

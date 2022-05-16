@@ -17,13 +17,13 @@ schematic = """
    ┃ Micro Step: ●●●● (dec)         ┃  ┃┃┃┃┃┃┃┃──┨ Output: -dec (unsigned)      ┃
    ┃ ROM addr.: ●●●●●●●●●●●● (dec)  ┠─┐┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ │
-   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │          ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃ Memory contents                ┃ │          ┃ Control: ●●●●●●●●●●●●●●●●●●● ┃
-   ┠────────────────────────────────┨ │          ┃          HMRIJABFOSCMRICABΣT ┃
-   ┃ 00                             ┃ └──────────┨          LIII IIIIUEPOOOOOOR ┃
-   ┃ 01                             ┃            ┃          T                   ┃
-   ┃ 02                             ┃            ┃           input      output  ┃
-   ┃ 03                             ┃            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │          ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+   ┃ Memory contents                ┃ │          ┃ Control: ●●●●●●●●●●●●●●●●●●●● ┃
+   ┠────────────────────────────────┨ │          ┃          HMRIJABFOSCS RICABΣM ┃
+   ┃ 00                             ┃ └──────────┨          LIII IIIIUES OOOOOOR ┃
+   ┃ 01                             ┃            ┃          T                    ┃
+   ┃ 02                             ┃            ┃           input       output  ┃
+   ┃ 03                             ┃            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┃ 04                             ┃            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
    ┃ 05                             ┃            ┃ Keyboard commands            ┃            
    ┃ 06                             ┃            ┠──────────────────────────────┨            
@@ -132,7 +132,7 @@ def update(stdscr, state):
 
     # RAM
     address = state.reg_memory_address
-    if state.control_signals & microcode.MP:
+    if state.is_line_active(microcode.SS):
         address += 1 << 8
         print_message(stdscr, f'{address:d} {state.memory[address]}')
     draw_leds(8, 17, num=state.memory[address], n=8, color=2)
@@ -165,7 +165,11 @@ def update(stdscr, state):
     draw_leds(16, 16, num=state.rom_address, n=12, color=5)
 
     # Control lines
-    draw_leds(19, 60, num=state.control_signals, n=19, color=4, dec=False)
+    print(f'{state.control_signals:016b}')
+    control_signals = (state.control_signals & 0b1111111111111000) << 4
+    control_signals += (1 << 7) >> (state.control_signals & 0b111)
+    print(f'{control_signals:020b}')
+    draw_leds(19, 60, control_signals, n=20, color=4, dec=False)
 
     # Memory contents
     offset = state.reg_program_counter // 16 * 16
@@ -184,7 +188,7 @@ def update(stdscr, state):
         stdscr.addstr(i, 4, '                               ', color)
 
     # Halt message
-    if state.control_signals & microcode.HLT:
+    if state.is_line_active(microcode.HLT):
         print_message(stdscr, 'System halted.')
 
     # Do the actual drawing to the screen
@@ -230,7 +234,7 @@ def handle_keypresses(stdscr, simulator):
             print_message(stdscr, f'Decreased clock to {simulator.clock_speed} Hz.')
         elif c == ord('\n'):
             simulator.step()
-            while (simulator.state.microinstruction_counter > 0 or not simulator.state.clock) and not simulator.state.control_signals & microcode.HLT:
+            while (simulator.state.microinstruction_counter > 0 or not simulator.state.clock) and not simulator.state.is_line_active(microcode.HLT):
                 simulator.step()
             print_message(stdscr, 'Stepping clock until we reach next instruction.')
         elif c == ord('o'):
