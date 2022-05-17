@@ -140,22 +140,22 @@ UCODE_TEMPLATE = [
     [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|OI,       SR,             0,            0,         0,   ],  # 01100101 -      _F
     [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|OI,       SR,             0,            0,         0,   ],  # 01100110 -      _G
     [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|OI,       SR,             0,            0,         0,   ],  # 01100111 -      _H
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 01101000 - NOP
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 01101001 - NOP
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 01101010 - NOP
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 01101011 - NOP
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 01101100 - NOP
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 01101101 - NOP
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 01101110 - NOP
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 01101111 - NOP
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 01110000 - NOP
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 01110001 - NOP
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 01110010 - NOP
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 01110011 - NOP
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 01110100 - NOP
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 01110101 - NOP
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 01110110 - NOP
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 01110111 - NOP
+    [MI|CO,  RO|II|CE,  AO|BI,     EO|AI|FI,       SR,             0,            0,         0    ],  # 01101000 - ADC_R_A
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EO|AI|FI,       SR,           0,         0,   ],  # 01101001 -      _B
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EO|AI|FI,       SR,           0,         0,   ],  # 01101010 -      _C
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EO|AI|FI,       SR,           0,         0,   ],  # 01101011 -      _D
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EO|AI|FI,       SR,           0,         0,   ],  # 01101100 -      _E
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EO|AI|FI,       SR,           0,         0,   ],  # 01101101 -      _F
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EO|AI|FI,       SR,           0,         0,   ],  # 01101110 -      _G
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EO|AI|FI,       SR,           0,         0,   ],  # 01101111 -      _H
+    [MI|CO,  RO|II|CE,  AO|BI,     EO|AI|EI|EC|FI, SR,             0,            0,         0    ],  # 01110000 - SBC_R_A
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EO|AI|EI|EC|FI, SR,           0,         0,   ],  # 01110001 -      _B
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EO|AI|EI|EC|FI, SR,           0,         0,   ],  # 01110010 -      _C
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EO|AI|EI|EC|FI, SR,           0,         0,   ],  # 01110011 -      _D
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EO|AI|EI|EC|FI, SR,           0,         0,   ],  # 01110100 -      _E
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EO|AI|EI|EC|FI, SR,           0,         0,   ],  # 01110101 -      _F
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EO|AI|EI|EC|FI, SR,           0,         0,   ],  # 01110110 -      _G
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EO|AI|EI|EC|FI, SR,           0,         0,   ],  # 01110111 -      _H
     [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 01111000 - NOP
     [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 01111001 - NOP
     [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 01111010 - NOP
@@ -186,10 +186,10 @@ UCODE_TEMPLATE = [
     [MI|CO,  RO|II|CE,  MI|CO,     RO|OI|CE,       SR,             0,            0,         0    ],  # 10010011 - OUT_V
     [MI|CO,  RO|II|CE,  MI|CO,     RO|BI|CE,       MI,             SS|CO|RI,     BO|J,      SR   ],  # 10010100 - JSR_V
     [MI|CO,  RO|II|CE,  MI,        SS|RO|J,        SR,             0,            0,         0    ],  # 10010101 - RET
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 10010110 - NOP
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 10010111 - NOP
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 10011000 - NOP
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 10011001 - NOP
+    [MI|CO,  RO|II|CE,  MI|CO,     MI|RO|CE,       SS|RO|BI,       EO|AI|FI,     SR,        0    ],  # 10010110 - ADC_A
+    [MI|CO,  RO|II|CE,  MI|CO,     RO|BI|CE,       EO|AI|FI,       SR,           0,         0    ],  # 10010111 - ADC_V
+    [MI|CO,  RO|II|CE,  MI|CO,     MI|RO|CE,       SS|RO|BI,       EO|AI|EI|EC|FI, SR,      0    ],  # 10011000 - SBC_A
+    [MI|CO,  RO|II|CE,  MI|CO,     RO|BI|CE,       EO|AI|EI|EC|FI, SR,           0,         0    ],  # 10011001 - SBC_V
     [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 10011010 - NOP
     [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 10011011 - NOP
     [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 10011100 - NOP
@@ -331,6 +331,32 @@ for i, c in enumerate([CE, SR, 0, 0, 0, 0]):  # No jump
     ucode[FLAGS_Z1C0][opcodes['jnz']['V']][2 + i] = c
     ucode[FLAGS_Z1C1][opcodes['jnc']['V']][2 + i] = c
     ucode[FLAGS_Z1C1][opcodes['jnz']['V']][2 + i] = c
+for i, c in enumerate([EO|AI|EC|FI, SR]):  # ADC_R_A
+    ucode[FLAGS_Z0C1][opcodes['adc']['R']][2 + i] = c
+    ucode[FLAGS_Z1C1][opcodes['adc']['R']][2 + i] = c
+for i, c in enumerate([SS|RO|BI, EO|AI|EC|FI, SR]):  # ADC_R_X
+    for j in range(1, 8):
+        ucode[FLAGS_Z0C1][opcodes['adc']['R'] + j][2 + i] = c
+        ucode[FLAGS_Z1C1][opcodes['adc']['R'] + j][2 + i] = c
+for i, c in enumerate([MI|CO, MI|RO|CE, SS|RO|BI, EO|AI|EC|FI, SR]):  # ADC_A
+    ucode[FLAGS_Z0C1][opcodes['adc']['A'] + j][2 + i] = c
+    ucode[FLAGS_Z1C1][opcodes['adc']['A'] + j][2 + i] = c
+for i, c in enumerate([MI|CO, RO|BI|CE, EO|AI|EC|FI, SR]):  # ADC_V
+    ucode[FLAGS_Z0C1][opcodes['adc']['V'] + j][2 + i] = c
+    ucode[FLAGS_Z1C1][opcodes['adc']['V'] + j][2 + i] = c
+for i, c in enumerate([EO|AI|EI|FI, SR]):  # SBC_R_A
+    ucode[FLAGS_Z0C1][opcodes['sbc']['R']][2 + i] = c
+    ucode[FLAGS_Z1C1][opcodes['sbc']['R']][2 + i] = c
+for i, c in enumerate([SS|RO|BI, EO|AI|EI|FI, SR]):  # SBC_R_X
+    for j in range(1, 8):
+        ucode[FLAGS_Z0C1][opcodes['sbc']['R'] + j][2 + i] = c
+        ucode[FLAGS_Z1C1][opcodes['sbc']['R'] + j][2 + i] = c
+for i, c in enumerate([MI|CO, MI|RO|CE, SS|RO|BI, EO|AI|EI|FI, SR]):  # SBC_A
+    ucode[FLAGS_Z0C1][opcodes['sbc']['A'] + j][2 + i] = c
+    ucode[FLAGS_Z1C1][opcodes['sbc']['A'] + j][2 + i] = c
+for i, c in enumerate([MI|CO, RO|BI|CE, EO|AI|EI|FI, SR]):  # SBC_V
+    ucode[FLAGS_Z0C1][opcodes['sbc']['V'] + j][2 + i] = c
+    ucode[FLAGS_Z1C1][opcodes['sbc']['V'] + j][2 + i] = c
 
 ucode = [ucode[i][j][k] for i in range(4) for j in range(256) for k in range(8)]
 

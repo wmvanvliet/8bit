@@ -280,6 +280,26 @@ def test_jnz():
                         hlt''').run_batch() == [1]
 
 
+def test_adc():
+    # Add address, no carry
+    assert Simulator('''ld a,10
+                        adc [x]
+                        out a
+                        hlt
+                        section .data
+                        x: db 10''').run_batch() == [20]
+
+    # Add address, with carry
+    assert Simulator('''ld a,200
+                        add 200    ; sets carry
+                        out a
+                        ld a,0
+                        adc [x]    ; should add 1
+                        out a
+                        hlt
+                        section .data
+                        x: db 10''').run_batch() == [144, 11]
+
 def test_program_test():
     with open('example_programs/test.asm') as f:
         assert Simulator(f.read()).run_batch() == [42]

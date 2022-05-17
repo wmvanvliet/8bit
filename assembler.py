@@ -14,9 +14,10 @@ opcodes = {
     'out': dict(R=12 << 3, A=146, V=147),
     'jsr': dict(V=148),
     'ret': 149,
-    'hlt': 0xFF,
+    'adc': dict(R=13 << 3, A=150, V=151),
+    'sbc': dict(R=14 << 3, A=152, V=153),
+    'hlt': 255,
 }
-#num_to_instruction = {v: k for k, v in opcodes.items()}
 
 
 def parse_param(param, as_address=False):
