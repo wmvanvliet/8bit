@@ -134,7 +134,6 @@ def update(stdscr, state):
     address = state.reg_memory_address
     if state.is_line_active(microcode.SS):
         address += 1 << 8
-        print_message(stdscr, f'{address:d} {state.memory[address]}')
     draw_leds(8, 17, num=state.memory[address], n=8, color=2)
 
     # ALU
@@ -165,10 +164,8 @@ def update(stdscr, state):
     draw_leds(16, 16, num=state.rom_address, n=12, color=5)
 
     # Control lines
-    print(f'{state.control_signals:016b}')
     control_signals = (state.control_signals & 0b1111111111111000) << 4
     control_signals += (1 << 7) >> (state.control_signals & 0b111)
-    print(f'{control_signals:020b}')
     draw_leds(19, 60, control_signals, n=20, color=4, dec=False)
 
     # Memory contents

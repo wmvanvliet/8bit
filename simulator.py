@@ -45,6 +45,9 @@ class State:  # Classes are namespaces
     microinstruction_counter: int = 0
     output_signed_mode: bool = False
 
+    # Whether to keep track of history
+    keep_history: bool = True
+
     def update(self):
         """Update the state based on the values of the control lines. This does
         not touch the various clocks, so this can be called as often as needed
@@ -131,8 +134,9 @@ class State:  # Classes are namespaces
 
         # Before we update the state, keep a copy of the current state so we
         # could revert later if we want.
-        global _previous_states
-        _previous_states.append(asdict(self))
+        if self.keep_history:
+            global _previous_states
+            _previous_states.append(asdict(self))
 
         # Flip clock signal
         self.clock = not self.clock
@@ -231,6 +235,7 @@ class Simulator:
 
     def run_batch(self):
         """Run the simulator in batch mode."""
+        self.state.keep_history = False  # Not needed, so turn off for extra speed
         outputs = list()
         while not self.state.is_line_active(microcode.HLT):
             out = self.state.step()
