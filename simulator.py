@@ -104,12 +104,16 @@ class State:  # Classes are namespaces
             self.reg_flags = self.flag_carry + (self.flag_zero << 1)
 
         # Do ALU stuff, set flag outputs
-        if self.is_line_active(microcode.SU):
+        self.alu = self.reg_a
+        if self.is_line_active(microcode.EI):
+            # Invert register B before inputting it into the adder
             # Perform subtraction by computing the 8bit twos-complement
             # representation of register B.
-            self.alu = self.reg_a + (self.reg_b ^ 0xff & 0xff) + 1
+            self.alu += self.reg_b ^ 0xff & 0xff
         else:
-            self.alu = self.reg_a + self.reg_b
+            self.alu += self.reg_b
+        if self.is_line_active(microcode.EC):
+            self.alu += 1
         self.flag_carry = self.alu > 0xff
         self.alu &= 0xff
         self.flag_zero = self.alu == 0
