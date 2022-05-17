@@ -14,7 +14,6 @@ opcodes = {
     'out': dict(R=12 << 3, A=146, V=147),
     'jsr': dict(V=148),
     'ret': 149,
-    'rst': 0xF7,
     'hlt': 0xFF,
 }
 #num_to_instruction = {v: k for k, v in opcodes.items()}

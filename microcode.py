@@ -283,7 +283,7 @@ UCODE_TEMPLATE = [
     [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 11110100 - NOP
     [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 11110101 - NOP
     [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 11110110 - NOP
-    [MI|CO,  RO|II|CE,  IO|J,      CE,             CE,             SR,           0,         0    ],  # 11110111 - RST
+    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 11110111 - NOP
     [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 11111000 - NOP
     [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 11111001 - NOP
     [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 11111010 - NOP
