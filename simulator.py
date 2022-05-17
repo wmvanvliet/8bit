@@ -114,7 +114,6 @@ class State:  # Classes are namespaces
             self.alu += self.reg_b
         if self.is_line_active(microcode.EC):
             self.alu += 1
-            print(self.alu)
         self.flag_carry = self.alu > 0xff
         self.alu &= 0xff
         self.flag_zero = self.alu == 0
@@ -261,7 +260,6 @@ class Simulator:
         self.state.memory = self.memory
         self.state.memory_human_readable = self.memory_human_readable
         self.state.update()
-
 
 
 if __name__ == '__main__':

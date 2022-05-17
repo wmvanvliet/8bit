@@ -294,11 +294,125 @@ def test_adc():
                         add 200    ; sets carry
                         out a
                         ld a,0
-                        adc [x]    ; should add 1
+                        adc [x]    ; should add 11
                         out a
                         hlt
                         section .data
                         x: db 10''').run_batch() == [144, 11]
+
+    # Add value, no carry
+    assert Simulator('''ld a,10
+                        adc 10
+                        out a
+                        hlt''').run_batch() == [20]
+
+    # Add value, with carry
+    assert Simulator('''ld a,200
+                        add 200    ; sets carry
+                        out a
+                        ld a,0
+                        adc 10     ; should add 11
+                        out a
+                        hlt''').run_batch() == [144, 11]
+
+    # Add accumulator, no carry
+    assert Simulator('''ld a,10
+                        adc a
+                        out a
+                        hlt''').run_batch() == [20]
+
+    # Add accumulator, with carry
+    assert Simulator('''ld a,200
+                        add 200    ; sets carry
+                        out a
+                        adc a
+                        out a
+                        hlt''').run_batch() == [144, 89]
+
+    # Add register, no carry
+    assert Simulator('''ld a,10
+                        ld b,10
+                        adc b
+                        out a
+                        hlt''').run_batch() == [20]
+
+    # Add register, with carry
+    assert Simulator('''ld a,200
+                        add 200    ; sets carry
+                        out a
+                        ld a,0
+                        ld b,10
+                        adc b
+                        out a
+                        hlt''').run_batch() == [144, 11]
+
+
+def test_sbc():
+    # Subtract address, no carry
+    assert Simulator('''ld a,20
+                        sbc [x]
+                        out a
+                        hlt
+                        section .data
+                        x: db 10''').run_batch() == [10]
+
+    # Subtract address, with carry
+    assert Simulator('''ld a,200
+                        sub 400    ; sets carry
+                        out a
+                        ld a,20
+                        sbc [x]    ; should subtract 11
+                        out a
+                        hlt
+                        section .data
+                        x: db 10''').run_batch() == [56, 9]
+
+    # Subtract value, no carry
+    assert Simulator('''ld a,20
+                        sbc 10
+                        out a
+                        hlt''').run_batch() == [10]
+
+    # Subtract value, with carry
+    assert Simulator('''ld a,200
+                        sub 400    ; sets carry
+                        out a
+                        ld a,20
+                        sbc 10     ; should subtract 11
+                        out a
+                        hlt''').run_batch() == [56, 9]
+
+    # Subtract accumulator, no carry
+    assert Simulator('''ld a,10
+                        sbc a
+                        out a
+                        hlt''').run_batch() == [0]
+
+    # Subtract accumulator, with carry
+    assert Simulator('''ld a,200
+                        sub 400    ; sets carry
+                        out a
+                        sbc a
+                        out a
+                        hlt''').run_batch() == [56, 255]
+
+    # Subtract register, no carry
+    assert Simulator('''ld a,20
+                        ld b,10
+                        sbc b
+                        out a
+                        hlt''').run_batch() == [10]
+
+    # Subtract register, with carry
+    assert Simulator('''ld a,200
+                        sub 400    ; sets carry
+                        out a
+                        ld a,20
+                        ld b,10
+                        sbc b
+                        out a
+                        hlt''').run_batch() == [56, 9]
+
 
 def test_program_test():
     with open('example_programs/test.asm') as f:
@@ -313,6 +427,11 @@ def test_program_multiply():
 def test_program_multiply_shift():
     with open('example_programs/multiply_shift.asm') as f:
         assert Simulator(f.read()).run_batch() == [255]
+
+
+def test_program_divide():
+    with open('example_programs/divide.asm') as f:
+        assert Simulator(f.read()).run_batch() == [7]
 
 
 def test_program_fibonacci():

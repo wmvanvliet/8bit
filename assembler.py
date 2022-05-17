@@ -337,7 +337,7 @@ def assemble(program_code, verbose=False):
             else:
                 raise KeyError(f'Unknown label {label_name}')
         elif typ == 'db':
-            output_bin_text.append(label_name)
+            output_bin_text.append(content[0])
 
     output_bin_data = [0] * 8
     for typ, *content in output_data:
@@ -379,10 +379,6 @@ def assemble(program_code, verbose=False):
                 s += f' ({label})'
             human_readable_data.append(s)
 
-    #from pprint import pprint
-    #pprint(output_bin_text)
-    #pprint(human_readable)
-
     output_bin = list(output_bin_text)
     while len(output_bin) < 256:
         output_bin.append(0)
@@ -395,9 +391,6 @@ def assemble(program_code, verbose=False):
         print('\n------DATA------')
         for line in human_readable_data:
             print(line)
-        #print('\n------BIN------')
-        #for addr, content in enumerate(output_bin):
-        #    print(f'{addr:03x} {content:08b} ({content:d})')
 
     return output_bin, human_readable_text
 

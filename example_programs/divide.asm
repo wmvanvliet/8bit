@@ -3,22 +3,19 @@
 ; Credit to Edoardo's comment here:
 ; https://theshamblog.com/programs-and-more-commands-for-the-ben-eater-8-bit-breadboard-computer
 ;
-loop:	ld  a,numer
-	sub a,denom
-	jc  inc     ; result was non-negative
-	jp  end
+	ld  b,14    ; numerator
+	ld  c,2     ; denominator
+	ld  d,0     ; answer
 
-inc:
-	ld  numer,a
+loop:	ld  a,b
+	sub c
+	jnc end     ; result was non-negative
+
+	ld  b,a
 	ld  a,1
-	add a,ans
-	ld  ans,a
+	add d
+	ld  d,a
 	jp  loop
 
-end:    ld  a,ans
-	out a
+end:    out d
 	hlt
-
-numer:	db 14
-denom:	db 2
-ans:	db 0
