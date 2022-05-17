@@ -5,7 +5,7 @@ opcodes = {
     'ld':  dict(RA=1 << 3, RV=2 << 3, AR=3 << 3, AV=128, AA=129),
     'add': dict(R=4 << 3, A=130, V=131),
     'sub': dict(R=5 << 3, A=132, V=133),
-    'cmp': dict(R=6 << 3, A=134, V=135),
+    'cp':  dict(R=6 << 3, A=134, V=135),
     'jp':  dict(R=7 << 3, A=136, V=137),
     'jc':  dict(R=8 << 3, A=138, V=139),
     'jz':  dict(R=9 << 3, A=140, V=141),

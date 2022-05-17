@@ -187,28 +187,28 @@ def test_sub():
     assert sim.state.reg_flags == 0b11
 
 
-def test_cmp():
+def test_cp():
     # Test flags
     sim = Simulator('''ld a,1
-                       cmp 2
+                       cp 2
                        hlt''')
     sim.run_batch()
     assert sim.state.reg_flags == 0b00
 
     sim = Simulator('''ld a,2
-                       cmp 1
+                       cp 1
                        hlt''')
     sim.run_batch()
     assert sim.state.reg_flags == 0b01
 
     sim = Simulator('''ld a,1
-                       cmp 1
+                       cp 1
                        hlt''')
     sim.run_batch()
     assert sim.state.reg_flags == 0b11
 
     sim = Simulator('''ld a,0
-                       cmp 0
+                       cp 0
                        hlt''')
     sim.run_batch()
     assert sim.state.reg_flags == 0b11

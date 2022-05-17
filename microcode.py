@@ -84,14 +84,14 @@ UCODE_TEMPLATE = [
     [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EO|AI|EI|EC|FI, SR,           0,         0,   ],  # 00101101 -      _F
     [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EO|AI|EI|EC|FI, SR,           0,         0,   ],  # 00101110 -      _G
     [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EO|AI|EI|EC|FI, SR,           0,         0,   ],  # 00101111 -      _H
-    [MI|CO,  RO|II|CE,  AO|BI,     EI|EC|FI,       SR,             0,            0,         0    ],  # 00110000 - CMP_R_A
-    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EI|EC|FI,       SR,           0,         0,   ],  # 00110001 -      _B
-    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EI|EC|FI,       SR,           0,         0,   ],  # 00110010 -      _C
-    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EI|EC|FI,       SR,           0,         0,   ],  # 00110011 -      _D
-    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EI|EC|FI,       SR,           0,         0,   ],  # 00110100 -      _E
-    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EI|EC|FI,       SR,           0,         0,   ],  # 00110101 -      _F
-    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EI|EC|FI,       SR,           0,         0,   ],  # 00110110 -      _G
-    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EI|EC|FI,       SR,           0,         0,   ],  # 00110111 -      _H
+    [MI|CO,  RO|II|CE,  AO|BI,     EI|EC|FI,       SR,             0,            0,         0    ],  # 00110000 - CP_R_A
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EI|EC|FI,       SR,           0,         0,   ],  # 00110001 -     _B
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EI|EC|FI,       SR,           0,         0,   ],  # 00110010 -     _C
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EI|EC|FI,       SR,           0,         0,   ],  # 00110011 -     _D
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EI|EC|FI,       SR,           0,         0,   ],  # 00110100 -     _E
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EI|EC|FI,       SR,           0,         0,   ],  # 00110101 -     _F
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EI|EC|FI,       SR,           0,         0,   ],  # 00110110 -     _G
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EI|EC|FI,       SR,           0,         0,   ],  # 00110111 -     _H
     [MI|CO,  RO|II|CE,  AO|J,      SR,             0,              0,            0,         0    ],  # 00111000 - JP_R_A
     [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|J,        SR,             0,            0,         0    ],  # 00111001 -     _B
     [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|J,        SR,             0,            0,         0    ],  # 00111010 -     _C
@@ -170,8 +170,8 @@ UCODE_TEMPLATE = [
     [MI|CO,  RO|II|CE,  MI|CO,     RO|BI|CE,       EO|AI|FI,       SR,           0,         0    ],  # 10000011 - ADD_V
     [MI|CO,  RO|II|CE,  MI|CO,     MI|RO|CE,       SS|RO|BI,       EO|AI|EI|EC|FI, SR,      0    ],  # 10000100 - SUB_A
     [MI|CO,  RO|II|CE,  MI|CO,     RO|BI|CE,       EO|AI|EI|EC|FI, SR,           0,         0    ],  # 10000101 - SUB_V
-    [MI|CO,  RO|II|CE,  MI|CO,     MI|RO|CE,       SS|RO|BI,       EI|EC|FI,     SR,        0    ],  # 10000110 - CMP_A
-    [MI|CO,  RO|II|CE,  MI|CO,     RO|BI|CE,       EI|EC|FI,       SR,           0,         0    ],  # 10000111 - CMP_V
+    [MI|CO,  RO|II|CE,  MI|CO,     MI|RO|CE,       SS|RO|BI,       EI|EC|FI,     SR,        0    ],  # 10000110 - CP_A
+    [MI|CO,  RO|II|CE,  MI|CO,     RO|BI|CE,       EI|EC|FI,       SR,           0,         0    ],  # 10000111 - CP_V
     [MI|CO,  RO|II|CE,  MI|CO,     RO|MI,          SS|RO|J,        SR,           0,         0    ],  # 10001000 - JP_A
     [MI|CO,  RO|II|CE,  MI|CO,     RO|J,           SR,             0,            0,         0,   ],  # 10001001 - JP_V
     [MI|CO,  RO|II|CE,  CE,        SR,             0,              0,            0,         0,   ],  # 10001010 - JP_C_A
