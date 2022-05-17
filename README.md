@@ -40,32 +40,36 @@ This simulator reads its memory contents from a text file with the `.asm` extens
 Supported assembler instructions:
 
 ```
-nop     No operation
-lda #   Load memory contents at # into register A
-add #   Add memory contents at # to register A
-sub #   Subtract memory contents at # from register A
-sta #   Store contents of register A at memory location #
-ldi #   Load the value # into register A
-jmp #   Jump to memory location #
-jc #    Jump to memory location # if the carry flag is set
-jz #    Jump to memory location # if the zero flag is set
-out     Output contents of register A
-hlt     Halt the CPU, end of program
+nop        No operation
+ld  #,##   Load memory contents of ## into #
+add #      Add # to the accumulator, set flags
+sub #      Subtract # from the accumulator, set flags
+adc #      Add # as well as the carry flag to the accumulator, set flags
+sbc #      Subtract # as well as the carry flag from the accumulator, set flags
+jp  #      Jump to memory location #
+jc  #      Jump to memory location # if the carry flag is set
+jz  #      Jump to memory location # if the zero flag is set
+jnc #      Jump to memory location # if the carry flag is not set
+jnz #      Jump to memory location # if the zero flag is not set
+out #      Output # on the 7-segment display
+hlt        Halt the CPU, end of program
 ```
 
-The assembler also supports comments using the `;` character, writing raw values with `db` and labels. Here is an example assembler program that uses all the features of the assembler:
+Where `#` can be the accumulator `a`, any of the virtual registers `b`, `c`, `d`, `e`, `f`, `g`, `h`, a direct value (e.g. `42`) or a memory contents of a label (e.g. `[my_label]`).
+
+The assembler also supports comments using the `;` character, writing raw values with `db` and labels. Here is an example assembler program that uses some features of the assembler:
 ```asm
 ;
 ; Test program that adds two numbers
 ;
-	lda a  ; Load the memory contents at the (a) label into register "A".
-	add b  ; Add the memory contents at the (b) label to the value in register "A".
-	out    ; Display the value in register "A" on the 7-segment display.
-	hlt    ; Halt the clock. This signals the end of the program.
+	ld a,[x]  ; Load the memory contents at the (x) label into the accumulator
+	add [y]   ; Add the memory contents at the (y) label to the value the accumulator
+	out a     ; Display the value in the accumulator on the 7-segment display.
+	hlt       ; Halt the clock. This signals the end of the program.
 
-a:         ; Label that marks memory location (a)
+x:         ; Label that marks memory location (x)
 	db 28  ; Write the literatal value "28" at this memory location.
-b:         ; Label that marks memory location (b)
+y:         ; Label that marks memory location (y)
 	db 14  ; Write the literal value "14" at this memory location.
 ``` 
 
