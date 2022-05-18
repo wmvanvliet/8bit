@@ -190,9 +190,9 @@ UCODE_TEMPLATE = [
     [MI|CO,  RO|II|CE,  MI|CO,     RO|BI|CE,       EO|AI|FI,       SR,           0,         0    ],  # 10010111 - ADC_V
     [MI|CO,  RO|II|CE,  MI|CO,     MI|RO|CE,       SS|RO|BI,       EO|AI|EI|EC|FI, SR,      0    ],  # 10011000 - SBC_A
     [MI|CO,  RO|II|CE,  MI|CO,     RO|BI|CE,       EO|AI|EI|EC|FI, SR,           0,         0    ],  # 10011001 - SBC_V
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 10011010 - NOP
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 10011011 - NOP
-    [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 10011100 - NOP
+    [MI|CO,  RO|II|CE,  BI,        EO|AI|EC|FI,    SR,             0,            0,         0    ],  # 10011010 - INC
+    [MI|CO,  RO|II|CE,  BI,        EO|AI|EI|FI,    SR,             0,            0,         0    ],  # 10011011 - DEC
+    [MI|CO,  RO|II|CE,  BI,        EO|AI|EI|FI,    MI|CO,          RO|J,    SR,  0,         0    ],  # 10011100 - DJZ_V
     [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 10011101 - NOP
     [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 10011110 - NOP
     [MI|CO,  RO|II|CE,  SR,        0,              0,              0,            0,         0    ],  # 10011111 - NOP
@@ -357,6 +357,11 @@ for i, c in enumerate([MI|CO, MI|RO|CE, SS|RO|BI, EO|AI|EI|FI, SR]):  # SBC_A
 for i, c in enumerate([MI|CO, RO|BI|CE, EO|AI|EI|FI, SR]):  # SBC_V
     ucode[FLAGS_Z0C1][opcodes['sbc']['V']][2 + i] = c
     ucode[FLAGS_Z1C1][opcodes['sbc']['V']][2 + i] = c
+for i, c in enumerate([BI, EO|AI|EI|FI, MI|CO, RO|J, SR]):  # DJZ_V
+    ucode[FLAGS_Z0C1][opcodes['djnz']['V']][2 + i] = c
+for i, c in enumerate([BI, EO|AI|EI|FI, CE, SR]):  # No jump
+    ucode[FLAGS_Z1C0][opcodes['djnz']['V']][2 + i] = c
+    ucode[FLAGS_Z1C1][opcodes['djnz']['V']][2 + i] = c
 
 ucode = [ucode[i][j][k] for i in range(4) for j in range(256) for k in range(8)]
 

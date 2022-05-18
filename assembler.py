@@ -16,6 +16,9 @@ opcodes = {
     'ret': 149,
     'adc': dict(R=13 << 3, A=150, V=151),
     'sbc': dict(R=14 << 3, A=152, V=153),
+    'inc': 154,
+    'dec': 155,
+    'djnz': dict(V=156),
     'hlt': 255,
 }
 

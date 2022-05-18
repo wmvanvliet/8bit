@@ -414,6 +414,27 @@ def test_sbc():
                         hlt''').run_batch() == [56, 9]
 
 
+def test_inc():
+    assert Simulator('''ld a,4
+                        inc
+                        out a
+                        hlt''').run_batch() == [5]
+
+
+def test_dec():
+    assert Simulator('''ld a,4
+                        dec
+                        out a
+                        hlt''').run_batch() == [3]
+
+
+def test_djnz():
+    assert Simulator('''      ld a,4
+                        loop: out a
+                              djnz loop
+                              hlt''').run_batch() == [4, 3, 2, 1]
+
+
 def test_program_test():
     with open('example_programs/test.asm') as f:
         assert Simulator(f.read()).run_batch() == [42]
