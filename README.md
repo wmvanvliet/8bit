@@ -46,12 +46,15 @@ add #      Add # to the accumulator, set flags
 sub #      Subtract # from the accumulator, set flags
 adc #      Add # as well as the carry flag to the accumulator, stores result in accumulator, set flags
 sbc #      Subtract # as well as the carry flag from the accumulator, stores result in accumulator, set flags
+inc        Increase the accumulator by 1
+dec        Decrease the accumulator by 1
 cp  #      Subtract # from the accumulator, does not store result, set flags
 jp  #      Jump to memory location #
 jc  #      Jump to memory location # if the carry flag is set
 jz  #      Jump to memory location # if the zero flag is set
 jnc #      Jump to memory location # if the carry flag is not set
 jnz #      Jump to memory location # if the zero flag is not set
+djnz #     Decrease accumulator and jump to memory location # if the zero flag is not set
 out #      Output # on the 7-segment display
 hlt        Halt the CPU, end of program
 ```
