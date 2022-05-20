@@ -1,14 +1,12 @@
 """
 Simulator for the SAP-1 8-bit breadboard computer.
 """
-import curses
 from argparse import ArgumentParser
-from time import time, sleep
 from collections import deque
 from dataclasses import dataclass, asdict, field
+from time import time
 
 import microcode
-import interface
 from assembler import assemble
 
 
@@ -177,7 +175,7 @@ class State:  # Classes are namespaces
             self._load_serialized_state(prev_state)
 
     def is_line_active(self, line):
-        if line & 0b111: 
+        if line & 0b111:
             return (self.control_signals & 0b111) == line
         else:
             return self.control_signals & line
@@ -197,45 +195,6 @@ class Simulator:
 
         # Initialize system state
         self.reset()
-
-    def run_interface(self, stdscr):
-        """Main function to run the simulator with its console user interface.
-
-        Parameters
-        ----------
-        stdscr : curses screen
-            The curses screen object as created by curses.wrapper().
-        """
-        interface.init(stdscr)
-
-        # Start simulation and UI loop. This loop only terminates when the ESC
-        # key is pressed, which is detected inside the handle_keypresses()
-        # function.
-        while True:
-            interface.update(stdscr, self.state)
-            if self.clock_automatic:
-                wait_time = (0.5 / self.clock_speed) - (time() - self.last_clock_time)
-                if wait_time > 0.1:
-                    curses.halfdelay(int(10 * wait_time))
-                    interface.handle_keypresses(stdscr, self)
-                    self.step()
-                else:
-                    curses.nocbreak()
-                    if wait_time > 0:
-                        sleep(wait_time)
-                    curses.nocbreak()
-                    stdscr.nodelay(True)
-                    interface.handle_keypresses(stdscr, self)
-                    self.step()
-            else:
-                curses.cbreak()
-                interface.handle_keypresses(stdscr, self)
-
-            # When we reach the end of the program, set the clock to manual
-            # mode so we don't keep generating useless system states.
-            if self.state.is_line_active(microcode.HLT):
-                self.clock_automatic = False
-            interface.update(stdscr, self.state)
 
     def run_batch(self):
         """Run the simulator in batch mode."""
@@ -274,5 +233,7 @@ if __name__ == '__main__':
     if args.no_interface:
         for out in simulator.run_batch():
             print(out)
-    else: 
-        curses.wrapper(simulator.run_interface)
+    else:
+        import curses
+        import interface
+        curses.wrapper(interface.run_interface, simulator)

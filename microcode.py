@@ -374,18 +374,21 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     with open(args.output_file, 'wb') as f:
-        for addr, contents in enumerate(ucode):
+        bin_contents = bytes()
+        for contents in ucode:
             if args.top:
-                contents = contents >> 8
-                f.write(struct.pack('<B', contents))
-                if args.verbose:
-                    print(f'{addr:03d}: {contents:08b}')
+                bin_contents += struct.pack('<B', contents >> 8)
             elif args.bottom:
-                contents = contents & 0xff
-                f.write(struct.pack('<B', contents))
-                if args.verbose:
-                    print(f'{addr:03d}: {contents:08b}')
+                bin_contents += struct.pack('<B', contents & 0xff)
             else:
-                f.write(struct.pack('<H', contents))
-                if args.verbose:
-                    print(f'{addr:03d}: {contents:016b}')
+                bin_contents += struct.pack('<H', contents)
+        f.write(bin_contents)
+
+        if args.verbose:
+            if args.top or args.bottom:
+                for addr in range(0, len(bin_contents), 8):
+                    print(f'{addr:04x}: {bin_contents[addr]:02x} {bin_contents[addr + 1]:02x} {bin_contents[addr + 2]:02x} {bin_contents[addr + 3]:02x} {bin_contents[addr + 4]:02x} {bin_contents[addr + 5]:02x} {bin_contents[addr + 6]:02x} {bin_contents[addr + 7]:02x}')
+            else:
+                for addr in range(0, len(bin_contents), 16):
+                    print(f'{addr:04x}: {bin_contents[addr]:02x}{bin_contents[addr + 1]:02x} {bin_contents[addr + 2]:02x}{bin_contents[addr + 3]:02x} {bin_contents[addr + 4]:02x}{bin_contents[addr + 5]:02x} {bin_contents[addr + 6]:02x}{bin_contents[addr + 7]:02x} {bin_contents[addr + 8]:02x}{bin_contents[addr + 9]:02x} {bin_contents[addr + 10]:02x}{bin_contents[addr + 11]:02x} {bin_contents[addr + 12]:02x}{bin_contents[addr + 13]:02x} {bin_contents[addr + 14]:02x}{bin_contents[addr + 15]:02x}')
+

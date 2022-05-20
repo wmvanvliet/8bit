@@ -2,7 +2,7 @@ import sys
 
 opcodes = {
     'nop': 0x00,
-    'ld':  dict(RA=1 << 3, RV=2 << 3, AR=3 << 3, AV=128, AA=129),
+    'ld':  dict(RA=1 << 3, RV=2 << 3, AR=3 << 3, AV=128, AA=129, RI=15 << 3),
     'add': dict(R=4 << 3, A=130, V=131),
     'sub': dict(R=5 << 3, A=132, V=133),
     'cp':  dict(R=6 << 3, A=134, V=135),
@@ -180,6 +180,8 @@ def assemble(program_code, verbose=False):
                 output.append(('instr', instruction, opcode['A']))
                 output.append(('label', label, offset))
                 output_readable.append((f'{instruction} {readable}', 2))
+            else:
+                error(f'Invalid parameter for instruction {instruction}.') 
             continue
 
         if len(params) == 2:
@@ -319,7 +321,7 @@ def assemble(program_code, verbose=False):
                 output.append(('label', label, offset))
                 output_readable.append((f'{instruction} {readable},{value:d}', 3))
             else:
-                error(f'Invalid instruction: {line}')
+                error(f'Invalid parameters for instruction {instruction}.') 
             continue
 
     # Resolve labels and convert to binary
