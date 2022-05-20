@@ -1,4 +1,6 @@
+from argparse import ArgumentParser
 import sys
+import struct
 
 instruction_to_num = {
     'nop': 0,
@@ -105,7 +107,16 @@ def disassemble(bin_code):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print('python assembler.py PROGRAM_TO_ASSEMBLE')
-        sys.exit(1)
-    assemble(sys.argv[1], verbose=True)
+    parser = ArgumentParser(description='Assembler for the 8-bit breadboard computer.')
+    parser.add_argument('file', type=str, help='Assembler code file to assemble.')
+    parser.add_argument('-o', '--output-file', type=str, default=None, help='Write the compiled program to a file.')
+    args = parser.parse_args()
+
+    bin_output, _ = assemble(args.file, verbose=True)
+
+    if args.output_file:
+        with open(args.output_file, 'wb') as f:
+            for line in bin_output:
+                print(f'{line} {line:02x}')
+                f.write(struct.pack('<B', line))
+
