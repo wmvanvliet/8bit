@@ -1,4 +1,6 @@
 from copy import deepcopy
+from argparse import ArgumentParser
+import struct
 
 HLT = 0b1000000000000000  # Halt clock
 MI  = 0b0100000000000000  # Memory address register in
@@ -53,5 +55,29 @@ ucode[FLAGS_Z1C1][JZ][2] = IO|J
 ucode = [ucode[i][j][k] for i in range(4) for j in range(16) for k in range(8)]
 
 if __name__ == '__main__':
-    for addr, contents in enumerate(ucode):
-        print(f'{addr:03d}: {contents:016b}')
+    parser = ArgumentParser(description=__doc__)
+    parser.add_argument('output_file', type=str, help='File to write the microcode binary to')
+    parser.add_argument('-t', '--top', action='store_true', help='Write only the top 8 bytes')
+    parser.add_argument('-b', '--bottom', action='store_true', help='Write only the bottom 8 bytes')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Display the produced microcode binary')
+    args = parser.parse_args()
+
+    with open(args.output_file, 'wb') as f:
+        bin_contents = bytes()
+        for contents in ucode:
+            if args.top:
+                bin_contents += struct.pack('<B', contents >> 8)
+            elif args.bottom:
+                bin_contents += struct.pack('<B', contents & 0xff)
+            else:
+                bin_contents += struct.pack('<H', contents)
+        f.write(bin_contents)
+
+        if args.verbose:
+            if args.top or args.bottom:
+                for addr in range(0, len(bin_contents), 8):
+                    print(f'{addr:04x}: {bin_contents[addr]:02x} {bin_contents[addr + 1]:02x} {bin_contents[addr + 2]:02x} {bin_contents[addr + 3]:02x} {bin_contents[addr + 4]:02x} {bin_contents[addr + 5]:02x} {bin_contents[addr + 6]:02x} {bin_contents[addr + 7]:02x}')
+            else:
+                for addr in range(0, len(bin_contents), 16):
+                    print(f'{addr:04x}: {bin_contents[addr + 1]:02x}{bin_contents[addr]:02x} {bin_contents[addr + 3]:02x}{bin_contents[addr + 2]:02x} {bin_contents[addr + 5]:02x}{bin_contents[addr + 4]:02x} {bin_contents[addr + 7]:02x}{bin_contents[addr + 6]:02x} {bin_contents[addr + 9]:02x}{bin_contents[addr + 8]:02x} {bin_contents[addr + 11]:02x}{bin_contents[addr + 10]:02x} {bin_contents[addr + 13]:02x}{bin_contents[addr + 12]:02x} {bin_contents[addr + 15]:02x}{bin_contents[addr + 14]:02x}')
+
