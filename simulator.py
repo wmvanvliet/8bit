@@ -268,7 +268,7 @@ if __name__ == '__main__':
 
     if args.bin:
         with open(args.file, 'rb') as f:
-            simulator = Simulator(memory=f.read())
+            simulator = Simulator(memory=list(f.read()))
     else:
         with open(args.file) as f:
             simulator = Simulator(*assemble(f.read()))

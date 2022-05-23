@@ -306,7 +306,7 @@ def test_jnc():
 def test_jnz():
     assert Simulator(*assemble(
         '''ld a,10
-           sub 9 
+           sub 9
            jnz x        ; Jump to value
            ld a,2
            x: out a
