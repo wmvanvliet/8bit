@@ -2,11 +2,9 @@
 Simulator for the SAP-1 8-bit breadboard computer.
 """
 from argparse import ArgumentParser
-import sys
-from time import time, sleep
+from time import time
 from collections import deque
 from dataclasses import dataclass, asdict, field
-from time import time
 
 import microcode
 from assembler import assemble
@@ -122,7 +120,7 @@ class State:  # Classes are namespaces
 
         # Changes of instruction and flags registers affect the control lines
         self.update_control_signals()
-    
+
     def update_control_signals(self):
         """Update the control signals based on the state of the microcode ROM
         module."""
