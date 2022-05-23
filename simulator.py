@@ -138,7 +138,11 @@ class State:  # Classes are namespaces
         # Update the system state now that the clock has changed
         self.update()
 
-        return self
+        # Return the value written to the output module (if any)
+        if self.clock and (self.control_signals & microcode.OI):
+            return self.reg_output
+        else:
+            return None
 
     def _load_serialized_state(self, prev_state):
         for k, v in prev_state.items():
@@ -196,7 +200,7 @@ class Simulator:
         """
         self.state.keep_history = False  # Not needed, so turn off for extra speed
         outputs = list()
-        while not self.state.is_line_active(microcode.HLT):
+        while not self.state.control_signals & microcode.HLT:
             out = self.state.step()
             if out is not None:
                 outputs.append(out)
