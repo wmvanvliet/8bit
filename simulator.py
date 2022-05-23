@@ -1,14 +1,13 @@
 """
 Simulator for the SAP-1 8-bit breadboard computer.
 """
+from argparse import ArgumentParser
 import sys
-import curses
 from time import time, sleep
 from collections import deque
 from dataclasses import dataclass, asdict, field
 
 import microcode
-import interface
 from assembler import assemble
 
 
@@ -18,8 +17,8 @@ _previous_states = deque(maxlen=10_000)
 @dataclass
 class State:  # Classes are namespaces
     bus: int = 0
-    memory: list[int] = field(default_factory=lambda: assemble(sys.argv[1])[0])
-    memory_human_readable: list[str]  = field(default_factory=lambda: assemble(sys.argv[1])[1])
+    memory: list[int] = field(default_factory=lambda: [0] * 16)
+    memory_human_readable: list[str]  = field(default_factory=lambda: [''] * 16)
     rom_address: int = 0
 
     # Content of the registers
@@ -155,7 +154,25 @@ class State:  # Classes are namespaces
 
 
 class Simulator:
-    def __init__(self):
+    """Class representing the entire machine.
+
+    Parameters
+    ----------
+    memory : list of int
+        For each memory address (there should be a maximum of 16), the contents
+        (an 8 bit number, so from 0-255) of the RAM at that address. Generally,
+        you want to use the assembler to generate the RAM contens based on
+        assembler code.
+    memory_human_readable : list of str
+        For each memory address, a human readable version of the contents of
+        the RAM at that address. For example, it could be the line of assembler
+        code that generated the opcode. By default (``None``), this is set to
+        all empty strings.
+    """
+    def __init__(self, memory, memory_human_readable=None):
+        self._init_memory = memory
+        self._init_memory_human_readable = memory_human_readable
+
         # Variables related to automatic stepping of the clock
         self.clock_automatic = False
         self.clock_speed = 1  # Hz
@@ -164,44 +181,21 @@ class Simulator:
         # Initialize system state
         self.reset()
 
-    def run(self, stdscr):
-        """Main function to run the simulator with its console user interface.
+    def run_batch(self):
+        """Run the simulator in batch mode until the HLT instruction is reached.
 
-        Parameters
-        ----------
-        stdscr : curses screen
-            The curses screen object as created by curses.wrapper().
+        Returns
+        -------
+        outputs : list of int
+            The result of any OUT instructions encountered along the way.
         """
-        interface.init(stdscr)
-
-        # Start simulation and UI loop. This loop only terminates when the ESC
-        # key is pressed, which is detected inside the handle_keypresses()
-        # function.
-        while True:
-            interface.update(stdscr, self.state)
-            if self.clock_automatic:
-                wait_time = (0.5 / self.clock_speed) - (time() - self.last_clock_time)
-                if wait_time > 0.1:
-                    curses.halfdelay(int(10 * wait_time))
-                    interface.handle_keypresses(stdscr, self)
-                    self.step()
-                else:
-                    curses.nocbreak()
-                    if wait_time > 0:
-                        sleep(wait_time)
-                    curses.nocbreak()
-                    stdscr.nodelay(True)
-                    interface.handle_keypresses(stdscr, self)
-                    self.step()
-            else:
-                curses.cbreak()
-                interface.handle_keypresses(stdscr, self)
-
-            # When we reach the end of the program, set the clock to manual
-            # mode so we don't keep generating useless system states.
-            if self.state.control_signals & microcode.HLT:
-                self.clock_automatic = False
-            interface.update(stdscr, self.state)
+        self.state.keep_history = False  # Not needed, so turn off for extra speed
+        outputs = list()
+        while not self.state.is_line_active(microcode.HLT):
+            out = self.state.step()
+            if out is not None:
+                outputs.append(out)
+        return outputs
 
     def step(self):
         """Step the clock while keeping track of time."""
@@ -212,14 +206,26 @@ class Simulator:
         """Reset the machine."""
         global _previous_states
         _previous_states.clear()
-        self.state = State()
+        self.state = State(
+            memory=self._init_memory,
+            memory_human_readable=self._init_memory_human_readable)
         self.state.update()
 
 
-
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print('python simulator.py PROGRAM_TO_EXECUTE')
-        sys.exit(1)
-    simulator = Simulator()
-    curses.wrapper(simulator.run)
+    parser = ArgumentParser(description=__doc__)
+    parser.add_argument('file', type=str, help='Program to execute')
+    parser.add_argument('--no-interface', action='store_true',
+                        help="Don't show the interface, but run the program in batch mode")
+    args = parser.parse_args()
+
+    with open(args.file) as f:
+        simulator = Simulator(*assemble(f.read()))
+
+    if args.no_interface:
+        for out in simulator.run_batch():
+            print(out)
+    else:
+        import curses
+        import interface
+        curses.wrapper(interface.run_interface, simulator)

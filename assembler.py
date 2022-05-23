@@ -18,39 +18,46 @@ instruction_to_num = {
 num_to_instruction = {v: k for k, v in instruction_to_num.items()}
 
 
-def assemble(fname, verbose=False):
+def assemble(program_code, verbose=False):
     labels = dict()
     output = list()
 
     # Parse file
-    with open(fname) as f:
-        for line in f:
-            # Deal with comments
-            if ';' in line:
-                line, _ = line.split(';', 1)
-            
-            # Deal with labels:
-            if ':' in line:
-                label, line = line.split(':', 1)
-                labels[label.strip().lower()] = len(output)
+    for line_nr, line in enumerate(program_code.split('\n')):
+        def error(msg):
+            print(f'L{line_nr + 1}: {line}')
+            print(msg)
+            sys.exit(1)
 
-            line = line.strip()
-            if len(line) == 0:
-                continue
+        # Deal with comments
+        if ';' in line:
+            line, _ = line.split(';', 1)
+        
+        # Deal with labels:
+        if ':' in line:
+            label, line = line.split(':', 1)
+            labels[label.strip().lower()] = len(output)
 
-            instruction, *params = line.split()
-            instruction = instruction.lower()
-            if instruction in ['nop', 'out', 'hlt']:
-                assert len(params) == 0, f'{instruction} takes no parameters'
-                output.append((instruction,))
-            else:
-                assert len(params) == 1, f'{instruction} takes a single parameter'
-                param = params[0]
-                if param.isnumeric():
-                    param = int(param)
-                    assert 0 <= param <= 255, 'Parameter must be 0-255'
+        line = line.strip()
+        if len(line) == 0:
+            continue
 
-                output.append((instruction,param))
+        instruction, *params = line.split()
+        instruction = instruction.lower()
+        if instruction in ['nop', 'out', 'hlt']:
+            if len(params) > 0:
+                error(f'{instruction} takes no parameters')
+            output.append((instruction,))
+        else:
+            if len(params) != 1:
+                error(f'{instruction} takes a single parameter')
+            param = params[0]
+            if param.isnumeric():
+                param = int(param)
+                if not (0 <= param <= 255):
+                    error('Parameter must be 0-255')
+
+            output.append((instruction,param))
 
     # Resolve labels and convert to binary
     bin_output = list()
@@ -112,7 +119,8 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--output-file', type=str, default=None, help='Write the compiled program to a file.')
     args = parser.parse_args()
 
-    bin_output, _ = assemble(args.file, verbose=True)
+    with open(args.file) as f:
+        bin_output, _ = assemble(f.read(), verbose=True)
 
     if args.output_file:
         with open(args.output_file, 'wb') as f:

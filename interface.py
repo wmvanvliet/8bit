@@ -1,4 +1,4 @@
-
+#encoding: utf-8
 schematic = """
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  ●●●●●●●●  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
    ┃ Clock:  ●                      ┃  ┃┃┃┃┃┃┃┃──┃ Program counter: ●●●● (dec)  ┃
@@ -41,6 +41,7 @@ schematic = """
 
 import curses
 import sys
+from time import time, sleep
 
 import microcode
 from assembler import disassemble
@@ -237,3 +238,45 @@ def handle_keypresses(stdscr, simulator):
         stdscr.move(38, 0)
         stdscr.clrtoeol()
         stdscr.addstr(38, 0, str(e))
+
+
+def run_interface(stdscr, simulator):
+    """Main function to run the simulator with its console user interface.
+
+    Parameters
+    ----------
+    stdscr : curses screen
+        The curses screen object as created by curses.wrapper().
+    simulator : Simulator
+        The 8-bit breadboard CPU simulator.
+    """
+    init(stdscr)
+
+    # Start simulation and UI loop. This loop only terminates when the ESC
+    # key is pressed, which is detected inside the handle_keypresses()
+    # function.
+    while True:
+        update(stdscr, simulator.state)
+        if simulator.clock_automatic:
+            wait_time = (0.5 / simulator.clock_speed) - (time() - simulator.last_clock_time)
+            if wait_time > 0.1:
+                curses.halfdelay(int(10 * wait_time))
+                handle_keypresses(stdscr, simulator)
+                simulator.step()
+            else:
+                curses.nocbreak()
+                if wait_time > 0:
+                    sleep(wait_time)
+                curses.nocbreak()
+                stdscr.nodelay(True)
+                handle_keypresses(stdscr, simulator)
+                simulator.step()
+        else:
+            curses.cbreak()
+            handle_keypresses(stdscr, simulator)
+
+        # When we reach the end of the program, set the clock to manual
+        # mode so we don't keep generating useless system states.
+        if simulator.state.control_signals & microcode.HLT:
+            simulator.clock_automatic = False
+        update(stdscr, simulator.state)
