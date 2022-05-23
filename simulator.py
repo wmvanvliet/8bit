@@ -85,6 +85,10 @@ class State:  # Classes are namespaces
                 if self.bus != self.reg_output:
                     self.reg_output = self.bus
 
+        # Transfer ALU flag outputs to the flags register
+        if self.clock and (self.control_signals & microcode.FI):
+            self.reg_flags = self.flag_carry + (self.flag_zero << 1)
+
         # Do ALU stuff, set flag outputs
         if self.control_signals & microcode.SU:
             # Perform subtraction by computing the 8bit twos-complement
@@ -95,10 +99,6 @@ class State:  # Classes are namespaces
         self.flag_carry = self.alu > 0xff
         self.alu &= 0xff
         self.flag_zero = self.alu == 0
-
-        # Transfer ALU flag outputs to the flags register
-        if self.clock and (self.control_signals & microcode.FI):
-            self.reg_flags = self.flag_carry + (self.flag_zero << 1)
 
         # Changes of instruction and flags registers affect the control lines
         self.update_control_signals()
