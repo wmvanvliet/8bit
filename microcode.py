@@ -366,7 +366,7 @@ for i, c in enumerate([BI, EO|AI|EI|FI, CE, SR]):  # No jump
 ucode = [ucode[i][j][k] for i in range(4) for j in range(256) for k in range(8)]
 
 if __name__ == '__main__':
-    parser = ArgumentParser(description=__doc__)
+    parser = ArgumentParser(description='Build the microcode ROM contents for the 8bit breadboard computer.')
     parser.add_argument('output_file', type=str, help='File to write the microcode binary to')
     parser.add_argument('-t', '--top', action='store_true', help='Write only the top 8 bytes')
     parser.add_argument('-b', '--bottom', action='store_true', help='Write only the bottom 8 bytes')

@@ -247,6 +247,7 @@ def handle_keypresses(stdscr, simulator):
         stdscr.clrtoeol()
         stdscr.addstr(38, 0, str(e))
 
+
 def run_interface(stdscr, simulator):
     """Main function to run the simulator with its console user interface.
 

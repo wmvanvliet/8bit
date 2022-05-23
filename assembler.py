@@ -1,4 +1,6 @@
+from argparse import ArgumentParser
 import sys
+import struct
 
 opcodes = {
     'nop': 0x00,
@@ -21,6 +23,7 @@ opcodes = {
     'djnz': dict(V=156),
     'hlt': 255,
 }
+<<<<<<< HEAD
 
 
 def parse_param(param, as_address=False):
@@ -61,6 +64,51 @@ def parse_param(param, as_address=False):
 
     # Label without an offset
     return 'label_addr' if as_address else 'label', param, 0, param
+=======
+num_to_instruction = {v: k for k, v in instruction_to_num.items()}
+
+
+def assemble(program_code, verbose=False):
+    labels = dict()
+    output = list()
+
+    # Parse file
+    for line_nr, line in enumerate(program_code.split('\n')):
+        def error(msg):
+            print(f'L{line_nr + 1}: {line}')
+            print(msg)
+            sys.exit(1)
+
+        # Deal with comments
+        if ';' in line:
+            line, _ = line.split(';', 1)
+        
+        # Deal with labels:
+        if ':' in line:
+            label, line = line.split(':', 1)
+            labels[label.strip().lower()] = len(output)
+
+        line = line.strip()
+        if len(line) == 0:
+            continue
+
+        instruction, *params = line.split()
+        instruction = instruction.lower()
+        if instruction in ['nop', 'out', 'hlt']:
+            if len(params) > 0:
+                error(f'{instruction} takes no parameters')
+            output.append((instruction,))
+        else:
+            if len(params) != 1:
+                error(f'{instruction} takes a single parameter')
+            param = params[0]
+            if param.isnumeric():
+                param = int(param)
+                if not (0 <= param <= 255):
+                    error('Parameter must be 0-255')
+
+            output.append((instruction,param))
+>>>>>>> 2bd607d969bff978233926fcb5348ecfdc5b1d1f
 
 
 def assemble(program_code, verbose=False):
@@ -401,8 +449,16 @@ def assemble(program_code, verbose=False):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print('python assembler.py PROGRAM_TO_ASSEMBLE')
-        sys.exit(1)
-    with open(sys.argv[1]) as f:
-        assemble(f.read(), verbose=True)
+    parser = ArgumentParser(description='Assembler for the 8-bit breadboard computer.')
+    parser.add_argument('file', type=str, help='Assembler code file to assemble.')
+    parser.add_argument('-o', '--output-file', type=str, default=None, help='Write the compiled program to a file.')
+    args = parser.parse_args()
+
+    with open(args.file) as f:
+        bin_output, _ = assemble(f.read(), verbose=True)
+
+    if args.output_file:
+        with open(args.output_file, 'wb') as f:
+            for line in bin_output:
+                print(f'{line} {line:02x}')
+                f.write(struct.pack('<B', line))

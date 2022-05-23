@@ -2,6 +2,11 @@
 Simulator for the SAP-1 8-bit breadboard computer.
 """
 from argparse import ArgumentParser
+<<<<<<< HEAD
+=======
+import sys
+from time import time, sleep
+>>>>>>> 2bd607d969bff978233926fcb5348ecfdc5b1d1f
 from collections import deque
 from dataclasses import dataclass, asdict, field
 from time import time
@@ -16,6 +21,11 @@ _previous_states = deque(maxlen=10_000)
 @dataclass
 class State:  # Classes are namespaces
     bus: int = 0
+<<<<<<< HEAD
+=======
+    memory: list[int] = field(default_factory=lambda: [0] * 16)
+    memory_human_readable: list[str]  = field(default_factory=lambda: [''] * 16)
+>>>>>>> 2bd607d969bff978233926fcb5348ecfdc5b1d1f
     rom_address: int = 0
     memory: list[int] = field(default_factory=list)
     memory_human_readable: list[str] = field(default_factory=list)
@@ -97,10 +107,13 @@ class State:  # Classes are namespaces
                 if self.bus != self.reg_output:
                     self.reg_output = self.bus
 
+<<<<<<< HEAD
         # Transfer ALU flag outputs to the flags register
         if self.clock and self.is_line_active(microcode.FI):
             self.reg_flags = self.flag_carry + (self.flag_zero << 1)
 
+=======
+>>>>>>> 2bd607d969bff978233926fcb5348ecfdc5b1d1f
         # Do ALU stuff, set flag outputs
         self.alu = self.reg_a
         if self.is_line_active(microcode.EI):
@@ -116,6 +129,16 @@ class State:  # Classes are namespaces
         self.alu &= 0xff
         self.flag_zero = self.alu == 0
 
+<<<<<<< HEAD
+=======
+        # Transfer ALU flag outputs to the flags register
+        if self.clock and (self.control_signals & microcode.FI):
+            self.reg_flags = self.flag_carry + (self.flag_zero << 1)
+
+        # Changes of instruction and flags registers affect the control lines
+        self.update_control_signals()
+    
+>>>>>>> 2bd607d969bff978233926fcb5348ecfdc5b1d1f
     def update_control_signals(self):
         """Update the control signals based on the state of the microcode ROM
         module."""
@@ -182,7 +205,30 @@ class State:  # Classes are namespaces
 
 
 class Simulator:
-    def __init__(self, program_code):
+    """Class representing the entire machine.
+
+    Parameters
+    ----------
+    memory : list of int
+        For each memory address (there should be a maximum of 16), the contents
+        (an 8 bit number, so from 0-255) of the RAM at that address. Generally,
+        you want to use the assembler to generate the RAM contens based on
+        assembler code.
+    memory_human_readable : list of str
+        For each memory address, a human readable version of the contents of
+        the RAM at that address. For example, it could be the line of assembler
+        code that generated the opcode. By default (``None``), this is set to
+        a binary representation of the memory.
+    """
+    def __init__(self, memory, memory_human_readable=None):
+        self._init_memory = memory
+        if memory_human_readable is None:
+            self._init_memory_human_readable = [
+                f'{addr + 1:02d} {content >> 4:04b} {content & 0xf:04b}'
+                for addr, content in enumerate(memory)]
+        else:
+            self._init_memory_human_readable = memory_human_readable
+
         # Variables related to automatic stepping of the clock
         self.clock_automatic = False
         self.clock_speed = 1  # Hz
@@ -197,10 +243,16 @@ class Simulator:
         self.reset()
 
     def run_batch(self):
-        """Run the simulator in batch mode."""
+        """Run the simulator in batch mode until the HLT instruction is reached.
+
+        Returns
+        -------
+        outputs : list of int
+            The result of any OUT instructions encountered along the way.
+        """
         self.state.keep_history = False  # Not needed, so turn off for extra speed
         outputs = list()
-        while not self.state.is_line_active(microcode.HLT):
+        while not self.state.control_signals & microcode.HLT:
             out = self.state.step()
             if out is not None:
                 outputs.append(out)
@@ -215,20 +267,27 @@ class Simulator:
         """Reset the machine."""
         global _previous_states
         _previous_states.clear()
-        self.state = State()
-        self.state.memory = self.memory
-        self.state.memory_human_readable = self.memory_human_readable
+        self.state = State(
+            memory=self._init_memory,
+            memory_human_readable=self._init_memory_human_readable)
         self.state.update()
 
 
 if __name__ == '__main__':
     parser = ArgumentParser(description=__doc__)
     parser.add_argument('file', type=str, help='Program to execute')
-    parser.add_argument('--no-interface', action='store_true', help="Don't show the interface, but run the program in batch mode")
+    parser.add_argument('--no-interface', action='store_true',
+                        help="Don't show the interface, but run the program in batch mode")
+    parser.add_argument('-b', '--bin', action='store_true',
+                        help='Specify that the program file is already assembled binary.')
     args = parser.parse_args()
 
-    with open(args.file) as f:
-        simulator = Simulator(f.read())
+    if args.bin:
+        with open(args.file, 'rb') as f:
+            simulator = Simulator(memory=f.read())
+    else:
+        with open(args.file) as f:
+            simulator = Simulator(*assemble(f.read()))
 
     if args.no_interface:
         for out in simulator.run_batch():
