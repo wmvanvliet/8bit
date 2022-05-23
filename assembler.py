@@ -127,4 +127,3 @@ if __name__ == '__main__':
             for line in bin_output:
                 print(f'{line} {line:02x}')
                 f.write(struct.pack('<B', line))
-

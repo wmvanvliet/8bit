@@ -167,11 +167,16 @@ class Simulator:
         For each memory address, a human readable version of the contents of
         the RAM at that address. For example, it could be the line of assembler
         code that generated the opcode. By default (``None``), this is set to
-        all empty strings.
+        a binary representation of the memory.
     """
     def __init__(self, memory, memory_human_readable=None):
         self._init_memory = memory
-        self._init_memory_human_readable = memory_human_readable
+        if memory_human_readable is None:
+            self._init_memory_human_readable = [
+                f'{addr + 1:02d} {content >> 4:04b} {content & 0xf:04b}'
+                for addr, content in enumerate(memory)]
+        else:
+            self._init_memory_human_readable = memory_human_readable
 
         # Variables related to automatic stepping of the clock
         self.clock_automatic = False
@@ -217,10 +222,16 @@ if __name__ == '__main__':
     parser.add_argument('file', type=str, help='Program to execute')
     parser.add_argument('--no-interface', action='store_true',
                         help="Don't show the interface, but run the program in batch mode")
+    parser.add_argument('-b', '--bin', action='store_true',
+                        help='Specify that the program file is already assembled binary.')
     args = parser.parse_args()
 
-    with open(args.file) as f:
-        simulator = Simulator(*assemble(f.read()))
+    if args.bin:
+        with open(args.file, 'rb') as f:
+            simulator = Simulator(memory=f.read())
+    else:
+        with open(args.file) as f:
+            simulator = Simulator(*assemble(f.read()))
 
     if args.no_interface:
         for out in simulator.run_batch():
