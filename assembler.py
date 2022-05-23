@@ -23,7 +23,6 @@ opcodes = {
     'djnz': dict(V=156),
     'hlt': 255,
 }
-<<<<<<< HEAD
 
 
 def parse_param(param, as_address=False):
@@ -64,51 +63,6 @@ def parse_param(param, as_address=False):
 
     # Label without an offset
     return 'label_addr' if as_address else 'label', param, 0, param
-=======
-num_to_instruction = {v: k for k, v in instruction_to_num.items()}
-
-
-def assemble(program_code, verbose=False):
-    labels = dict()
-    output = list()
-
-    # Parse file
-    for line_nr, line in enumerate(program_code.split('\n')):
-        def error(msg):
-            print(f'L{line_nr + 1}: {line}')
-            print(msg)
-            sys.exit(1)
-
-        # Deal with comments
-        if ';' in line:
-            line, _ = line.split(';', 1)
-        
-        # Deal with labels:
-        if ':' in line:
-            label, line = line.split(':', 1)
-            labels[label.strip().lower()] = len(output)
-
-        line = line.strip()
-        if len(line) == 0:
-            continue
-
-        instruction, *params = line.split()
-        instruction = instruction.lower()
-        if instruction in ['nop', 'out', 'hlt']:
-            if len(params) > 0:
-                error(f'{instruction} takes no parameters')
-            output.append((instruction,))
-        else:
-            if len(params) != 1:
-                error(f'{instruction} takes a single parameter')
-            param = params[0]
-            if param.isnumeric():
-                param = int(param)
-                if not (0 <= param <= 255):
-                    error('Parameter must be 0-255')
-
-            output.append((instruction,param))
->>>>>>> 2bd607d969bff978233926fcb5348ecfdc5b1d1f
 
 
 def assemble(program_code, verbose=False):
@@ -135,7 +89,7 @@ def assemble(program_code, verbose=False):
         # Deal with comments
         if ';' in line:
             line, _ = line.split(';', 1)
-        
+
         # Deal with labels:
         if ':' in line:
             label, line = line.split(':', 1)
@@ -229,7 +183,7 @@ def assemble(program_code, verbose=False):
                 output.append(('label', label, offset))
                 output_readable.append((f'{instruction} {readable}', 2))
             else:
-                error(f'Invalid parameter for instruction {instruction}.') 
+                error(f'Invalid parameter for instruction {instruction}.')
             continue
 
         if len(params) == 2:
@@ -369,7 +323,7 @@ def assemble(program_code, verbose=False):
                 output.append(('label', label, offset))
                 output_readable.append((f'{instruction} {readable},{value:d}', 3))
             else:
-                error(f'Invalid parameters for instruction {instruction}.') 
+                error(f'Invalid parameters for instruction {instruction}.')
             continue
 
     # Resolve labels and convert to binary

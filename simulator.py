@@ -2,11 +2,8 @@
 Simulator for the SAP-1 8-bit breadboard computer.
 """
 from argparse import ArgumentParser
-<<<<<<< HEAD
-=======
 import sys
 from time import time, sleep
->>>>>>> 2bd607d969bff978233926fcb5348ecfdc5b1d1f
 from collections import deque
 from dataclasses import dataclass, asdict, field
 from time import time
@@ -21,11 +18,8 @@ _previous_states = deque(maxlen=10_000)
 @dataclass
 class State:  # Classes are namespaces
     bus: int = 0
-<<<<<<< HEAD
-=======
-    memory: list[int] = field(default_factory=lambda: [0] * 16)
-    memory_human_readable: list[str]  = field(default_factory=lambda: [''] * 16)
->>>>>>> 2bd607d969bff978233926fcb5348ecfdc5b1d1f
+    memory: list[int] = field(default_factory=lambda: [0] * 512)
+    memory_human_readable: list[str]  = field(default_factory=lambda: [''] * 512)
     rom_address: int = 0
     memory: list[int] = field(default_factory=list)
     memory_human_readable: list[str] = field(default_factory=list)
@@ -107,13 +101,10 @@ class State:  # Classes are namespaces
                 if self.bus != self.reg_output:
                     self.reg_output = self.bus
 
-<<<<<<< HEAD
         # Transfer ALU flag outputs to the flags register
-        if self.clock and self.is_line_active(microcode.FI):
+        if self.clock and (self.control_signals & microcode.FI):
             self.reg_flags = self.flag_carry + (self.flag_zero << 1)
 
-=======
->>>>>>> 2bd607d969bff978233926fcb5348ecfdc5b1d1f
         # Do ALU stuff, set flag outputs
         self.alu = self.reg_a
         if self.is_line_active(microcode.EI):
@@ -129,16 +120,9 @@ class State:  # Classes are namespaces
         self.alu &= 0xff
         self.flag_zero = self.alu == 0
 
-<<<<<<< HEAD
-=======
-        # Transfer ALU flag outputs to the flags register
-        if self.clock and (self.control_signals & microcode.FI):
-            self.reg_flags = self.flag_carry + (self.flag_zero << 1)
-
         # Changes of instruction and flags registers affect the control lines
         self.update_control_signals()
     
->>>>>>> 2bd607d969bff978233926fcb5348ecfdc5b1d1f
     def update_control_signals(self):
         """Update the control signals based on the state of the microcode ROM
         module."""
@@ -233,11 +217,11 @@ class Simulator:
         self.clock_automatic = False
         self.clock_speed = 1  # Hz
         self.last_clock_time = 0 # Keep track of when the next clock was last stepped
-        self.memory, self.memory_human_readable = assemble(program_code)
-        while len(self.memory) < 512:
-            self.memory.append(0)
-        while len(self.memory_human_readable) < 512:
-            self.memory_human_readable.append(f'{len(self.memory_human_readable):02x}: 0')
+        while len(self._init_memory) < 512:
+            self._init_memory.append(0)
+        while len(self._init_memory_human_readable) < 512:
+            self._init_memory_human_readable.append(
+                f'{len(self._init_memory_human_readable):02x}: 0')
 
         # Initialize system state
         self.reset()
