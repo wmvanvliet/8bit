@@ -200,7 +200,11 @@ class Simulator:
                 for addr, content in enumerate(memory)]
         else:
             self._init_memory_human_readable = memory_human_readable
-        self.EEPROM = EEPROM
+
+        if EEPROM is None:
+            self.EEPROM = microcode.EEPROM
+        else:
+            self.EEPROM = EEPROM
 
         # Variables related to automatic stepping of the clock
         self.clock_automatic = False
@@ -261,10 +265,10 @@ if __name__ == '__main__':
         EEPROM = None
 
     if args.bin:
-        with open(args.file, 'rb') as f:
+        with open(args.program_file, 'rb') as f:
             simulator = Simulator(memory=list(f.read()), EEPROM=EEPROM)
     else:
-        with open(args.file) as f:
+        with open(args.program_file) as f:
             simulator = Simulator(*assemble(f.read()), EEPROM=EEPROM)
 
     if args.no_interface:
