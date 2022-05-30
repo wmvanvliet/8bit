@@ -14,29 +14,29 @@ schematic = """
    ┃                (ins)           ┃  ┃┃┃┃┃┃┃┃──┨ "B" Register: ●●●●●●●● (dec) ┃
    ┗━━━━━━━━━━━━━━━━┯━━━━━━━━━━━━━━━┛  ┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┏━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━┓  ┃┃┃┃┃┃┃┃  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃ Micro Step: ●●●● (dec)         ┃  ┃┃┃┃┃┃┃┃──┨ Output: -dec (unsigned)      ┃
-   ┃ ROM addr.: ●●●●●●●●●●●●● (dec) ┠─┐┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ │
+   ┃ Micro Step: ●●● (dec)          ┃  ┃┃┃┃┃┃┃┃──┨ Output: -dec (unsigned)      ┃
+   ┃ EEPROM: ●●●●●●●●●●●●● (dec)    ┠─┐┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ │          
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │          ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
    ┃ Memory contents                ┃ │          ┃ Control: ●●●●●●●●●●●●●●●●●●●● ┃
-   ┠────────────────────────────────┨ │          ┃          HMRIJABFOΣCSΣRICABΣM ┃
+   ┠────────────────────────────────┨ │          ┃          HMRIJABFOΣCSΣRICABΣR ┃
    ┃ 00                             ┃ └──────────┨          LIII IIIIIESCOOOOOOR ┃
    ┃ 01                             ┃            ┃          T                    ┃
    ┃ 02                             ┃            ┃           input       output  ┃
    ┃ 03                             ┃            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-   ┃ 04                             ┃            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃ 05                             ┃            ┃ Keyboard commands            ┃
-   ┃ 06                             ┃            ┠──────────────────────────────┨
-   ┃ 07                             ┃            ┃ Space: start/stop clock      ┃
-   ┃ 08                             ┃            ┃     →: step clock            ┃
-   ┃ 09                             ┃            ┃     ←: step clock backwards  ┃
-   ┃ 10                             ┃            ┃     ↑: increase clock speed  ┃
-   ┃ 11                             ┃            ┃     ↓: decrease clock speed  ┃
-   ┃ 12                             ┃            ┃     o: toggle output mode    ┃
-   ┃ 13                             ┃            ┃     r: reset system          ┃
-   ┃ 14                             ┃            ┃ Enter: run until next instr. ┃
-   ┃ 15                             ┃            ┃   ESC: quit                  ┃
-   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+   ┃ 04                             ┃            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+   ┃ 05                             ┃            ┃ Keyboard commands             ┃            
+   ┃ 06                             ┃            ┠───────────────────────────────┨            
+   ┃ 07                             ┃            ┃ Space: start/stop clock       ┃            
+   ┃ 08                             ┃            ┃     →: step clock             ┃            
+   ┃ 09                             ┃            ┃     ←: step clock backwards   ┃
+   ┃ 10                             ┃            ┃     ↑: increase clock speed   ┃
+   ┃ 11                             ┃            ┃     ↓: decrease clock speed   ┃
+   ┃ 12                             ┃            ┃     o: toggle output mode     ┃
+   ┃ 13                             ┃            ┃     r: reset system           ┃
+   ┃ 14                             ┃            ┃ Enter: run until next instr.  ┃
+   ┃ 15                             ┃            ┃   ESC: quit                   ┃
+   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 """
 
 import curses
@@ -143,8 +143,7 @@ def update(stdscr, state):
     draw_leds(8, 81, num=state.reg_flags, n=2, color=3, dec=False)
 
     # Instruction register
-    draw_leds(11, 17, num=state.reg_instruction, n=8, color=5)
-    #stdscr.addstr(12, 20, f'({num_to_instruction[state.reg_instruction]:>3s})', curses.color_pair(1))
+    draw_leds(11, 17, num=state.reg_instruction, n=8, color=4)
 
     # "B" register
     draw_leds(12, 65, num=state.reg_b, n=8, color=2)
@@ -160,7 +159,7 @@ def update(stdscr, state):
         stdscr.addstr(15, 59, f'{state.reg_output:04d} (unsigned)', curses.color_pair(2))
 
     # Microinstruction step
-    draw_leds(15, 17, num=state.microinstruction_counter, n=4, color=5)
+    draw_leds(15, 17, num=state.microinstruction_counter, n=3, color=3)
     draw_leds(16, 16, num=state.rom_address, n=13, color=5)
 
     # Control lines

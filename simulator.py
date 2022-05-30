@@ -10,14 +10,19 @@ import microcode
 from assembler import assemble
 
 
+# To enable steping the clock backwards, we keep track of previous state
+# whenever we advance the clock.
 _previous_states = deque(maxlen=10_000)
 
 
 @dataclass
-class State:  # Classes are namespaces
+class State:
+    """Object representing the state of the machine."""
     bus: int = 0
     memory: list[int] = field(default_factory=lambda: [0] * 512)
     memory_human_readable: list[str]  = field(default_factory=lambda: [''] * 512)
+    EEPROM_MSB : list[int] = field(default_factory=lambda: microcode.EEPROM_MSB)
+    EEPROM_LSB : list[int] = field(default_factory=lambda: microcode.EEPROM_LSB)
     rom_address: int = 0
     memory: list[int] = field(default_factory=list)
     memory_human_readable: list[str] = field(default_factory=list)
@@ -122,8 +127,11 @@ class State:  # Classes are namespaces
         self.update_control_signals()
 
     def update_control_signals(self):
-        """Update the control signals based on the state of the microcode ROM
-        module."""
+        """Update the control signals based on the microcode EEPROMs.
+
+        The control word is formed by combining two EEPROMs. Together they form
+        the LSB and MSB of the 16-bit control word.
+        """
         self.rom_address = self.reg_instruction << 3
         self.rom_address += self.microinstruction_counter
         if self.reg_flags & 0b01:  # Carry flag
@@ -131,7 +139,11 @@ class State:  # Classes are namespaces
         if self.reg_flags & 0b10:  # Zero flag
             self.rom_address += 1 << 12
 
-        self.control_signals = microcode.ucode[self.rom_address]
+        # Combine the two EEPROMs
+        self.control_signals = (
+            (self.EEPROM_MSB[self.rom_address] << 8) +
+            (self.EEPROM_LSB[self.rom_address] & 0xff)
+        )
 
     def step(self):
         """Perform a single step (half a clock-cycle)."""
@@ -196,13 +208,22 @@ class Simulator:
         (an 8 bit number, so from 0-255) of the RAM at that address. Generally,
         you want to use the assembler to generate the RAM contens based on
         assembler code.
-    memory_human_readable : list of str
+    memory_human_readable : list of str | None
         For each memory address, a human readable version of the contents of
         the RAM at that address. For example, it could be the line of assembler
         code that generated the opcode. By default (``None``), this is set to
         a binary representation of the memory.
+    EEPROM_MSB : list of int | bytes | None
+        The binary contents of the EEPROMs uses to control the most-significant
+        8 bites of the control word. By default (``None``) the microcode
+        defined in ``microcode.py`` is used.
+    EEPROM_LSB : list of int | bytes | None
+        The binary contents of the EEPROMs uses to control the
+        least-significant 8 bites of the control word. By default (``None``)
+        the microcode defined in ``microcode.py`` is used.
     """
-    def __init__(self, memory, memory_human_readable=None):
+    def __init__(self, memory, memory_human_readable=None, EEPROM_MSB=None,
+                 EEPROM_LSB=None):
         self._init_memory = memory
         if memory_human_readable is None:
             self._init_memory_human_readable = [
@@ -210,6 +231,15 @@ class Simulator:
                 for addr, content in enumerate(memory)]
         else:
             self._init_memory_human_readable = memory_human_readable
+
+        if EEPROM_MSB is None:
+            self.EEPROM_MSB= microcode.EEPROM_MSB
+        else:
+            self.EEPROM_MSB = EEPROM_MSB
+        if EEPROM_LSB is None:
+            self.EEPROM_LSB= microcode.EEPROM_LSB
+        else:
+            self.EEPROM_LSB = EEPROM_LSB
 
         # Variables related to automatic stepping of the clock
         self.clock_automatic = False
@@ -251,25 +281,48 @@ class Simulator:
         _previous_states.clear()
         self.state = State(
             memory=self._init_memory,
-            memory_human_readable=self._init_memory_human_readable)
+            memory_human_readable=self._init_memory_human_readable,
+            EEPROM_MSB=self.EEPROM_MSB,
+            EEPROM_LSB=self.EEPROM_LSB,
+        )
         self.state.update()
 
 
 if __name__ == '__main__':
     parser = ArgumentParser(description=__doc__)
-    parser.add_argument('file', type=str, help='Program to execute')
-    parser.add_argument('--no-interface', action='store_true',
-                        help="Don't show the interface, but run the program in batch mode")
+    parser.add_argument('program_file', type=str, help='Program to execute, written in assembly language.')
+    parser.add_argument('-n', '--no-interface', action='store_true',
+                        help="Don't show the interface, but run the program in batch mode.")
+    parser.add_argument('-m', '--microcode', type=str, nargs='*', metavar='bin_file(s)',
+                        help='EEPROM content to use as microcode (as a binary memory dump). Either as a single file containing 16-bit numbers, or as two files containing respectively the most-significant 8 bits and least-significant 8 bits.')
     parser.add_argument('-b', '--bin', action='store_true',
-                        help='Specify that the program file is already assembled binary.')
+                        help='Specify that the program file is in binary rather than assembly language.')
     args = parser.parse_args()
 
-    if args.bin:
-        with open(args.file, 'rb') as f:
-            simulator = Simulator(memory=list(f.read()))
+    if args.microcode is None:
+        EEPROM_MSB = None
+        EEPROM_LSB = None
+    elif len(args.microcode) == 1:
+        with open(args.microcode[0], 'rb') as f:
+            EEPROM = f.read()
+            EEPROM_MSB = EEPROM[::2]
+            EEPROM_LSB = EEPROM[1::2]
+    elif len(args.microcode) == 2:
+        with open(args.microcode[0], 'rb') as f:
+            EEPROM_MSB = f.read()
+        with open(args.microcode[1], 'rb') as f:
+            EEPROM_LSB = f.read()
     else:
-        with open(args.file) as f:
-            simulator = Simulator(*assemble(f.read()))
+        raise ValueError('The --microcode argument takes either one or two files as parameter.')
+
+    if args.bin:
+        with open(args.program_file, 'rb') as f:
+            simulator = Simulator(memory=list(f.read()),
+                                  EEPROM_MSB=EEPROM_MSB, EEPROM_LSB=EEPROM_LSB)
+    else:
+        with open(args.program_file) as f:
+            simulator = Simulator(*assemble(f.read()),
+                                  EEPROM_MSB=EEPROM_MSB, EEPROM_LSB=EEPROM_LSB)
 
     if args.no_interface:
         for out in simulator.run_batch():

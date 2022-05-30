@@ -1,8 +1,8 @@
 """
 Construct the microcode of the machine.
 """
-from copy import deepcopy
 from argparse import ArgumentParser
+from copy import deepcopy
 import struct
 
 from assembler import opcodes
@@ -365,30 +365,39 @@ for i, c in enumerate([BI, EO|AI|EI|FI, CE, SR]):  # No jump
 
 ucode = [ucode[i][j][k] for i in range(4) for j in range(256) for k in range(8)]
 
+EEPROM_MSB = bytes([c >> 8 for c in ucode])
+EEPROM_LSB = bytes([c & 0xff for c in ucode])
+
+EEPROM = bytes()
+for c in ucode:
+    EEPROM += struct.pack('>H', c)
+
 if __name__ == '__main__':
     parser = ArgumentParser(description='Build the microcode ROM contents for the 8bit breadboard computer.')
     parser.add_argument('output_file', type=str, help='File to write the microcode binary to')
-    parser.add_argument('-t', '--top', action='store_true', help='Write only the top 8 bytes')
-    parser.add_argument('-b', '--bottom', action='store_true', help='Write only the bottom 8 bytes')
+    parser.add_argument('-u', '--upper', action='store_true', help='Write the most-significant 8 bits')
+    parser.add_argument('-l', '--lower', action='store_true', help='Write the least-significant 8 bits')
     parser.add_argument('-v', '--verbose', action='store_true', help='Display the produced microcode binary')
     args = parser.parse_args()
 
     with open(args.output_file, 'wb') as f:
-        bin_contents = bytes()
-        for contents in ucode:
-            if args.top:
-                bin_contents += struct.pack('<B', contents >> 8)
-            elif args.bottom:
-                bin_contents += struct.pack('<B', contents & 0xff)
-            else:
-                bin_contents += struct.pack('<H', contents)
-        f.write(bin_contents)
+        if args.upper:
+            f.write(EEPROM_MSB)
+        elif args.lower:
+            f.write(EEPROM_LSB)
+        else:
+            f.write(EEPROM)
 
-        if args.verbose:
-            if args.top or args.bottom:
-                for addr in range(0, len(bin_contents), 8):
-                    print(f'{addr:04x}: {bin_contents[addr]:02x} {bin_contents[addr + 1]:02x} {bin_contents[addr + 2]:02x} {bin_contents[addr + 3]:02x} {bin_contents[addr + 4]:02x} {bin_contents[addr + 5]:02x} {bin_contents[addr + 6]:02x} {bin_contents[addr + 7]:02x}')
-            else:
-                for addr in range(0, len(bin_contents), 16):
-                    print(f'{addr:04x}: {bin_contents[addr + 1]:02x}{bin_contents[addr]:02x} {bin_contents[addr + 3]:02x}{bin_contents[addr + 2]:02x} {bin_contents[addr + 5]:02x}{bin_contents[addr + 4]:02x} {bin_contents[addr + 7]:02x}{bin_contents[addr + 6]:02x} {bin_contents[addr + 9]:02x}{bin_contents[addr + 8]:02x} {bin_contents[addr + 11]:02x}{bin_contents[addr + 10]:02x} {bin_contents[addr + 13]:02x}{bin_contents[addr + 12]:02x} {bin_contents[addr + 15]:02x}{bin_contents[addr + 14]:02x}')
-
+    if args.verbose:
+        if args.upper:
+            for addr in range(0, len(EEPROM_MSB), 8):
+                print(f'{addr:04x}: {EEPROM_MSB[addr]:02x} {EEPROM_MSB[addr + 1]:02x} {EEPROM_MSB[addr + 2]:02x} {EEPROM_MSB[addr + 3]:02x} {EEPROM_MSB[addr + 4]:02x} {EEPROM_MSB[addr + 5]:02x} {EEPROM_MSB[addr + 6]:02x} {EEPROM_MSB[addr + 7]:02x}')
+        elif args.lower:
+            for addr in range(0, len(EEPROM_LSB), 8):
+                print(f'{addr:04x}: {EEPROM_LSB[addr]:02x} {EEPROM_LSB[addr + 1]:02x} {EEPROM_LSB[addr + 2]:02x} {EEPROM_LSB[addr + 3]:02x} {EEPROM_LSB[addr + 4]:02x} {EEPROM_LSB[addr + 5]:02x} {EEPROM_LSB[addr + 6]:02x} {EEPROM_LSB[addr + 7]:02x}')
+        else:
+            for addr in range(0, len(EEPROM), 2):
+                if addr % 16 == 0:
+                    print(f'\n{addr:04x}:', end='')
+                print(f' {EEPROM[addr]:02x}{EEPROM[addr + 1]:02x}', end='')
+            print(end='\n')

@@ -59,7 +59,7 @@ out #      Output # on the 7-segment display
 hlt        Halt the CPU, end of program
 ```
 
-Where `#` can be the accumulator `a`, any of the virtual registers `b`, `c`, `d`, `e`, `f`, `g`, `h`, a direct value (e.g. `42`) or a memory contents of a label (e.g. `[my_label]`).
+Where `#` and `##` can be the accumulator `a`, any of the virtual registers `b`, `c`, `d`, `e`, `f`, `g`, `h`, a direct value (e.g. `42` or `my_label`) or a memory contents of a label (e.g. `[my_label]`).
 
 The assembler also supports comments using the `;` character, writing raw values with `db` and labels. Here is an example assembler program that uses some features of the assembler:
 ```asm
