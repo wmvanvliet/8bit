@@ -2,8 +2,7 @@
 Simulator for the SAP-1 8-bit breadboard computer.
 """
 from argparse import ArgumentParser
-import sys
-from time import time, sleep
+from time import time
 from collections import deque
 from dataclasses import dataclass, asdict, field
 
@@ -11,14 +10,18 @@ import microcode
 from assembler import assemble
 
 
+# To enable steping the clock backwards, we keep track of previous state
+# whenever we advance the clock.
 _previous_states = deque(maxlen=10_000)
 
 
 @dataclass
-class State:  # Classes are namespaces
+class State:
+    """Object representing the state of the machine."""
     bus: int = 0
     memory: list[int] = field(default_factory=lambda: [0] * 16)
     memory_human_readable: list[str]  = field(default_factory=lambda: [''] * 16)
+    EEPROM : list[int] = field(default_factory=lambda: microcode.EEPROM)
     rom_address: int = 0
 
     # Content of the registers
@@ -104,16 +107,25 @@ class State:  # Classes are namespaces
         self.update_control_signals()
     
     def update_control_signals(self):
-        """Update the control signals based on the state of the microcode ROM
-        module."""
+        """Update the control signals based on the microcode EEPROMs.
+
+        The control word is formed by combining two EEPROMs with identical
+        contents. The 7'th address line is tied high on the first EEPROM and
+        tied low on the second. Together they form the LSB and MSB of the
+        16-bit control word.
+        """
         self.rom_address = (self.reg_instruction & 0xf0) >> 1
         self.rom_address += self.microinstruction_counter
         if self.reg_flags & 0b01:  # Carry flag
-            self.rom_address += 1 << 7
-        if self.reg_flags & 0b10:  # Zero flag
             self.rom_address += 1 << 8
+        if self.reg_flags & 0b10:  # Zero flag
+            self.rom_address += 1 << 9
 
-        self.control_signals = microcode.ucode[self.rom_address]
+        # Combine the two EEPROMs
+        self.control_signals = (
+            (self.EEPROM[self.rom_address] << 8) +
+            (self.EEPROM[self.rom_address | (1 << 7)] & 0xff)
+        )
 
     def step(self):
         """Perform a single step (half a clock-cycle)."""
@@ -167,13 +179,20 @@ class Simulator:
         (an 8 bit number, so from 0-255) of the RAM at that address. Generally,
         you want to use the assembler to generate the RAM contens based on
         assembler code.
-    memory_human_readable : list of str
+    memory_human_readable : list of str | None
         For each memory address, a human readable version of the contents of
         the RAM at that address. For example, it could be the line of assembler
         code that generated the opcode. By default (``None``), this is set to
         a binary representation of the memory.
+    EEPROM : list of int | bytes | None
+        The binary contents of the EEPROMs to use as microcode, should be 1024
+        bytes in length. The control word is formed by combining two EEPROMs
+        with identical contents. The 7'th address line is tied high on the
+        first EEPROM and tied low on the second. Together they form the LSB and
+        MSB of the 16-bit control word. By default (``None``) Ben Eater's
+        original microcode is used.
     """
-    def __init__(self, memory, memory_human_readable=None):
+    def __init__(self, memory, memory_human_readable=None, EEPROM=None):
         self._init_memory = memory
         if memory_human_readable is None:
             self._init_memory_human_readable = [
@@ -181,6 +200,7 @@ class Simulator:
                 for addr, content in enumerate(memory)]
         else:
             self._init_memory_human_readable = memory_human_readable
+        self.EEPROM = EEPROM
 
         # Variables related to automatic stepping of the clock
         self.clock_automatic = False
@@ -217,7 +237,9 @@ class Simulator:
         _previous_states.clear()
         self.state = State(
             memory=self._init_memory,
-            memory_human_readable=self._init_memory_human_readable)
+            memory_human_readable=self._init_memory_human_readable,
+            EEPROM=self.EEPROM
+        )
         self.state.update()
 
 
@@ -228,14 +250,22 @@ if __name__ == '__main__':
                         help="Don't show the interface, but run the program in batch mode")
     parser.add_argument('-b', '--bin', action='store_true',
                         help='Specify that the program file is already assembled binary.')
+    parser.add_argument('-m', '--microcode', type=str, default=None,
+                        help='EEPROM content to use as microcode. Defaults to Ben Eaters original microcode.')
     args = parser.parse_args()
+
+    if args.microcode:
+        with open(args.microcode, 'rb') as f:
+            EEPROM = f.read()
+    else:
+        EEPROM = None
 
     if args.bin:
         with open(args.file, 'rb') as f:
-            simulator = Simulator(memory=list(f.read()))
+            simulator = Simulator(memory=list(f.read()), EEPROM=EEPROM)
     else:
         with open(args.file) as f:
-            simulator = Simulator(*assemble(f.read()))
+            simulator = Simulator(*assemble(f.read()), EEPROM=EEPROM)
 
     if args.no_interface:
         for out in simulator.run_batch():

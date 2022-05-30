@@ -15,7 +15,7 @@ schematic = """
    ┗━━━━━━━━━━━━━━━━┯━━━━━━━━━━━━━━━┛  ┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┏━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━┓  ┃┃┃┃┃┃┃┃  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
    ┃ Micro Step: ●●● (dec)          ┃  ┃┃┃┃┃┃┃┃──┨ Output: -dec (unsigned)      ┃
-   ┃  ROM addr.: ●●●●●●●●● (dec)    ┠─┐┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+   ┃  ROM addr.: ●●●●●●●●●●● (dec)  ┠─┐┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ │          ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │          ┃ Control: ●●●●●●●●●●●●●●●●    ┃
    ┃ Memory contents                ┃ │          ┃          HMRRIIAAΣSBOCCJF    ┃
@@ -159,7 +159,7 @@ def update(stdscr, state):
 
     # Microinstruction step
     draw_leds(15, 17, num=state.microinstruction_counter, n=3, color=5)
-    draw_leds(16, 17, num=state.rom_address, n=9, color=5)
+    draw_leds(16, 17, num=state.rom_address, n=11, color=5)
 
     # Control lines
     draw_leds(18, 60, num=state.control_signals, n=16, color=4, dec=False)
