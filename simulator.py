@@ -245,13 +245,13 @@ class Simulator:
 
 if __name__ == '__main__':
     parser = ArgumentParser(description=__doc__)
-    parser.add_argument('file', type=str, help='Program to execute')
-    parser.add_argument('--no-interface', action='store_true',
-                        help="Don't show the interface, but run the program in batch mode")
+    parser.add_argument('program_file', type=str, help='Program to execute, written in assembly language.')
+    parser.add_argument('-n', '--no-interface', action='store_true',
+                        help="Don't show the interface, but run the program in batch mode.")
+    parser.add_argument('-m', '--microcode', type=str, metavar='bin_file', default=None,
+                        help='EEPROM content to use as microcode (as a binary memory dump). Defaults to Ben Eaters original microcode.')
     parser.add_argument('-b', '--bin', action='store_true',
-                        help='Specify that the program file is already assembled binary.')
-    parser.add_argument('-m', '--microcode', type=str, default=None,
-                        help='EEPROM content to use as microcode. Defaults to Ben Eaters original microcode.')
+                        help='Specify that the program file is in binary rather than assembly language.')
     args = parser.parse_args()
 
     if args.microcode:

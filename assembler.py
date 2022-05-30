@@ -114,8 +114,8 @@ def disassemble(bin_code):
 
 
 if __name__ == '__main__':
-    parser = ArgumentParser(description='Assembler for the 8-bit breadboard computer.')
-    parser.add_argument('file', type=str, help='Assembler code file to assemble.')
+    parser = ArgumentParser(description='Assembler for the 8-bit breadboard computer. By default, just prints the assembled version of the code.')
+    parser.add_argument('file', type=str, help='Assembly code file to assemble.')
     parser.add_argument('-o', '--output-file', type=str, default=None, help='Write the compiled program to a file.')
     args = parser.parse_args()
 
