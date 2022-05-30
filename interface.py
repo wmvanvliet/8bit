@@ -19,7 +19,7 @@ schematic = """
    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ │          
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │          ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
    ┃ Memory contents                ┃ │          ┃ Control: ●●●●●●●●●●●●●●●●●●●● ┃
-   ┠────────────────────────────────┨ │          ┃          HMRIJABFOΣCSΣRICABΣR ┃
+   ┠────────────────────────────────┨ │          ┃          HMRIJABFOΣCSΣRICABΣS ┃
    ┃ 00                             ┃ └──────────┨          LIII IIIIIESCOOOOOOR ┃
    ┃ 01                             ┃            ┃          T                    ┃
    ┃ 02                             ┃            ┃           input       output  ┃
@@ -160,6 +160,8 @@ def update(stdscr, state):
 
     # Microinstruction step
     draw_leds(15, 17, num=state.microinstruction_counter, n=3, color=3)
+
+    # Microcode EEPROM address
     draw_leds(16, 16, num=state.rom_address, n=13, color=5)
 
     # Control lines
