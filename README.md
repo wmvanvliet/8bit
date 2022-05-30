@@ -1,14 +1,16 @@
 8bit breadboard computer simulator (extended memory)
 ====================================================
 
-This is an assembler + simulator/emulator of [Ben Eater's 8bit breadboard computer](https://www.youtube.com/playlist?list=PLowKtXNTBypGqImE405J2565dvjafglHU) with Marijn's modifications added to it:
+This is an assembler + simulator/emulator of [Ben Eater's 8bit breadboard computer](https://www.youtube.com/playlist?list=PLowKtXNTBypGqImE405J2565dvjafglHU) with all of [Marijn's modifications](https://hackmd.io/@wmvanvliet/ryV-N4bI5) added to it:
 
- - RAM upgraded to 256 bytes
+ - RAM upgraded to 512 bytes (8-bit addressing, separate code and data segments)
  - Output control lines multiplexed using a 3->8 decoder
    - Register B out control line available
-   - TR control line available that immediately resets the microstep counter
- - Microcode ROM address latched to only change on down-flank of clock
- - Vastly extended instruction set
+   - SR control line available that immediately resets the microstep counter
+ - Microcode EEPROM address latched to only change on down-flank of clock
+ - Extra control line (SS) going to pin 9 of the RAM chip to toggle between code and data memory segments
+ - ALU inverter and carry-in lines as separate control signals (EI, EC) instead of a single line (SU)
+ - Vastly extended [orthogonal instruction set](https://en.wikipedia.org/wiki/Orthogonal_instruction_set)
 
 For Ben Eater's original architecture, see the [main branch](https://github.com/wmvanvliet/8bit/tree/main) of this repo.
 
@@ -60,8 +62,10 @@ hlt        Halt the CPU, end of program
 ```
 
 Where `#` and `##` can be the accumulator `a`, any of the virtual registers `b`, `c`, `d`, `e`, `f`, `g`, `h`, a direct value (e.g. `42` or `my_label`) or a memory contents of a label (e.g. `[my_label]`).
+Labels support adding or subtracting a number from them (e.g. `my_label + 1`).
+The assembler also supports comments using the `;` character, writing raw values with `db` and labels.
 
-The assembler also supports comments using the `;` character, writing raw values with `db` and labels. Here is an example assembler program that uses some features of the assembler:
+Here is an example assembler program that uses some features of the assembler:
 ```asm
 ;
 ; Test program that adds two numbers
