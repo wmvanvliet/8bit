@@ -1,25 +1,27 @@
 """
 Simulator for the SAP-1 8-bit breadboard computer.
 """
-import sys
-import curses
-from time import time, sleep
+from argparse import ArgumentParser
+from time import time
 from collections import deque
 from dataclasses import dataclass, asdict, field
 
 import microcode
-import interface
 from assembler import assemble
 
 
+# To enable steping the clock backwards, we keep track of previous state
+# whenever we advance the clock.
 _previous_states = deque(maxlen=10_000)
 
 
 @dataclass
-class State:  # Classes are namespaces
+class State:
+    """Object representing the state of the machine."""
     bus: int = 0
-    memory: list[int] = field(default_factory=lambda: assemble(sys.argv[1])[0])
-    memory_human_readable: list[str]  = field(default_factory=lambda: assemble(sys.argv[1])[1])
+    memory: list[int] = field(default_factory=lambda: [0] * 16)
+    memory_human_readable: list[str]  = field(default_factory=lambda: [''] * 16)
+    EEPROM : list[int] = field(default_factory=lambda: microcode.EEPROM)
     rom_address: int = 0
 
     # Content of the registers
@@ -51,17 +53,7 @@ class State:  # Classes are namespaces
         to keep every component in sync."""
 
         # Set control lines based on current microinstruction.
-        # This is done on the down-flank of the clock.
-        if not self.clock:
-            # Build microcode ROM address
-            self.rom_address = (self.reg_instruction & 0xf0) >> 1
-            self.rom_address += self.microinstruction_counter
-            if self.reg_flags & 0b01:  # Carry flag
-                self.rom_address += 1 << 7
-            if self.reg_flags & 0b10:  # Zero flag
-                self.rom_address += 1 << 8
-
-            self.control_signals = microcode.ucode[self.rom_address]
+        self.update_control_signals()
 
         # Write to the bus
         if self.control_signals & microcode.AO:
@@ -111,6 +103,30 @@ class State:  # Classes are namespaces
         self.alu &= 0xff
         self.flag_zero = self.alu == 0
 
+        # Changes of instruction and flags registers affect the control lines
+        self.update_control_signals()
+    
+    def update_control_signals(self):
+        """Update the control signals based on the microcode EEPROMs.
+
+        The control word is formed by combining two EEPROMs with identical
+        contents. The 7'th address line is tied high on the first EEPROM and
+        tied low on the second. Together they form the LSB and MSB of the
+        16-bit control word.
+        """
+        self.rom_address = (self.reg_instruction & 0xf0) >> 1
+        self.rom_address += self.microinstruction_counter
+        if self.reg_flags & 0b01:  # Carry flag
+            self.rom_address += 1 << 8
+        if self.reg_flags & 0b10:  # Zero flag
+            self.rom_address += 1 << 9
+
+        # Combine the two EEPROMs
+        self.control_signals = (
+            (self.EEPROM[self.rom_address] << 8) +
+            (self.EEPROM[self.rom_address | (1 << 7)] & 0xff)
+        )
+
     def step(self):
         """Perform a single step (half a clock-cycle)."""
         # When system is halted, do nothing
@@ -125,16 +141,20 @@ class State:  # Classes are namespaces
         # Flip clock signal
         self.clock = not self.clock
 
-        # Update the system state now that the clock has changed
-        self.update()
-
         # Increment program counters
         if self.control_signals & microcode.CE and self.clock:
             self.reg_program_counter = (self.reg_program_counter + 1) % 16
         if not self.clock:
             self.microinstruction_counter = (self.microinstruction_counter + 1) % 5
 
-        return self
+        # Update the system state now that the clock has changed
+        self.update()
+
+        # Return the value written to the output module (if any)
+        if self.clock and (self.control_signals & microcode.OI):
+            return self.reg_output
+        else:
+            return None
 
     def _load_serialized_state(self, prev_state):
         for k, v in prev_state.items():
@@ -150,7 +170,42 @@ class State:  # Classes are namespaces
 
 
 class Simulator:
-    def __init__(self):
+    """Class representing the entire machine.
+
+    Parameters
+    ----------
+    memory : list of int
+        For each memory address (there should be a maximum of 16), the contents
+        (an 8 bit number, so from 0-255) of the RAM at that address. Generally,
+        you want to use the assembler to generate the RAM contens based on
+        assembler code.
+    memory_human_readable : list of str | None
+        For each memory address, a human readable version of the contents of
+        the RAM at that address. For example, it could be the line of assembler
+        code that generated the opcode. By default (``None``), this is set to
+        a binary representation of the memory.
+    EEPROM : list of int | bytes | None
+        The binary contents of the EEPROMs to use as microcode, should be 1024
+        bytes in length. The control word is formed by combining two EEPROMs
+        with identical contents. The 7'th address line is tied high on the
+        first EEPROM and tied low on the second. Together they form the LSB and
+        MSB of the 16-bit control word. By default (``None``) Ben Eater's
+        original microcode is used.
+    """
+    def __init__(self, memory, memory_human_readable=None, EEPROM=None):
+        self._init_memory = memory
+        if memory_human_readable is None:
+            self._init_memory_human_readable = [
+                f'{addr + 1:02d} {content >> 4:04b} {content & 0xf:04b}'
+                for addr, content in enumerate(memory)]
+        else:
+            self._init_memory_human_readable = memory_human_readable
+
+        if EEPROM is None:
+            self.EEPROM = microcode.EEPROM
+        else:
+            self.EEPROM = EEPROM
+
         # Variables related to automatic stepping of the clock
         self.clock_automatic = False
         self.clock_speed = 1  # Hz
@@ -159,44 +214,21 @@ class Simulator:
         # Initialize system state
         self.reset()
 
-    def run(self, stdscr):
-        """Main function to run the simulator with its console user interface.
+    def run_batch(self):
+        """Run the simulator in batch mode until the HLT instruction is reached.
 
-        Parameters
-        ----------
-        stdscr : curses screen
-            The curses screen object as created by curses.wrapper().
+        Returns
+        -------
+        outputs : list of int
+            The result of any OUT instructions encountered along the way.
         """
-        interface.init(stdscr)
-
-        # Start simulation and UI loop. This loop only terminates when the ESC
-        # key is pressed, which is detected inside the handle_keypresses()
-        # function.
-        while True:
-            interface.update(stdscr, self.state)
-            if self.clock_automatic:
-                wait_time = (0.5 / self.clock_speed) - (time() - self.last_clock_time)
-                if wait_time > 0.1:
-                    curses.halfdelay(int(10 * wait_time))
-                    interface.handle_keypresses(stdscr, self)
-                    self.step()
-                else:
-                    curses.nocbreak()
-                    if wait_time > 0:
-                        sleep(wait_time)
-                    curses.nocbreak()
-                    stdscr.nodelay(True)
-                    interface.handle_keypresses(stdscr, self)
-                    self.step()
-            else:
-                curses.cbreak()
-                interface.handle_keypresses(stdscr, self)
-
-            # When we reach the end of the program, set the clock to manual
-            # mode so we don't keep generating useless system states.
-            if self.state.control_signals & microcode.HLT:
-                self.clock_automatic = False
-            interface.update(stdscr, self.state)
+        self.state.keep_history = False  # Not needed, so turn off for extra speed
+        outputs = list()
+        while not self.state.control_signals & microcode.HLT:
+            out = self.state.step()
+            if out is not None:
+                outputs.append(out)
+        return outputs
 
     def step(self):
         """Step the clock while keeping track of time."""
@@ -207,14 +239,42 @@ class Simulator:
         """Reset the machine."""
         global _previous_states
         _previous_states.clear()
-        self.state = State()
+        self.state = State(
+            memory=self._init_memory,
+            memory_human_readable=self._init_memory_human_readable,
+            EEPROM=self.EEPROM
+        )
         self.state.update()
 
 
-
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print('python simulator.py PROGRAM_TO_EXECUTE')
-        sys.exit(1)
-    simulator = Simulator()
-    curses.wrapper(simulator.run)
+    parser = ArgumentParser(description=__doc__)
+    parser.add_argument('program_file', type=str, help='Program to execute, written in assembly language.')
+    parser.add_argument('-n', '--no-interface', action='store_true',
+                        help="Don't show the interface, but run the program in batch mode.")
+    parser.add_argument('-m', '--microcode', type=str, metavar='bin_file', default=None,
+                        help='EEPROM content to use as microcode (as a binary memory dump). Defaults to Ben Eaters original microcode.')
+    parser.add_argument('-b', '--bin', action='store_true',
+                        help='Specify that the program file is in binary rather than assembly language.')
+    args = parser.parse_args()
+
+    if args.microcode:
+        with open(args.microcode, 'rb') as f:
+            EEPROM = f.read()
+    else:
+        EEPROM = None
+
+    if args.bin:
+        with open(args.program_file, 'rb') as f:
+            simulator = Simulator(memory=list(f.read()), EEPROM=EEPROM)
+    else:
+        with open(args.program_file) as f:
+            simulator = Simulator(*assemble(f.read()), EEPROM=EEPROM)
+
+    if args.no_interface:
+        for out in simulator.run_batch():
+            print(out)
+    else:
+        import curses
+        import interface
+        curses.wrapper(interface.run_interface, simulator)
