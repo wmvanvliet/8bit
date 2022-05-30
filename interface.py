@@ -14,7 +14,7 @@ schematic = """
    ┃                (ins)           ┃  ┃┃┃┃┃┃┃┃──┨ "B" Register: ●●●●●●●● (dec) ┃
    ┗━━━━━━━━━━━━━━━━┯━━━━━━━━━━━━━━━┛  ┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┏━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━┓  ┃┃┃┃┃┃┃┃  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃ Micro Step: ●●●● (dec)         ┃  ┃┃┃┃┃┃┃┃──┨ Output: -dec (unsigned)      ┃
+   ┃ Micro Step: ●●●●●●●● (dec)     ┃  ┃┃┃┃┃┃┃┃──┨ Output: -dec (unsigned)      ┃
    ┃  ROM addr.: ●●●●●●●●●●● (dec)  ┠─┐┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ │
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │          ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -155,7 +155,12 @@ def update(stdscr, state):
         stdscr.addstr(15, 59, f'{state.reg_output:04d} (unsigned)', curses.color_pair(2))
 
     # Microinstruction step
-    draw_leds(15, 17, num=state.microinstruction_counter, n=4, color=5)
+    step = 0b11111111
+    step -= 0b10000000 >> state.microinstruction_counter
+    draw_leds(15, 17, num=step, n=8, color=3, dec=False)
+    stdscr.addstr(15, 26, f'({state.microinstruction_counter:03d})', curses.color_pair(1))
+
+    # Microcode EEPROM address
     draw_leds(16, 17, num=state.rom_address, n=11, color=5)
 
     # Control lines
