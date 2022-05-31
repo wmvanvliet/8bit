@@ -49,10 +49,15 @@ def parse_param(param, labels):
 
 
 def assemble(program_code, verbose=False):
+    # Keep track of the memory addresses at which labels are defined
     labels = dict()
-    output = list()
 
-    # Parse file
+
+    # Step 1: Parse file, producing a list of tokens. Each token represents one
+    # byte in memory. These tokens will be translated into binary code during
+    # the next step.
+    tokens = list()
+
     for line_nr, line in enumerate(program_code.split('\n')):
         def error(msg):
             print(f'L{line_nr + 1}: {line}')
@@ -66,7 +71,7 @@ def assemble(program_code, verbose=False):
         # Deal with labels:
         if ':' in line:
             label, line = line.split(':', 1)
-            labels[label.strip().lower()] = len(output)
+            labels[label.strip().lower()] = len(tokens)
 
         line = line.strip()
         if len(line) == 0:
@@ -77,17 +82,17 @@ def assemble(program_code, verbose=False):
         if instruction in ['nop', 'out', 'hlt']:
             if len(params) > 0:
                 error(f'{instruction} takes no parameters')
-            output.append(('instr', instruction))
+            tokens.append(('instr', instruction))
         else:
             if len(params) != 1:
                 error(f'{instruction} takes a single parameter')
             if instruction != 'db':
-                output.append(('instr', instruction))
-            output.append(('param', params[0]))
+                tokens.append(('instr', instruction))
+            tokens.append(('param', params[0]))
 
-    # Resolve labels and convert to binary
+    # Convert each token to a binary number
     bin_output = list()
-    for typ, content in output:
+    for typ, content in tokens:
         if typ == 'instr':
             bin_line = opcodes[content]
         elif typ == 'param':
@@ -97,7 +102,7 @@ def assemble(program_code, verbose=False):
     # Create human readable version of the memory contents
     human_readable = list()
     addr_to_label = {v: k for k, v in labels.items()}
-    for addr, ((typ, content), bin_content) in enumerate(zip(output, bin_output)):
+    for addr, ((typ, content), bin_content) in enumerate(zip(tokens, bin_output)):
         label = addr_to_label.get(addr, '')
         if label:
             label = f'({label})'
