@@ -103,7 +103,7 @@ class State:
 
         # Changes of instruction and flags registers affect the control lines
         self.update_control_signals()
-    
+
     def update_control_signals(self):
         """Update the control signals based on the microcode EEPROMs.
 
