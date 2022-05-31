@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 import sys
 import struct
 
-instruction_to_num = {
+opcodes = {
     'nop': 0,
     'lda': 1,
     'add': 2,
@@ -20,14 +20,19 @@ instruction_to_num = {
     'out': 14,
     'hlt': 15,
 }
-num_to_instruction = {v: k for k, v in instruction_to_num.items()}
+num_to_instruction = {v: k for k, v in opcodes.items()}
 
 
 def assemble(program_code, verbose=False):
+    # Keep track of the memory addresses at which labels are defined
     labels = dict()
-    output = list()
 
-    # Parse file
+
+    # Step 1: Parse file, producing a list of tokens. Each token represents one
+    # byte in memory. These tokens will be translated into binary code during
+    # the next step.
+    tokens = list()
+
     for line_nr, line in enumerate(program_code.split('\n')):
         def error(msg):
             print(f'L{line_nr + 1}: {line}')
@@ -41,7 +46,7 @@ def assemble(program_code, verbose=False):
         # Deal with labels:
         if ':' in line:
             label, line = line.split(':', 1)
-            labels[label.strip().lower()] = len(output)
+            labels[label.strip().lower()] = len(tokens)
 
         line = line.strip()
         if len(line) == 0:
@@ -52,7 +57,7 @@ def assemble(program_code, verbose=False):
         if instruction in ['nop', 'out', 'hlt', 'shl']:
             if len(params) > 0:
                 error(f'{instruction} takes no parameters')
-            output.append((instruction,))
+            tokens.append((instruction,))
         else:
             if len(params) != 1:
                 error(f'{instruction} takes a single parameter')
@@ -62,28 +67,38 @@ def assemble(program_code, verbose=False):
                 if not (0 <= param <= 255):
                     error('Parameter must be 0-255')
 
-            output.append((instruction,param))
+            tokens.append((instruction, param))
 
-    # Resolve labels and convert to binary
+    # Convert each token to a binary number
     bin_output = list()
-    for line in output:
-        instruction = line[0]
+    for token in tokens:
+        instruction = token[0]
+
+        # Get the opcode for the instruction and place it into the upper 4 bits
+        # of the memory.
         if instruction == 'db':
+            # The "db" pseudo-instruction has no opcode.
             bin_line = 0
         else:
-            bin_line = instruction_to_num[instruction.lower()] << 4
-        if len(line) == 2:
-            param = line[1]
+            bin_line = opcodes[instruction.lower()] << 4
+
+        # If the instruction has a parameter, place it into the lower 4 bits of
+        # the memory.
+        if len(token) == 2:
+            param = token[1]
+            # Parameter could be a label, in which case, translate it into the
+            # memory address it refers to.
             if type(param) == str:
-                param = labels[param.lower()]
+                param = labels[param]
+            # Place parameter value into the lower 4 bits
             bin_line += param
         bin_output.append(bin_line)
 
     # Create human readable version of the memory contents
     human_readable = list()
     addr_to_label = {v: k for k, v in labels.items()}
-    for addr, (o, b) in enumerate(zip(output, bin_output)):
-        i = ' '.join([str(x) for x in o])
+    for addr, (t, b) in enumerate(zip(tokens, bin_output)):
+        i = ' '.join([str(x) for x in t])
         label = addr_to_label.get(addr, '')
         if label:
             label = f'({label})'
