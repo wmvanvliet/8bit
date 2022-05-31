@@ -69,14 +69,13 @@ def assemble(program_code, verbose=False):
     for token in tokens:
         instruction = token[0]
 
-        # The "db" pseudo-instruction places the parameter in memory
-        if instruction == 'db':
-            bin_output.append(token[1])
-            continue
-
         # Get the opcode for the instruction and place it into the upper 4 bits
         # of the memory.
-        bin_line = opcodes[instruction] << 4
+        if instruction == 'db':
+            # The "db" pseudo-instruction has no opcode.
+            bin_line = 0
+        else:
+            bin_line = opcodes[instruction.lower()] << 4
 
         # If the instruction has a parameter, place it into the lower 4 bits of
         # the memory.
