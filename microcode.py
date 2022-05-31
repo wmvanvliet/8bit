@@ -1,4 +1,10 @@
+"""
+Python translation of Ben Eater's original EEPROM arduino sketch
+https://github.com/beneater/eeprom-programmer/blob/master/microcode-eeprom-with-flags/microcode-eeprom-with-flags.ino
+"""
+from argparse import ArgumentParser
 from copy import deepcopy
+import struct
 
 HLT = 0b1000000000000000  # Halt clock
 MI  = 0b0100000000000000  # Memory address register in
@@ -46,6 +52,7 @@ UCODE_TEMPLATE = [
     [MI|CO,  RO|II|CE,  HLT,    0,           0,           0, 0, 0],   # 1111 - HLT
 ]
 
+# initUCode
 ucode = [deepcopy(UCODE_TEMPLATE) for _ in range(4)]
 ucode[FLAGS_Z0C1][JC][2] = IO|J
 ucode[FLAGS_Z1C0][JZ][2] = IO|J
@@ -56,8 +63,33 @@ ucode[FLAGS_Z1C0][JNZ][2] = 0
 ucode[FLAGS_Z1C1][JNC][2] = 0
 ucode[FLAGS_Z1C1][JNZ][2] = 0
 
-ucode = [ucode[i][j][k] for i in range(4) for j in range(16) for k in range(8)]
+# Contents of the EEPROM
+EEPROM = [0] * 1024
+
+# Program the 8 high-order bits of microcode into the first 128 bytes of EEPROM
+for address in range(1024):
+    flags       = (address & 0b1100000000) >> 8
+    byte_sel    = (address & 0b0010000000) >> 7
+    instruction = (address & 0b0001111000) >> 3
+    step        = (address & 0b0000000111)
+
+    if byte_sel:
+        EEPROM[address] = ucode[flags][instruction][step] & 0xff
+    else:
+        EEPROM[address] = ucode[flags][instruction][step] >> 8
 
 if __name__ == '__main__':
-    for addr, contents in enumerate(ucode):
-        print(f'{addr:03d}: {contents:016b}')
+    parser = ArgumentParser(description='Build the microcode ROM contents for the 8bit breadboard computer.')
+    parser.add_argument('output_file', type=str, help='File to write the microcode binary to')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Display the produced microcode binary')
+    args = parser.parse_args()
+
+    with open(args.output_file, 'wb') as f:
+        for contents in EEPROM:
+            f.write(struct.pack('<B', contents))
+        if args.verbose:
+            for addr, contents in enumerate(EEPROM):
+                if addr % 8 == 0:
+                    print(f'\n{addr:03x}:', end='')
+                print(f' {contents:02x}', end='')
+            print(end='\n')

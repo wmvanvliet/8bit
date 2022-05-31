@@ -1,4 +1,4 @@
-
+#encoding: utf-8
 schematic = """
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  ●●●●●●●●  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
    ┃ Clock:  ●                      ┃  ┃┃┃┃┃┃┃┃──┃ Program counter: ●●●● (dec)  ┃
@@ -14,8 +14,8 @@ schematic = """
    ┃             (asm)              ┃  ┃┃┃┃┃┃┃┃──┨ "B" Register: ●●●●●●●● (dec) ┃
    ┗━━━━━━━━━━━━━━━━┯━━━━━━━━━━━━━━━┛  ┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┏━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━┓  ┃┃┃┃┃┃┃┃  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃ Micro Step: ●●● (dec)          ┃  ┃┃┃┃┃┃┃┃──┨ Output: -dec (unsigned)      ┃
-   ┃  ROM addr.: ●●●●●●●●● (dec)    ┠─┐┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+   ┃ Micro Step: ●●● ●●●●● (dec)    ┃  ┃┃┃┃┃┃┃┃──┨ Output: -dec (unsigned)      ┃
+   ┃  ROM addr.: ●●●●●●●●●●● (dec)  ┠─┐┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ │          ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │          ┃ Control: ●●●●●●●●●●●●●●●●    ┃
    ┃ Memory contents                ┃ │          ┃          HMRRIIAAΣSBOCCJF    ┃
@@ -41,6 +41,7 @@ schematic = """
 
 import curses
 import sys
+from time import time, sleep
 
 import microcode
 from assembler import disassemble
@@ -157,8 +158,15 @@ def update(stdscr, state):
         stdscr.addstr(15, 59, f'{state.reg_output:04d} (unsigned)', curses.color_pair(2))
 
     # Microinstruction step
-    draw_leds(15, 17, num=state.microinstruction_counter, n=3, color=5)
-    draw_leds(16, 17, num=state.rom_address, n=9, color=5)
+    draw_leds(15, 17, num=state.microinstruction_counter, n=3, color=2, dec=False)
+    stdscr.addstr(15, 27, f'({state.microinstruction_counter:03d})', curses.color_pair(1))
+
+    step = 0b11111
+    step -= 0b10000 >> state.microinstruction_counter
+    draw_leds(15, 21, num=step, n=5, color=3, dec=False)
+
+    # Microcode EEPROM address
+    draw_leds(16, 17, num=state.rom_address, n=11, color=5)
 
     # Control lines
     draw_leds(18, 60, num=state.control_signals, n=16, color=4, dec=False)
@@ -237,3 +245,45 @@ def handle_keypresses(stdscr, simulator):
         stdscr.move(38, 0)
         stdscr.clrtoeol()
         stdscr.addstr(38, 0, str(e))
+
+
+def run_interface(stdscr, simulator):
+    """Main function to run the simulator with its console user interface.
+
+    Parameters
+    ----------
+    stdscr : curses screen
+        The curses screen object as created by curses.wrapper().
+    simulator : Simulator
+        The 8-bit breadboard CPU simulator.
+    """
+    init(stdscr)
+
+    # Start simulation and UI loop. This loop only terminates when the ESC
+    # key is pressed, which is detected inside the handle_keypresses()
+    # function.
+    while True:
+        update(stdscr, simulator.state)
+        if simulator.clock_automatic:
+            wait_time = (0.5 / simulator.clock_speed) - (time() - simulator.last_clock_time)
+            if wait_time > 0.1:
+                curses.halfdelay(int(10 * wait_time))
+                handle_keypresses(stdscr, simulator)
+                simulator.step()
+            else:
+                curses.nocbreak()
+                if wait_time > 0:
+                    sleep(wait_time)
+                curses.nocbreak()
+                stdscr.nodelay(True)
+                handle_keypresses(stdscr, simulator)
+                simulator.step()
+        else:
+            curses.cbreak()
+            handle_keypresses(stdscr, simulator)
+
+        # When we reach the end of the program, set the clock to manual
+        # mode so we don't keep generating useless system states.
+        if simulator.state.control_signals & microcode.HLT:
+            simulator.clock_automatic = False
+        update(stdscr, simulator.state)
