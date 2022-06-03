@@ -17,13 +17,13 @@ schematic = """
    ┃ Micro Step: ●●● (dec)          ┃  ┃┃┃┃┃┃┃┃──┨ Output: -dec (unsigned)      ┃
    ┃ EEPROM: ●●●●●●●●●●●●● (dec)    ┠─┐┃┃┃┃┃┃┃┃  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ │          
-   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │          ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃ Memory contents                ┃ │          ┃ Control: ●●●●●●●●●●●●●●●●●●●● ┃
-   ┠────────────────────────────────┨ │          ┃          HMRIJABFOΣCSΣRICABΣS ┃
-   ┃ 00                             ┃ └──────────┨          LIII IIIIIESCOOOOOOR ┃
-   ┃ 01                             ┃            ┃          T                    ┃
-   ┃ 02                             ┃            ┃           input       output  ┃
-   ┃ 03                             ┃            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │          ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+   ┃ Memory contents                ┃ │          ┃ Control: ●●●●●●●●●●●●●●●●●●● ┃
+   ┠────────────────────────────────┨ │          ┃          HMRIJABFOΣCRICABΣSΣ ┃
+   ┃ 00                             ┃ └──────────┨          LIII IIIIIEOOOOOOSC ┃
+   ┃ 01                             ┃            ┃          T                   ┃
+   ┃ 02                             ┃            ┃           input       output ┃
+   ┃ 03                             ┃            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
    ┃ 04                             ┃            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
    ┃ 05                             ┃            ┃ Keyboard commands             ┃            
    ┃ 06                             ┃            ┠───────────────────────────────┨            
@@ -165,9 +165,26 @@ def update(stdscr, state):
     draw_leds(16, 16, num=state.rom_address, n=13, color=5)
 
     # Control lines
-    control_signals = (state.control_signals & 0b1111111111111000) << 4
-    control_signals += (1 << 7) >> (state.control_signals & 0b111)
-    draw_leds(19, 60, control_signals, n=20, color=4, dec=False)
+    control_signals = int(state.is_line_active(microcode.HLT)) << 18
+    control_signals += int(state.is_line_active(microcode.MI)) << 17
+    control_signals += int(state.is_line_active(microcode.RI)) << 16
+    control_signals += int(state.is_line_active(microcode.II)) << 15
+    control_signals += int(state.is_line_active(microcode.J)) << 14
+    control_signals += int(state.is_line_active(microcode.AI)) << 13
+    control_signals += int(state.is_line_active(microcode.BI)) << 12
+    control_signals += int(state.is_line_active(microcode.FI)) << 11
+    control_signals += int(state.is_line_active(microcode.OI)) << 10
+    control_signals += int(state.is_line_active(microcode.EI)) << 9
+    control_signals += int(state.is_line_active(microcode.CE)) << 8
+    control_signals += int(state.is_line_active(microcode.RO)) << 7
+    control_signals += int(state.is_line_active(microcode.IO)) << 6
+    control_signals += int(state.is_line_active(microcode.CO)) << 5
+    control_signals += int(state.is_line_active(microcode.AO)) << 4
+    control_signals += int(state.is_line_active(microcode.BO)) << 3
+    control_signals += int(state.is_line_active(microcode.EO)) << 2
+    control_signals += int(state.is_line_active(microcode.SS)) << 1
+    control_signals += int(state.is_line_active(microcode.EC)) << 0
+    draw_leds(19, 60, control_signals, n=19, color=5, dec=False)
 
     # Memory contents
     offset = state.reg_program_counter // 16 * 16

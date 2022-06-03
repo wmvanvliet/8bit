@@ -195,7 +195,7 @@ class State:
         if line & 0b111:
             return (self.control_signals & 0b111) == line
         else:
-            return self.control_signals & line
+            return (self.control_signals & line) != 0
 
 
 class Simulator:
