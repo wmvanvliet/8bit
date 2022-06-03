@@ -5,33 +5,36 @@
  */
 
 // The program to write to memory
-/*
 byte program[] = {
-  0b01010001,  // 0000  ldi 1 (start)
-  0b01001110,  // 0001  sta x
-  0b01010000,  // 0010  ldi 0
-  0b01001111,  // 0011  sta y (loop)
-  0b11100000,  // 0100  out
-  0b00011110,  // 0101  lda x
-  0b00101111,  // 0110  add y
-  0b01001110,  // 0111  sta x
-  0b11100000,  // 1000  out
-  0b00011111,  // 1001  lda y
-  0b00101110,  // 1010  add x
-  0b01110000,  // 1011  jc start
-  0b01100011,  // 1100  jmp loop
-  0b11110000,  // 1101  hlt (end)
-  0b00000000,  // 1110  db 0 (x)
-  0b00000000   // 1111  db 0 (y)
+  0b00010001, // ld b,1
+  0b00000001, //
+  0b00010010, // ld c,0
+  0b00000000, //
+  0b01100001, // out b (loop)
+  0b00001000, // ld a,b
+  0b00000001, //
+  0b00100010, // add c
+  0b10001011, // jc end
+  0b00010000, //
+  0b00001010, // ld c,b
+  0b00000001, //
+  0b00011000, // ld b,a
+  0b00000001, //
+  0b10001001, // jp loop
+  0b00000100, //
+  0b11111111, // hlt (end)
 };
-*/
 
-byte program[] = {
-  0b01010000,  // ldi 0
-  0b00100100,  // add x (loop)
-  0b11100000,  // out
-  0b01100001,  // jmp loop
-  0b00000100   // db 4 (x)
+// The data segment to write to memory
+byte data[] = {
+  0b00000000, // db 0 (x8)
+  0b00000000, //
+  0b00000000, //
+  0b00000000, //
+  0b00000000, //
+  0b00000000, //
+  0b00000000, //
+  0b00000000, //
 };
 
 // BUS
@@ -48,9 +51,11 @@ byte program[] = {
 #define MI 10      // Active high
 #define RI 11      // Active high
 #define RO 12      // Active high
+#define SR 13      // Active low
 #define RST A1     // Active high
-#define SR A2      // Active low
-#define CE A5      // Active low
+#define CE A4      // Active low
+#define SS A5      // Active high
+
 
 // Clock input. Connected to the inverse clock signal, because it was closer on
 // the breadboard.
@@ -65,10 +70,8 @@ byte program[] = {
  */
 void setup() {
   Serial.begin(57600);
-  pinMode(LED_BUILTIN, OUTPUT);
-    
   takeControl();
-  writeProgramToRam(program, sizeof(program) / sizeof(byte));
+  writeProgramToRam();
   releaseControl();
 }
 
@@ -100,9 +103,11 @@ void takeControl() {
   pinMode(MI, OUTPUT);
   pinMode(RI, OUTPUT);
   pinMode(RO, OUTPUT);
+  pinMode(SS, OUTPUT);
   digitalWrite(MI, LOW);
   digitalWrite(RI, LOW);
   digitalWrite(RO, LOW);
+  digitalWrite(SS, LOW);
 
   // Keep the master reset line disconnected
   digitalWrite(RST, LOW);
@@ -127,8 +132,10 @@ void releaseControl() {
   digitalWrite(MI, LOW);
   digitalWrite(RI, LOW);
   digitalWrite(RO, LOW);
+  digitalWrite(SS, LOW);
   pinMode(MI, INPUT);
   pinMode(RI, INPUT);
+  pinMode(SS, INPUT);
 
   // Hit the master reset
   pinMode(RST, OUTPUT);
@@ -147,7 +154,7 @@ void releaseControl() {
 /**
  * Write the program into RAM memory.
  */
-void writeProgramToRam(byte program[], int programLength) {
+void writeProgramToRam() {
   // Start with everything disabled. We need to wait on the clock to start
   // doing things.
   digitalWrite(MI, LOW);
@@ -160,8 +167,9 @@ void writeProgramToRam(byte program[], int programLength) {
   // memory address and RAM. We set the control lines and bus when the clock is
   // low. When the clock transitions to high, the registers will read from the
   // bus.
-  Serial.println(programLength);
-  for(byte address=0; address<programLength; address++) {
+  digitalWrite(SS, LOW);
+  int nBytesToWrite = sizeof(program);
+  for(byte address=0; address<nBytesToWrite; address++) {
     // Write address
     writeToBus(address);
     digitalWrite(MI, HIGH);
@@ -175,7 +183,24 @@ void writeProgramToRam(byte program[], int programLength) {
     waitOnClockFlank(DOWN); // Keep values until next clock pulse
   }
 
+  digitalWrite(SS, HIGH);
+  nBytesToWrite = sizeof(data);
+  for(byte address=0; address<nBytesToWrite; address++) {
+    // Write address
+    writeToBus(address);
+    digitalWrite(MI, HIGH);
+    digitalWrite(RI, LOW);
+    waitOnClockFlank(DOWN); // Keep values until next clock pulse
+
+    // Write to RAM
+    writeToBus(data[address]);
+    digitalWrite(MI, LOW);
+    digitalWrite(RI, HIGH);
+    waitOnClockFlank(DOWN); // Keep values until next clock pulse
+  }
+
   // Stop doing things
+  digitalWrite(SS, LOW);
   digitalWrite(MI, LOW);
   digitalWrite(RI, LOW);
 }
@@ -208,7 +233,6 @@ void waitOnClockFlank(int flank) {
  * Put an 8-bit value onto the bus.
  */
 void writeToBus(int val) {
-  Serial.println(val);
   for(int i=0; i<8; i++) {
     // Write the i'th bit of val to the correct line of the bus
     digitalWrite(D0 + i, (val >> i) & 1);
