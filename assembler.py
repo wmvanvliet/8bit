@@ -21,6 +21,7 @@ opcodes = {
     'inc': 154,
     'dec': 155,
     'djnz': dict(V=156),
+    'inp': 157,
     'hlt': 255,
 }
 

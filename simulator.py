@@ -8,6 +8,7 @@ from dataclasses import dataclass, asdict, field
 
 import microcode
 from assembler import assemble
+from arduino import Arduino
 
 
 # To enable steping the clock backwards, we keep track of previous state
@@ -52,6 +53,9 @@ class State:
 
     # Whether to keep track of history
     keep_history: bool = True
+
+    # The arduino board that does the bootloading and handles streaming input
+    arduino: Arduino = None
 
     def update(self):
         """Update the state based on the values of the control lines. This does
@@ -123,8 +127,8 @@ class State:
         self.alu &= 0xff
         self.flag_zero = self.alu == 0
 
-        # Changes of instruction and flags registers affect the control lines
-        self.update_control_signals()
+        # Simulate the arduino board
+        self.arduino.update(self)
 
     def update_control_signals(self):
         """Update the control signals based on the microcode EEPROMs.
@@ -284,6 +288,7 @@ class Simulator:
             memory_human_readable=self._init_memory_human_readable,
             EEPROM_MSB=self.EEPROM_MSB,
             EEPROM_LSB=self.EEPROM_LSB,
+            arduino=Arduino(None),
         )
         self.state.update()
 
