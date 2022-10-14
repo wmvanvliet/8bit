@@ -261,8 +261,13 @@ class Simulator:
         # Initialize system state
         self.reset()
 
-    def run_batch(self):
+    def run_batch(self, verbose=False):
         """Run the simulator in batch mode until the HLT instruction is reached.
+
+        Parameters
+        ----------
+        verbose : bool
+            Whether to print every output to stdout. Defaults to False.
 
         Returns
         -------
@@ -275,6 +280,8 @@ class Simulator:
             out = self.state.step()
             if out is not None:
                 outputs.append(out)
+                if verbose:
+                    print(out, flush=True)
         return outputs
 
     def step(self):
@@ -341,8 +348,7 @@ if __name__ == '__main__':
                                   EEPROM_MSB=EEPROM_MSB, EEPROM_LSB=EEPROM_LSB)
 
     if args.no_interface:
-        for out in simulator.run_batch():
-            print(out)
+        simulator.run_batch(verbose=True)
     else:
         import curses
         import interface

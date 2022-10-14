@@ -29,6 +29,8 @@ opcodes = {
 def parse_param(param, as_address=False):
     """Parse a parameter."""
     param = param.strip()
+
+    # Indirect addressing
     if param.startswith('[') and param.endswith(']'):
         return parse_param(param[1:-1], as_address=True)
 
