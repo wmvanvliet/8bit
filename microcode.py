@@ -61,13 +61,13 @@ UCODE_TEMPLATE = [
     [MI|CO,  RO|II|CE,  MI|CO,     BI|RO|CE,       IO|MI,          BO|SS|RI,       SR,        0       ],  # 00010110 -      _G
     [MI|CO,  RO|II|CE,  MI|CO,     BI|RO|CE,       IO|MI,          BO|SS|RI,       SR,        0       ],  # 00010111 -      _H
     [MI|CO,  RO|II|CE,  MI|CO,     MI|RO|CE,       AO|SS|RI,       SR,             0,         0       ],  # 00011000 - LD_AR_A
-    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       MI|CO,          SS|MI|RO|CE,    BO|RI,     SR,     ],  # 00011001 -      _B
-    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       MI|CO,          SS|MI|RO|CE,    BO|RI,     SR,     ],  # 00011010 -      _C
-    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       MI|CO,          SS|MI|RO|CE,    BO|RI,     SR,     ],  # 00011011 -      _D
-    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       MI|CO,          SS|MI|RO|CE,    BO|RI,     SR,     ],  # 00011100 -      _E
-    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       MI|CO,          SS|MI|RO|CE,    BO|RI,     SR,     ],  # 00011101 -      _F
-    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       MI|CO,          SS|MI|RO|CE,    BO|RI,     SR,     ],  # 00011110 -      _G
-    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       MI|CO,          SS|MI|RO|CE,    BO|RI,     SR,     ],  # 00011111 -      _H
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       MI|CO,          MI|RO|CE,       BO|RI|SS,  SR,     ],  # 00011001 -      _B
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       MI|CO,          MI|RO|CE,       BO|RI|SS,  SR,     ],  # 00011010 -      _C
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       MI|CO,          MI|RO|CE,       BO|RI|SS,  SR,     ],  # 00011011 -      _D
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       MI|CO,          MI|RO|CE,       BO|RI|SS,  SR,     ],  # 00011100 -      _E
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       MI|CO,          MI|RO|CE,       BO|RI|SS,  SR,     ],  # 00011101 -      _F
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       MI|CO,          MI|RO|CE,       BO|RI|SS,  SR,     ],  # 00011110 -      _G
+    [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       MI|CO,          MI|RO|CE,       BO|RI|SS,  SR,     ],  # 00011111 -      _H
     [MI|CO,  RO|II|CE,  AO|BI,     EO|AI|FI,       SR,             0,              0,         0       ],  # 00100000 - ADD_R_A
     [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EO|AI|FI,       SR,             0,         0,      ],  # 00100001 -      _B
     [MI|CO,  RO|II|CE,  IO|MI,     SS|RO|BI,       EO|AI|FI,       SR,             0,         0,      ],  # 00100001 -      _C
