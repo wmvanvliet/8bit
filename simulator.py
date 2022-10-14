@@ -84,6 +84,7 @@ class State:
             self.bus = self.memory[address]
         if self.is_line_active(microcode.IO):
             self.bus = self.reg_instruction & 0b111
+        self.arduino.write(self)
 
         # Read from the bus
         if self.clock:
@@ -107,6 +108,7 @@ class State:
             if self.is_line_active(microcode.OI):
                 if self.bus != self.reg_output:
                     self.reg_output = self.bus
+        self.arduino.read(self)
 
         # Transfer ALU flag outputs to the flags register
         if self.clock and (self.control_signals & microcode.FI):
@@ -126,9 +128,6 @@ class State:
         self.flag_carry = self.alu > 0xff
         self.alu &= 0xff
         self.flag_zero = self.alu == 0
-
-        # Simulate the arduino board
-        self.arduino.update(self)
 
     def update_control_signals(self):
         """Update the control signals based on the microcode EEPROMs.
@@ -217,6 +216,8 @@ class Simulator:
         the RAM at that address. For example, it could be the line of assembler
         code that generated the opcode. By default (``None``), this is set to
         a binary representation of the memory.
+    input_data : bytes
+        Data buffer to read from whenever an INP instruction is encountered.
     EEPROM_MSB : list of int | bytes | None
         The binary contents of the EEPROMs uses to control the most-significant
         8 bites of the control word. By default (``None``) the microcode
@@ -226,8 +227,8 @@ class Simulator:
         least-significant 8 bites of the control word. By default (``None``)
         the microcode defined in ``microcode.py`` is used.
     """
-    def __init__(self, memory, memory_human_readable=None, EEPROM_MSB=None,
-                 EEPROM_LSB=None):
+    def __init__(self, memory, memory_human_readable=None, input_data=b'',
+                 EEPROM_MSB=None, EEPROM_LSB=None):
         self._init_memory = memory
         if memory_human_readable is None:
             self._init_memory_human_readable = [
@@ -235,6 +236,8 @@ class Simulator:
                 for addr, content in enumerate(memory)]
         else:
             self._init_memory_human_readable = memory_human_readable
+
+        self.input_data = input_data
 
         if EEPROM_MSB is None:
             self.EEPROM_MSB= microcode.EEPROM_MSB
@@ -288,7 +291,7 @@ class Simulator:
             memory_human_readable=self._init_memory_human_readable,
             EEPROM_MSB=self.EEPROM_MSB,
             EEPROM_LSB=self.EEPROM_LSB,
-            arduino=Arduino(None),
+            arduino=Arduino(self.input_data),
         )
         self.state.update()
 
@@ -302,6 +305,8 @@ if __name__ == '__main__':
                         help='EEPROM content to use as microcode (as a binary memory dump). Either as a single file containing 16-bit numbers, or as two files containing respectively the most-significant 8 bits and least-significant 8 bits.')
     parser.add_argument('-b', '--bin', action='store_true',
                         help='Specify that the program file is in binary rather than assembly language.')
+    parser.add_argument('-i', '--input', type=str, default=None,
+                        help='Specify an input file to read from when an INP instruction is encountered.')
     args = parser.parse_args()
 
     if args.microcode is None:
@@ -320,13 +325,19 @@ if __name__ == '__main__':
     else:
         raise ValueError('The --microcode argument takes either one or two files as parameter.')
 
+    if args.input:
+        with open(args.input, 'rb') as f:
+            input_data = f.read()
+    else:
+        input_data = b''
+
     if args.bin:
         with open(args.program_file, 'rb') as f:
-            simulator = Simulator(memory=list(f.read()),
+            simulator = Simulator(memory=list(f.read()), input_data=input_data,
                                   EEPROM_MSB=EEPROM_MSB, EEPROM_LSB=EEPROM_LSB)
     else:
         with open(args.program_file) as f:
-            simulator = Simulator(*assemble(f.read()),
+            simulator = Simulator(*assemble(f.read()), input_data=input_data,
                                   EEPROM_MSB=EEPROM_MSB, EEPROM_LSB=EEPROM_LSB)
 
     if args.no_interface:
