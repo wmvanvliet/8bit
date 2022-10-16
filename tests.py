@@ -40,10 +40,19 @@ def test_ld():
            out a
            ld b,[seven] ; Load address into register
            out b
+           ld [x],8     ; Load immideate value into memory address
+           out [x]
+           ld a,9
+           ld [x],a     ; Load accumulator into memory address
+           out [x]
+           ld b,10
+           ld [x],b     ; Load register into memory address
+           out [x]
            hlt
            section .data
-           six: db 6
-           seven: db 7''')).run_batch() == [1, 2, 3, 4, 5, 6, 7]
+           six:   db 6
+           seven: db 7
+           x:     db 0''')).run_batch() == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 
 def test_add():
