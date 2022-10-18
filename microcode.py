@@ -332,8 +332,8 @@ for i, c in enumerate([CE, SR, 0, 0, 0, 0]):  # No jump
     ucode[FLAGS_Z1C1][opcodes['jnc']['V']][2 + i] = c
     ucode[FLAGS_Z1C1][opcodes['jnz']['V']][2 + i] = c
 for i, c in enumerate([EO|AI|EC|FI, SR]):  # ADC_R_A
-    ucode[FLAGS_Z0C1][opcodes['adc']['R']][2 + i] = c
-    ucode[FLAGS_Z1C1][opcodes['adc']['R']][2 + i] = c
+    ucode[FLAGS_Z0C1][opcodes['adc']['R']][3 + i] = c
+    ucode[FLAGS_Z1C1][opcodes['adc']['R']][3 + i] = c
 for i, c in enumerate([IO|MI, SS|RO|BI, EO|AI|EC|FI, SR]):  # ADC_R_X
     for j in range(1, 8):
         ucode[FLAGS_Z0C1][opcodes['adc']['R'] + j][2 + i] = c
@@ -344,9 +344,9 @@ for i, c in enumerate([MI|CO, MI|RO|CE, SS|RO|BI, EO|AI|EC|FI, SR]):  # ADC_A
 for i, c in enumerate([MI|CO, RO|BI|CE, EO|AI|EC|FI, SR]):  # ADC_V
     ucode[FLAGS_Z0C1][opcodes['adc']['V']][2 + i] = c
     ucode[FLAGS_Z1C1][opcodes['adc']['V']][2 + i] = c
-for i, c in enumerate([AO|BI, EO|AI|EI|FI, SR]):  # SBC_R_A
-    ucode[FLAGS_Z0C1][opcodes['sbc']['R']][2 + i] = c
-    ucode[FLAGS_Z1C1][opcodes['sbc']['R']][2 + i] = c
+for i, c in enumerate([EO|AI|EI|FI, SR]):  # SBC_R_A
+    ucode[FLAGS_Z0C1][opcodes['sbc']['R']][3 + i] = c
+    ucode[FLAGS_Z1C1][opcodes['sbc']['R']][3 + i] = c
 for i, c in enumerate([IO|MI, SS|RO|BI, EO|AI|EI|FI, SR]):  # SBC_R_X
     for j in range(1, 8):
         ucode[FLAGS_Z0C1][opcodes['sbc']['R'] + j][2 + i] = c
