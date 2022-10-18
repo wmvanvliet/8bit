@@ -22,7 +22,7 @@ check_done:
 	jz  end          ; When counter reaches 0 program is done
 	ld  e,a          ; Store the decreased counter
 
-	ld  a,d          ; Shift-left on the intemediate result
+	ld  a,d          ; Shift-left on the intermediate result
         add a            ; 
 	ld  d,a          ;
 	jp  loop         ; Next iteration
