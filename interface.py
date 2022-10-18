@@ -231,10 +231,11 @@ def handle_keypresses(stdscr, simulator):
     try:
         c = stdscr.getch()
         if c == ord(' '):
-            simulator.clock_automatic = not simulator.clock_automatic
-            if simulator.clock_automatic:
+            if simulator.clock_type == 'manual':
+                simulator.clock_type = 'automatic'
                 print_message(stdscr, 'Started clock.')
-            else:
+            elif simulator.clock_type == 'automatic':
+                simulator.clock_type = 'manual'
                 print_message(stdscr, 'Stopped clock.')
         elif c == curses.KEY_RIGHT:
             print_message(stdscr, 'Stepping clock.')
@@ -315,7 +316,7 @@ def run_interface(stdscr, simulator, bios=None):
                 simulator.reset()
             elif msg == 'UP' or msg == 'DOWN':
                 simulator.step(clock=msg == 'UP')
-                bus_val = int(bios.get_next_message())
+                # bus_val = int(bios.get_next_message())
                 # if bus_val != simulator.state.bus:
                 #     print_message(stdscr, f'Invalid bus state detected! {bus_val} != {simulator.state.bus}')
                 # else:
@@ -328,5 +329,5 @@ def run_interface(stdscr, simulator, bios=None):
         # When we reach the end of the program, set the clock to manual
         # mode so we don't keep generating useless system states.
         if simulator.state.is_line_active(microcode.HLT):
-            simulator.clock_automatic = False
+            simulator.clock_type = 'manual'
         update(stdscr, simulator.state)
