@@ -9,6 +9,7 @@ from dataclasses import dataclass, asdict, field
 import microcode
 from assembler import assemble
 from arduino import Arduino
+from bios import Bios
 
 
 # To enable steping the clock backwards, we keep track of previous state
@@ -148,7 +149,7 @@ class State:
             (self.EEPROM_LSB[self.rom_address] & 0xff)
         )
 
-    def step(self):
+    def step(self, clock=None):
         """Perform a single step (half a clock-cycle)."""
         # When system is halted, do nothing
         if self.is_line_active(microcode.HLT):
@@ -160,8 +161,13 @@ class State:
             global _previous_states
             _previous_states.append(asdict(self))
 
-        # Flip clock signal
-        self.clock = not self.clock
+        # Update clock signal
+        if clock is None:
+            self.clock = not self.clock  # Flip clock signal
+        elif clock == self.clock:
+            return None  # Clock status hasn't changed
+        else:
+            self.clock = clock
 
         # Increment program counters
         if self.is_line_active(microcode.CE) and self.clock:
@@ -249,7 +255,7 @@ class Simulator:
             self.EEPROM_LSB = EEPROM_LSB
 
         # Variables related to automatic stepping of the clock
-        self.clock_automatic = False
+        self.clock_type = 'manual'
         self.clock_speed = 1  # Hz
         self.last_clock_time = 0 # Keep track of when the next clock was last stepped
         while len(self._init_memory) < 512:
@@ -284,10 +290,12 @@ class Simulator:
                     print(out, flush=True)
         return outputs
 
-    def step(self):
+    def step(self, clock=None):
         """Step the clock while keeping track of time."""
+        if clock is not None and clock == self.state.clock:
+            return  # Clock status hasn't changed
         self.last_clock_time = time()
-        return self.state.step()
+        return self.state.step(clock)
 
     def reset(self):
         """Reset the machine."""
@@ -314,6 +322,8 @@ if __name__ == '__main__':
                         help='Specify that the program file is in binary rather than assembly language.')
     parser.add_argument('-i', '--input', type=str, default=None,
                         help='Specify an input file to read from when an INP instruction is encountered.')
+    parser.add_argument('-p', '--port', type=str, default=None,
+                        help='Serial port to connect to hardware.')
     args = parser.parse_args()
 
     if args.microcode is None:
@@ -352,4 +362,12 @@ if __name__ == '__main__':
     else:
         import curses
         import interface
-        curses.wrapper(interface.run_interface, simulator)
+        if args.port:
+            simulator.clock_type = 'external'
+            bios = Bios(args.port)
+        else:
+            bios = None
+        curses.wrapper(interface.run_interface, simulator, bios)
+
+        if bios is not None:
+            bios.close()
