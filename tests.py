@@ -384,11 +384,6 @@ def test_adc():
            adc b
            out a
            hlt''')).run_batch() == [20]
-    assert Simulator(*assemble(
-        '''ld a,10
-           adc a
-           out a
-           hlt''')).run_batch() == [20]
 
     # Add register, with carry
     assert Simulator(*assemble(
@@ -400,14 +395,6 @@ def test_adc():
            adc b
            out a
            hlt''')).run_batch() == [144, 11]
-    assert Simulator(*assemble(
-        '''ld a,200
-           add a    ; sets carry
-           out a
-           ld a,10
-           adc a
-           out a
-           hlt''')).run_batch() == [144, 21]
 
 
 def test_sbc():
