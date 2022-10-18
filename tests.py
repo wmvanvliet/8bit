@@ -524,6 +524,11 @@ def test_program_multiply_shift():
         assert Simulator(*assemble(f.read())).run_batch() == [255]
 
 
+def test_program_multiply_16bit():
+    with open('example_programs/multiply_16bit.asm') as f:
+        assert Simulator(*assemble(f.read())).run_batch() == [47, 233]
+
+
 def test_program_divide():
     with open('example_programs/divide.asm') as f:
         assert Simulator(*assemble(f.read())).run_batch() == [7]
