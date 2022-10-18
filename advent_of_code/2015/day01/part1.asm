@@ -1,10 +1,10 @@
 loop:
-	out [floor]
 	inp
 	cp 40 ; (
 	jz up
 	cp 41 ; )
 	jz down
+	out [floor]
 	hlt
 
 up:

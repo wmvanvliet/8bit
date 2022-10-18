@@ -1,4 +1,4 @@
-read_line:	
+readline:
 	jsr readnum
 	ld a,[num]
 	cp 0
@@ -14,7 +14,7 @@ read_line:
 	ld a,[side1]
 	add [side2]
 	out -1
-	jp read_line
+	jp readline
 end:
 	hlt
 
