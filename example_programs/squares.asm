@@ -11,17 +11,18 @@
 ; all we need to compute is: 64 + (9 + 8),
 ; which we actually compute as 9 + 9 - 1 + 64.
 ;
-loop:	lda x       ; Increase 'x' by 1
-	add one
-	sta x       ; Compute the square of x
-	add x       ; x + x - 1 + square
-	sub one
-	add square
+	ld  b,0
+	ld  c,0
+loop:	
+	ld  a,b     ; Increase 'b' by 1
+	inc
+	ld  b,a
+	add b       ; b + b - 1 + c
+	dec
+	add c
 	jc  end     ; If we are overflowing, end the program
-	out         ; Display the result
-	sta square  ; Keep track of the last computed square
-	jmp loop    ; Compute the next square
+	out a       ; Display the result
+	ld  c,a     ; Keep track of the last computed square
+	jp  loop    ; Compute the next square
+
 end:    hlt
-x:      db 0        ; The square we are computing
-square: db 0        ; The last square we computed
-one:    db 1        ; A literal "1"
