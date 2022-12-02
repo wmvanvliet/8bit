@@ -409,13 +409,26 @@ if __name__ == '__main__':
     parser = ArgumentParser(description='Assembler for the 8-bit breadboard computer. By default, just prints the assembled version of the code.')
     parser.add_argument('file', type=str, help='Assembly code file to assemble.')
     parser.add_argument('-o', '--output-file', type=str, default=None, help='Write the compiled program to a file.')
+    parser.add_argument('-a', '--arduino', action='store_true', help='Output program ready to be copy/pasted into the arduino code.')
     args = parser.parse_args()
 
     with open(args.file) as f:
-        bin_output, _ = assemble(f.read(), verbose=True)
+        output_bin, human_readable_text = assemble(f.read(), verbose=True)
 
     if args.output_file:
         with open(args.output_file, 'wb') as f:
-            for line in bin_output:
+            for line in output_bin:
                 print(f'{line} {line:02x}')
                 f.write(struct.pack('<B', line))
+
+    if args.arduino:
+        print('\nbyte program[] = {')
+        for byte, desc in zip(output_bin, human_readable_text):
+            print(f'  0b{byte:08b}, // {desc[13:]}')
+        print('};')
+
+        print('\nbyte data[] = {')
+        for byte in output_bin[256:]:
+            print(f'  0b{byte:08b},')
+        print('};')
+

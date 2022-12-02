@@ -314,8 +314,8 @@ def run_interface(stdscr, simulator, bios=None):
             elif msg == 'RESET':
                 print_message(stdscr, msg)
                 simulator.reset()
-            elif msg == 'UP' or msg == 'DOWN':
-                simulator.step(clock=msg == 'UP')
+            elif msg == 'U' or msg == 'D':
+                simulator.step(clock=msg == 'U')
                 # bus_val = int(bios.get_next_message())
                 # if bus_val != simulator.state.bus:
                 #     print_message(stdscr, f'Invalid bus state detected! {bus_val} != {simulator.state.bus}')
